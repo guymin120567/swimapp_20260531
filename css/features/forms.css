@@ -1,0 +1,58 @@
+/* css/features/forms.css */
+
+/* =========================
+   INPUT AREA
+========================= */
+
+.input-area{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+
+  margin-bottom:30px;
+}
+
+/* =========================
+   INPUT
+========================= */
+
+.input-area input,
+.input-area select{
+  height:50px;
+
+  border:none;
+  border-radius:18px;
+
+  padding:0 14px;
+
+  background:
+    rgba(255,255,255,.72);
+
+  color:var(--text);
+
+  box-shadow:
+    0 6px 18px
+    rgba(80,140,180,.08);
+
+  outline:none;
+}
+
+/* =========================
+   FILE INPUT
+========================= */
+
+.input-area input[type="file"]{
+  padding:10px 14px;
+  height:auto;
+}
+
+/* =========================
+   FOCUS
+========================= */
+
+.input-area input:focus,
+.input-area select:focus{
+  box-shadow:
+    0 0 0 3px
+    rgba(125,211,252,.25);
+}

@@ -1,0 +1,295 @@
+/* css/features/coverflow.css */
+
+/* =========================
+   COVERFLOW
+========================= */
+
+.coverflow{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:0;
+
+  overflow-x:auto;
+  overflow-y:visible;
+
+  padding:
+    6px 18vw 18px;
+
+  min-height:140px;
+
+  scrollbar-width:none;
+
+  -webkit-overflow-scrolling:touch;
+
+}
+
+.coverflow::-webkit-scrollbar{
+  display:none;
+}
+
+/* =========================
+   CARD WRAP
+========================= */
+
+.cover-card{
+
+  flex:0 0 auto;
+
+  position:relative;
+
+  margin-left:-58px;
+
+  z-index:1;
+
+  cursor:pointer;
+
+}
+
+.cover-card:first-child{
+  margin-left:0;
+}
+
+/* =========================
+   INNER
+========================= */
+
+.card-inner{
+
+  position:relative;
+
+  width:108px;
+
+  aspect-ratio:1/1;
+
+  border-radius:20px;
+
+  overflow:hidden;
+
+  background:white;
+
+  border:
+    1px solid
+    rgba(255,255,255,.92);
+
+  box-shadow:
+    0 8px 18px
+    rgba(120,170,210,.12);
+
+  opacity:.2;
+
+  transform:
+    scale(.68);
+
+  transition:
+    transform .28s cubic-bezier(.22,1,.36,1),
+    opacity .28s ease,
+    filter .28s ease;
+
+  filter:
+    blur(2px);
+
+  will-change:
+    transform,
+    opacity;
+
+}
+
+/* =========================
+   ACTIVE
+========================= */
+
+.cover-card.active{
+
+  z-index:12;
+
+}
+
+.cover-card.active .card-inner{
+
+  opacity:1;
+
+  filter:none;
+
+  transform:
+    scale(1);
+
+}
+
+/* =========================
+   DEPTH
+========================= */
+
+.cover-card.depth-1{
+
+  z-index:8;
+
+}
+
+.cover-card.depth-1 .card-inner{
+
+  opacity:.82;
+
+  filter:
+    blur(.2px);
+
+  transform:
+    scale(.9);
+
+}
+
+.cover-card.depth-2{
+
+  z-index:4;
+
+}
+
+.cover-card.depth-2 .card-inner{
+
+  opacity:.54;
+
+  filter:
+    blur(.8px);
+
+  transform:
+    scale(.8);
+
+}
+
+/* =========================
+   IMAGE
+========================= */
+
+.card-image{
+
+  position:absolute;
+  inset:0;
+
+  width:100%;
+  height:100%;
+
+  object-fit:cover;
+
+  user-select:none;
+  -webkit-user-drag:none;
+
+}
+
+/* =========================
+   OVERLAY
+========================= */
+
+.card-overlay{
+
+  position:absolute;
+
+  left:0;
+  right:0;
+  bottom:0;
+
+  padding:3px 4px;
+
+  background:
+    linear-gradient(
+      transparent,
+      rgba(20,50,80,.82)
+    );
+
+}
+
+.card-title{
+
+  color:white;
+
+  font-size:11px;
+
+  font-weight:700;
+
+  text-align:center;
+
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+
+}
+
+/* =========================
+   PLACEHOLDER
+========================= */
+
+.card-placeholder{
+
+  position:absolute;
+  inset:0;
+
+  display:flex;
+
+  align-items:center;
+  justify-content:center;
+
+  font-size:26px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #f8fbff,
+      #dcefff
+    );
+
+}
+
+/* =========================
+   EMPTY
+========================= */
+
+.empty-coverflow{
+
+  width:100%;
+
+  padding:20px 10px;
+
+  text-align:center;
+
+  font-size:13px;
+
+  color:#6b8aa1;
+
+}
+/* =========================
+   DELETEBTN
+========================= */
+
+.delete-btn{
+
+  position:absolute;
+
+  top:4px;
+  right:4px;
+
+  width:22px;
+  height:22px;
+
+  border:none;
+
+  border-radius:50%;
+
+  background:
+    rgba(0,0,0,.55);
+
+  color:#fff;
+
+  font-size:13px;
+
+  font-weight:700;
+
+  cursor:pointer;
+
+  z-index:50;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+}

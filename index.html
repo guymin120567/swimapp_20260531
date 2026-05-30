@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+
+  <!-- =========================
+       META
+  ========================== -->
+
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="
+      width=device-width,
+      initial-scale=1.0,
+      viewport-fit=cover
+    "
+  />
+
+  <!-- =========================
+       PWA
+  ========================== -->
+
+  <meta
+    name="mobile-web-app-capable"
+    content="yes"
+  />
+
+  <meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+  />
+
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent"
+  />
+
+  <meta
+    name="theme-color"
+    content="#0f172a"
+  />
+
+  <!-- =========================
+       TITLE
+  ========================== -->
+
+  <title>
+    Swim App
+  </title>
+
+  <!-- =========================
+       CSS
+  ========================== -->
+
+  <link
+    rel="stylesheet"
+    href="./css/style.css?v=6"
+  />
+
+</head>
+
+<body>
+
+  <!-- =========================
+       FX LAYER
+  ========================== -->
+
+  <div id="fx-layer"></div>
+
+  <!-- =========================
+       SPLASH
+  ========================== -->
+
+  <div
+    id="splash"
+    class="splash"
+  >
+
+    <!-- BG -->
+    <div class="splash-bg"></div>
+
+    <!-- CONTENT -->
+    <div class="splash-inner">
+
+      <img
+        class="splash-image"
+        src="./assets/splash.png"
+        alt="Swim App Splash"
+        draggable="false"
+      />
+
+      <div
+        id="loadingText"
+        class="splash-loading"
+      >
+        로딩중...
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- =========================
+       APP ROOT
+  ========================== -->
+
+  <main id="app"></main>
+
+  <!-- =========================
+       APP SCRIPT
+  ========================== -->
+
+  <script
+    type="module"
+    src="./js/app.js?v=6"
+  ></script>
+
+</body>
+
+</html>

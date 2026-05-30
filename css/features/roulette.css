@@ -1,0 +1,519 @@
+/* css/features/roulette.css */
+
+/* =========================
+   PAGE
+========================= */
+
+.roulette-page{
+
+  position:relative;
+
+  min-height:100vh;
+
+  overflow:hidden;
+
+}
+
+/* =========================
+   CONTENT
+========================= */
+
+#rouletteContent{
+
+  position:relative;
+
+  z-index:2;
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:14px;
+
+  padding:
+    18px
+    18px
+    110px;
+
+}
+
+/* =========================
+   SLOT
+========================= */
+
+.roulette-slot{
+
+  position:relative;
+
+  width:min(100%, 280px);
+
+  margin:0 auto;
+
+}
+
+/* =========================
+   CARD
+========================= */
+
+.roulette-card{
+
+  position:relative;
+
+  width:100%;
+
+  aspect-ratio:1/1;
+
+  overflow:hidden;
+
+  border-radius:34px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.94),
+      rgba(255,255,255,.88)
+    );
+
+  border:
+    1px solid
+    rgba(255,255,255,.9);
+
+  box-shadow:
+    0 20px 40px
+    rgba(90,140,180,.18);
+
+  backdrop-filter:
+    blur(10px);
+
+  transform:
+    translateZ(0);
+
+}
+
+/* =========================
+   IMAGE
+========================= */
+
+.roulette-image{
+
+  position:absolute;
+  inset:0;
+
+  width:100%;
+  height:100%;
+
+  display:block;
+
+  object-fit:cover;
+
+  user-select:none;
+  -webkit-user-drag:none;
+
+}
+
+/* =========================
+   SPIN WRAP
+========================= */
+
+.spin-image-wrap{
+
+  position:absolute;
+  inset:0;
+
+  overflow:hidden;
+
+  border-radius:inherit;
+
+}
+
+/* =========================
+   SPINNING
+========================= */
+
+.roulette-card.spinning{
+
+  animation:
+    rouletteShake .12s linear infinite;
+
+}
+
+.spinning-image{
+
+  animation:
+    rouletteImageSpin .42s linear infinite;
+
+  filter:
+    brightness(1.08)
+    saturate(1.08);
+
+}
+
+/* =========================
+   SHAKE
+========================= */
+
+@keyframes rouletteShake{
+
+  0%{
+    transform:
+      translate(0px,0px)
+      scale(1.01);
+  }
+
+  20%{
+    transform:
+      translate(-1px,1px)
+      scale(1.02);
+  }
+
+  40%{
+    transform:
+      translate(1px,-1px)
+      scale(1.025);
+  }
+
+  60%{
+    transform:
+      translate(-1px,-1px)
+      scale(1.02);
+  }
+
+  80%{
+    transform:
+      translate(1px,1px)
+      scale(1.025);
+  }
+
+  100%{
+    transform:
+      translate(0px,0px)
+      scale(1.01);
+  }
+
+}
+
+/* =========================
+   IMAGE MOTION
+========================= */
+
+@keyframes rouletteImageSpin{
+
+  0%{
+    transform:
+      scale(1.03)
+      rotate(-2deg);
+  }
+
+  50%{
+    transform:
+      scale(1.08)
+      rotate(2deg);
+  }
+
+  100%{
+    transform:
+      scale(1.03)
+      rotate(-2deg);
+  }
+
+}
+
+/* =========================
+   SPIN GLOW
+========================= */
+
+.spin-glow{
+
+  position:absolute;
+  inset:-14%;
+
+  border-radius:inherit;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(255,255,255,.28),
+      rgba(125,211,252,.16),
+      transparent 72%
+    );
+
+  mix-blend-mode:screen;
+
+  animation:
+    spinGlow 1s linear infinite;
+
+}
+
+@keyframes spinGlow{
+
+  0%{
+    transform:
+      rotate(0deg)
+      scale(1);
+    opacity:.5;
+  }
+
+  50%{
+    transform:
+      rotate(180deg)
+      scale(1.08);
+    opacity:.95;
+  }
+
+  100%{
+    transform:
+      rotate(360deg)
+      scale(1);
+    opacity:.5;
+  }
+
+}
+
+/* =========================
+   WINNER
+========================= */
+
+.roulette-card.winner{
+
+  animation:
+    winnerPulse 1.6s ease-in-out infinite;
+
+}
+
+@keyframes winnerPulse{
+
+  0%{
+    transform:scale(1);
+  }
+
+  50%{
+    transform:scale(1.015);
+  }
+
+  100%{
+    transform:scale(1);
+  }
+
+}
+
+.winner-glow{
+
+  position:absolute;
+  inset:-12%;
+
+  border-radius:inherit;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(255,255,255,.4),
+      rgba(255,215,0,.2),
+      transparent 72%
+    );
+
+  animation:
+    winnerGlow 1.6s ease-in-out infinite;
+
+}
+
+@keyframes winnerGlow{
+
+  0%{
+    opacity:.4;
+    transform:scale(1);
+  }
+
+  50%{
+    opacity:1;
+    transform:scale(1.08);
+  }
+
+  100%{
+    opacity:.4;
+    transform:scale(1);
+  }
+
+}
+
+/* =========================
+   OVERLAY
+========================= */
+
+.card-overlay{
+
+  position:absolute;
+
+  left:0;
+  right:0;
+  bottom:0;
+
+  padding:18px;
+
+  background:
+    linear-gradient(
+      transparent,
+      rgba(20,50,80,.82)
+    );
+
+}
+
+/* =========================
+   NAME
+========================= */
+
+.roulette-name{
+
+  color:white;
+
+  font-size:19px;
+
+  font-weight:800;
+
+  text-align:center;
+
+  letter-spacing:-0.02em;
+
+  text-shadow:
+    0 2px 12px
+    rgba(0,0,0,.28);
+
+}
+
+/* =========================
+   PLACEHOLDER
+========================= */
+
+.roulette-placeholder{
+
+  position:absolute;
+  inset:0;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size:60px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #f8fbff,
+      #dcefff
+    );
+
+}
+
+/* =========================
+   BUTTON
+========================= */
+
+.roulette-page .spin-btn{
+
+  width:100%;
+
+  height:60px;
+
+  border:none;
+
+  border-radius:22px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--accent),
+      var(--accent2)
+    );
+
+  color:#174569;
+
+  font-size:18px;
+
+  font-weight:800;
+
+  cursor:pointer;
+
+  box-shadow:
+    0 12px 28px
+    rgba(125,211,252,.3);
+
+  transition:
+    transform .18s ease,
+    opacity .18s ease;
+
+}
+
+.roulette-page .spin-btn:active{
+
+  transform:
+    scale(.985);
+
+}
+
+.roulette-page .spin-btn:disabled{
+
+  opacity:.6;
+
+  cursor:not-allowed;
+
+}
+
+/* =========================
+   CONFETTI
+========================= */
+
+.confetti{
+
+  position:fixed;
+
+  z-index:9999;
+
+  pointer-events:none;
+
+  animation:
+    confettiBurst 2.6s ease-out forwards;
+
+}
+
+@keyframes confettiBurst{
+
+  0%{
+
+    transform:
+      translate(0,0)
+      rotate(0deg);
+
+    opacity:1;
+
+  }
+
+  15%{
+
+    transform:
+      translate(
+        calc(var(--dx) * .18),
+        calc(var(--lift) * -1)
+      )
+      rotate(
+        calc(var(--rot) * .2)
+      );
+
+    opacity:1;
+
+  }
+
+  100%{
+
+    transform:
+      translate(
+        var(--dx),
+        var(--dy)
+      )
+      rotate(
+        var(--rot)
+      );
+
+    opacity:0;
+
+  }
+
+}

@@ -1,0 +1,16 @@
+:root{
+
+  --bg1:#dff6ff;
+  --bg2:#c7ecff;
+
+  --card:#ffffff;
+
+  --text:#24435b;
+
+  --accent:#7dd3fc;
+  --accent2:#93c5fd;
+
+  --shadow:
+    0 12px 30px rgba(80,140,180,.16);
+
+}
