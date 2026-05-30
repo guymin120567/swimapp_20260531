@@ -74,7 +74,7 @@ if(
     return;
   }
 
-  setSpinning(true);
+  window.__isSpinning = true;
 
   const spinBtn =
     document.querySelector(
@@ -234,7 +234,7 @@ burst("swim");
 
 setTimeout(()=>{
 
-  setSpinning(false);
+  window.__isSpinning = false;
 
   if(spinBtn){
     spinBtn.disabled = false;
