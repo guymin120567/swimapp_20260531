@@ -237,17 +237,6 @@ setTimeout(()=>{
 
 burst("swim");
 
-setTimeout(()=>{
-
-  capSlot.classList.remove(
-    "winner"
-  );
-
-  swimSlot.classList.remove(
-    "winner"
-  );
-
-},1800);
 
 setTimeout(()=>{
 
