@@ -5,7 +5,8 @@ import {
 } from "../../state/state.js";
 
 import {
-  setRouletteResult
+  setRouletteResult,
+  setSpinning
 } from "../../state/actions.js";
 
 // =========================
@@ -76,6 +77,8 @@ if(
 
   window.__isSpinning = true;
 
+  setSpinning(true);
+  
   const spinBtn =
     document.querySelector(
       "#rouletteSection .spin-btn"
@@ -246,6 +249,8 @@ if(
   setTimeout(()=>{
 
     window.__isSpinning = false;
+
+    setSpinning(false);
 
     if(spinBtn){
       spinBtn.disabled = false;
