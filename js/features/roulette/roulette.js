@@ -242,9 +242,6 @@ if(
       "winner"
     );
 
-  },1800);
-
-  setTimeout(()=>{
 
     window.__isSpinning = false;
 
@@ -254,6 +251,7 @@ if(
       spinBtn.disabled = false;
     }
 
+    
     window.dispatchEvent(
       new CustomEvent(
         "spin-stop"
