@@ -312,7 +312,7 @@
     );
 
   animation:
-    winnerGlow 1.6s ease-in-out infinite;
+    winnerGlow 1.6s ease-in-out;
 
 }
 
