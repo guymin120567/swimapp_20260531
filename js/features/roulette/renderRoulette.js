@@ -32,7 +32,16 @@ const swim =
         <div class="roulette-slot" data-type="cap">
           <div class="roulette-label">CAP</div>
 
-          <div class="roulette-card">
+<div
+  class="
+    roulette-card
+    ${
+      state.ui?.isSpinning
+        ? "spinning"
+        : ""
+    }
+  "
+>
             ${
               cap
                 ? `
@@ -53,7 +62,16 @@ const swim =
         <div class="roulette-slot" data-type="swim">
           <div class="roulette-label">SWIM</div>
 
-          <div class="roulette-card">
+<div
+  class="
+    roulette-card
+    ${
+      state.ui?.isSpinning
+        ? "spinning"
+        : ""
+    }
+  "
+>
             ${
               swim
                 ? `
