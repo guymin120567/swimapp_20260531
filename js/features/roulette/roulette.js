@@ -192,41 +192,32 @@ if(
     finalSwim
   ){
 
-    renderFinal(
-      capSlot,
-      finalCap
-    );
+renderFinal(
+  capSlot,
+  finalCap
+);
 
-    renderFinal(
-      swimSlot,
-      finalSwim
-    );
+renderFinal(
+  swimSlot,
+  finalSwim
+);
 
-    capSlot.classList.remove(
-      "spinning"
-    );
-
-    swimSlot.classList.remove(
-      "spinning"
-    );
-
-    capSlot.classList.add(
-      "winner"
-    );
-
-    swimSlot.classList.add(
-      "winner"
-    );
+burst("cap");
+burst("swim");
 
 setTimeout(()=>{
 
-  setRouletteResult(
-    finalCap.id,
+  setSelected(
+    "cap",
+    finalCap.id
+  );
+
+  setSelected(
+    "swim",
     finalSwim.id
   );
 
 },1800);
-
     burst("cap");
 
 burst("swim");
