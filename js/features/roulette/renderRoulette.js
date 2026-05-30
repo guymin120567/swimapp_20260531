@@ -45,6 +45,26 @@ export function renderRoulette(){
         state.selection?.swimId
     ) || null;
 
+console.log(
+  "selection",
+  state.selection
+);
+
+console.log(
+  "items",
+  state.items.length
+);
+
+console.log(
+  "cap found",
+  !!cap
+);
+
+console.log(
+  "swim found",
+  !!swim
+);
+  
   target.innerHTML = `
     <div class="block">
 
