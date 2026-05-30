@@ -242,10 +242,10 @@ if(
       "winner"
     );
 
+    setSpinning(false);
 
     window.__isSpinning = false;
 
-    setSpinning(false);
 
     if(spinBtn){
       spinBtn.disabled = false;
