@@ -12,11 +12,15 @@ export function renderRoulette(){
   const items =
     Array.isArray(state.items) ? state.items : [];
 
-  const cap =
-    items.find(i => i.id === state.selection?.capId);
+const cap =
+  items.find(
+    i => i.id === state.selection?.capId
+  ) || null;
 
-  const swim =
-    items.find(i => i.id === state.selection?.swimId);
+const swim =
+  items.find(
+    i => i.id === state.selection?.swimId
+  ) || null;
 
   target.innerHTML = `
     <div class="block">
