@@ -188,58 +188,76 @@ if(
   run();
 
   function finish(
-    finalCap,
-    finalSwim
-  ){
-
-renderFinal(
-  capSlot,
-  finalCap
-);
-
-renderFinal(
-  swimSlot,
+  finalCap,
   finalSwim
-);
+){
 
-burst("cap");
-burst("swim");
-
-setTimeout(()=>{
-
-  setSelected(
-    "cap",
-    finalCap.id
+  renderFinal(
+    capSlot,
+    finalCap
   );
 
-  setSelected(
-    "swim",
-    finalSwim.id
+  renderFinal(
+    swimSlot,
+    finalSwim
   );
 
-},1800);
-    burst("cap");
-
-burst("swim");
-
-
-setTimeout(()=>{
-
-  window.__isSpinning = false;
-
-  if(spinBtn){
-    spinBtn.disabled = false;
-  }
-
-  window.dispatchEvent(
-    new CustomEvent(
-      "spin-stop"
-    )
+  capSlot.classList.remove(
+    "spinning"
   );
 
-},500);
+  swimSlot.classList.remove(
+    "spinning"
+  );
 
-}
+  capSlot.classList.add(
+    "winner"
+  );
+
+  swimSlot.classList.add(
+    "winner"
+  );
+
+  burst("cap");
+
+  burst("swim");
+
+  setTimeout(()=>{
+
+    setRouletteResult(
+      finalCap.id,
+      finalSwim.id
+    );
+
+  },1800);
+
+  setTimeout(()=>{
+
+    capSlot.classList.remove(
+      "winner"
+    );
+
+    swimSlot.classList.remove(
+      "winner"
+    );
+
+  },1800);
+
+  setTimeout(()=>{
+
+    window.__isSpinning = false;
+
+    if(spinBtn){
+      spinBtn.disabled = false;
+    }
+
+    window.dispatchEvent(
+      new CustomEvent(
+        "spin-stop"
+      )
+    );
+
+  },500);
 
 }
 // =========================
