@@ -407,6 +407,16 @@
    BUTTON
 ========================= */
 
+.roulette-wrap{
+
+  display:flex;
+  flex-direction:column;
+
+  gap:18px;
+
+  margin-bottom:24px;
+
+}
 .roulette-page .spin-btn{
 
    width:100%;
