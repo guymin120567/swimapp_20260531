@@ -111,6 +111,34 @@ export function setSelected(type,id){
 }
 
 // =========================
+// ROULETTE RESULT
+// =========================
+
+export function setRouletteResult(
+  capId,
+  swimId
+){
+
+  const state =
+    getState();
+
+  setState({
+
+    selection:{
+
+      ...(state.selection || {}),
+
+      capId,
+
+      swimId
+
+    }
+
+  });
+
+}
+
+// =========================
 // SPINNING
 // =========================
 
