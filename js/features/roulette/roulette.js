@@ -231,25 +231,35 @@ if(
 
     burst("cap");
 
-    burst("swim");
+burst("swim");
 
-    setTimeout(()=>{
+setTimeout(()=>{
 
-      setSpinning(false);
+  capSlot.classList.remove(
+    "winner"
+  );
 
-      if(spinBtn){
-        spinBtn.disabled = false;
-      }
+  swimSlot.classList.remove(
+    "winner"
+  );
 
-      window.dispatchEvent(
-        new CustomEvent(
-          "spin-stop"
-        )
-      );
+},1800);
 
-    }, 500);
+setTimeout(()=>{
 
+  setSpinning(false);
+
+  if(spinBtn){
+    spinBtn.disabled = false;
   }
+
+  window.dispatchEvent(
+    new CustomEvent(
+      "spin-stop"
+    )
+  );
+
+},500);
 
 }
 
