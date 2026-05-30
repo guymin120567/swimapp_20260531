@@ -219,15 +219,19 @@ if(
       "winner"
     );
 
-    setSelected(
-      "cap",
-      finalCap.id
-    );
+setTimeout(()=>{
 
-    setSelected(
-      "swim",
-      finalSwim.id
-    );
+  setSelected(
+    "cap",
+    finalCap.id
+  );
+
+  setSelected(
+    "swim",
+    finalSwim.id
+  );
+
+},1800);
 
     burst("cap");
 
