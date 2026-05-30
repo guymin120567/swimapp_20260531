@@ -5,8 +5,7 @@ import {
 } from "../../state/state.js";
 
 import {
-  setSelected,
-  setSpinning
+  setRouletteResult
 } from "../../state/actions.js";
 
 // =========================
