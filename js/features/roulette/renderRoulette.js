@@ -36,7 +36,11 @@ const swim =
             ${
               cap
                 ? `
-                  <img class="card-image" src="${cap.image || ""}" />
+                 <img
+  class="roulette-image"
+  src="${cap.image || ""}"
+  draggable="false"
+/>
                   <div class="card-overlay">
                     <div class="roulette-name">${cap.name}</div>
                   </div>
@@ -53,7 +57,11 @@ const swim =
             ${
               swim
                 ? `
-                  <img class="card-image" src="${swim.image || ""}" />
+                 <img
+  class="roulette-image"
+  src="${cap.image || ""}"
+  draggable="false"
+/>
                   <div class="card-overlay">
                     <div class="roulette-name">${swim.name}</div>
                   </div>
