@@ -220,13 +220,8 @@ if(
 
 setTimeout(()=>{
 
-  setSelected(
-    "cap",
-    finalCap.id
-  );
-
-  setSelected(
-    "swim",
+  setRouletteResult(
+    finalCap.id,
     finalSwim.id
   );
 
