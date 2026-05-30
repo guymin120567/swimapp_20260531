@@ -225,14 +225,12 @@ if(
 
   burst("swim");
 
-  setTimeout(()=>{
 
     setRouletteResult(
       finalCap.id,
       finalSwim.id
     );
 
-  },1800);
 
   setTimeout(()=>{
 
