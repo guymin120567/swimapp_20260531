@@ -409,10 +409,18 @@
 
 .roulette-page .spin-btn{
 
-  width:100%;
+   width:100%;
+
+  max-width:280px;
+
+  margin:14px auto 0;
+
+  display:block;
 
   height:60px;
 
+  margin:24px auto 0;
+   
   border:none;
 
   border-radius:22px;
