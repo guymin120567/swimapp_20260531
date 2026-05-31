@@ -131,3 +131,61 @@
  from{transform:translateY(24px);opacity:.7;}
  to{transform:translateY(0);opacity:1;}
 }
+
+/* =========================
+   RECORDS
+========================= */
+
+.records-list{
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:12px;
+
+}
+
+.record-card{
+
+  padding:16px;
+
+  border-radius:18px;
+
+  background:white;
+
+  box-shadow:
+    0 6px 18px
+    rgba(80,140,180,.08);
+
+}
+
+.record-date{
+
+  font-size:12px;
+
+  color:#7c98ae;
+
+  margin-bottom:8px;
+
+}
+
+.record-row{
+
+  font-size:15px;
+
+  font-weight:700;
+
+  margin:4px 0;
+
+}
+
+.empty-records{
+
+  padding:24px;
+
+  text-align:center;
+
+  color:#7c98ae;
+
+}
