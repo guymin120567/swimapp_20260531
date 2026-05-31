@@ -12,18 +12,11 @@
 }
 
 .container{
-  position:relative;
 
-  width:100%;
-  max-width:760px;
-
-  margin:0 auto;
-
-  padding:
+  padding-top:
     calc(
       22px +
-      env(safe-area-inset-top)
-    )
-    16px
-    130px;
+      var(--safe-top)
+    );
+
 }
