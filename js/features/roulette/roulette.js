@@ -6,7 +6,8 @@ import {
 
 import {
   setRouletteResult,
-  setSpinning
+  setSpinning,
+  addRecord
 } from "../../state/actions.js";
 
 // =========================
@@ -227,6 +228,11 @@ if(
 
 
     setRouletteResult(
+      finalCap.id,
+      finalSwim.id
+    );
+    
+    addRecord(
       finalCap.id,
       finalSwim.id
     );
