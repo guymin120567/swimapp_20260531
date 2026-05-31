@@ -42,6 +42,16 @@ export function removeItem(id){
 
   };
 
+  const nextRouletteResult = {
+
+    ...(state.rouletteResult || {})
+
+  };
+
+  // =========================
+  // selection 정리
+  // =========================
+
   if(
     nextSelection.capId === id
   ){
@@ -70,12 +80,37 @@ export function removeItem(id){
 
   }
 
+  // =========================
+  // rouletteResult 정리
+  // =========================
+
+  if(
+    nextRouletteResult.capId === id
+  ){
+
+    nextRouletteResult.capId =
+      null;
+
+  }
+
+  if(
+    nextRouletteResult.swimId === id
+  ){
+
+    nextRouletteResult.swimId =
+      null;
+
+  }
+
   setState({
 
     items:nextItems,
 
     selection:
-      nextSelection
+      nextSelection,
+
+    rouletteResult:
+      nextRouletteResult
 
   });
 
@@ -124,9 +159,9 @@ export function setRouletteResult(
 
   setState({
 
-    selection:{
+    rouletteResult:{
 
-      ...(state.selection || {}),
+      ...(state.rouletteResult || {}),
 
       capId,
 
@@ -150,8 +185,11 @@ export function setSpinning(value){
   setState({
 
     ui:{
+
       ...(state.ui || {}),
+
       isSpinning:value
+
     }
 
   });
