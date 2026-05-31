@@ -1,5 +1,13 @@
+// =========================
+// STORAGE
+// =========================
+
 const STORAGE_KEY =
   "swim-roulette-state";
+
+// =========================
+// DEFAULT
+// =========================
 
 export const defaultState = {
 
@@ -35,8 +43,9 @@ export const defaultState = {
 
 };
 
-let state =
-  loadState();
+// =========================
+// LOAD
+// =========================
 
 function loadState(){
 
@@ -67,7 +76,10 @@ function loadState(){
 
   }catch(err){
 
-    console.error(err);
+    console.error(
+      "state load fail",
+      err
+    );
 
     return structuredClone(
       defaultState
@@ -76,6 +88,13 @@ function loadState(){
   }
 
 }
+
+// =========================
+// STATE
+// =========================
+
+let state =
+  loadState();
 
 const listeners =
   new Set();
@@ -106,13 +125,9 @@ export function subscribe(fn){
 
 }
 
-function emit(){
-
-  listeners.forEach(
-    fn => fn(state)
-  );
-
-}
+// =========================
+// SAVE
+// =========================
 
 function saveState(){
 
@@ -128,9 +143,24 @@ function saveState(){
 
   }catch(err){
 
-    console.error(err);
+    console.error(
+      "state save fail",
+      err
+    );
 
   }
+
+}
+
+// =========================
+// EMIT
+// =========================
+
+function emit(){
+
+  listeners.forEach(
+    fn => fn(state)
+  );
 
 }
 
@@ -174,6 +204,6 @@ export function setState(partial){
 
   saveState();
 
-emit();
+  emit();
 
 }
