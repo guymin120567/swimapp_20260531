@@ -35,17 +35,16 @@ export function renderRoulette(){
     items.find(
       i =>
         i.id ===
-        state.selection?.capId
+        state.rouletteResult?.capId
     ) || null;
 
   const swim =
     items.find(
       i =>
         i.id ===
-        state.selection?.swimId
+        state.rouletteResult?.swimId
     ) || null;
 
-  
   target.innerHTML = `
     <div class="block">
 
