@@ -20,7 +20,10 @@
   margin:0 auto;
 
   padding:
-    22px
+    calc(
+      22px +
+      env(safe-area-inset-top)
+    )
     16px
     130px;
 }
