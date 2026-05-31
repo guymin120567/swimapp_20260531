@@ -48,6 +48,8 @@ export function initController(){
 
     renderCoverflow();
 
+    renderRecords();
+
   }
 
   async function boot(){
