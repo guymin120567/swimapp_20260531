@@ -195,3 +195,60 @@ export function setSpinning(value){
   });
 
 }
+
+// =========================
+// RECORDS
+// =========================
+
+export function addRecord(
+  capId,
+  swimId
+){
+
+  const state =
+    getState();
+
+  const now =
+    Date.now();
+
+  const sevenDays =
+    7 *
+    24 *
+    60 *
+    60 *
+    1000;
+
+  const nextRecords = [
+
+    {
+
+      id:String(now),
+
+      capId,
+
+      swimId,
+
+      createdAt:now
+
+    },
+
+    ...(state.records || [])
+
+  ].filter(
+
+    record =>
+
+      now -
+      record.createdAt <
+      sevenDays
+
+  );
+
+  setState({
+
+    records:
+      nextRecords
+
+  });
+
+}
