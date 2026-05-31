@@ -1,3 +1,6 @@
+const STORAGE_KEY =
+  "swim-roulette-state";
+
 export const defaultState = {
 
   items: [],
@@ -33,9 +36,46 @@ export const defaultState = {
 };
 
 let state =
-  structuredClone(
-    defaultState
-  );
+  loadState();
+
+function loadState(){
+
+  try{
+
+    const saved =
+      localStorage.getItem(
+        STORAGE_KEY
+      );
+
+    if(!saved){
+
+      return structuredClone(
+        defaultState
+      );
+
+    }
+
+    return {
+
+      ...structuredClone(
+        defaultState
+      ),
+
+      ...JSON.parse(saved)
+
+    };
+
+  }catch(err){
+
+    console.error(err);
+
+    return structuredClone(
+      defaultState
+    );
+
+  }
+
+}
 
 const listeners =
   new Set();
@@ -71,6 +111,26 @@ function emit(){
   listeners.forEach(
     fn => fn(state)
   );
+
+}
+
+function saveState(){
+
+  try{
+
+    localStorage.setItem(
+
+      STORAGE_KEY,
+
+      JSON.stringify(state)
+
+    );
+
+  }catch(err){
+
+    console.error(err);
+
+  }
 
 }
 
@@ -112,6 +172,8 @@ export function setState(partial){
 
   };
 
-  emit();
+  saveState();
+
+emit();
 
 }
