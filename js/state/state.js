@@ -9,6 +9,15 @@ export const defaultState = {
     capId: null,
 
     swimId: null
+
+  },
+
+  rouletteResult: {
+
+    capId: null,
+
+    swimId: null
+
   },
 
   ui: {
@@ -18,7 +27,9 @@ export const defaultState = {
     activeItemId: null,
 
     isSpinning: false
+
   }
+
 };
 
 let state =
@@ -36,6 +47,7 @@ const listeners =
 export function getState(){
 
   return state;
+
 }
 
 // =========================
@@ -51,13 +63,15 @@ export function subscribe(fn){
     listeners.delete(fn);
 
   };
+
 }
 
 function emit(){
 
   listeners.forEach(
-    fn=>fn(state)
+    fn => fn(state)
   );
+
 }
 
 // =========================
@@ -80,6 +94,14 @@ export function setState(partial){
 
     },
 
+    rouletteResult: {
+
+      ...state.rouletteResult,
+
+      ...(partial.rouletteResult || {})
+
+    },
+
     ui: {
 
       ...state.ui,
@@ -91,4 +113,5 @@ export function setState(partial){
   };
 
   emit();
+
 }
