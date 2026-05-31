@@ -126,7 +126,7 @@ function activateTab(type){
 
   if(type === "inventory"){
 
-    renderCoverflow();
+     renderRecords();
 
   }
 
