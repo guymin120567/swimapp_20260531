@@ -419,10 +419,6 @@ function stopSpin(){
         return;
       }
 
-      setSelected(
-        closest.dataset.type,
-        closest.dataset.id
-      );
 
       centerCard(
         flow,
