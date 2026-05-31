@@ -89,21 +89,14 @@
 
   position:absolute;
 
-  left:0;
-  right:0;
-  bottom:0;
+  left:50%;
+  bottom:120px;
 
-  padding:24px;
+  width:min(520px,90vw);
 
-  background:white;
+  transform:translateX(-50%);
 
-  border-radius:
-    24px 24px 0 0;
-
-  box-shadow:
-    0 -12px 40px
-    rgba(0,0,0,.18);
-
+  border-radius:24px;
 }
 
 /* =========================
