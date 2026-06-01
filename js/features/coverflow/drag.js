@@ -1,4 +1,7 @@
 // js/features/coverflow/drag.js
+import {
+  setSelected
+} from "../../state/actions.js";
 
 export function bindDrag(){
 
@@ -527,4 +530,21 @@ function updateDepth(
 
   });
 
+  const type =
+  wrap.dataset.type;
+
+const activeId =
+  closest?.dataset.id;
+
+if(
+  activeId
+){
+
+  setSelected(
+    type,
+    activeId
+  );
+
+}
+  
 }
