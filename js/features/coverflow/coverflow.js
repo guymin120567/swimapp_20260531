@@ -225,17 +225,7 @@ if(deleteBtn){
           // FORCE ACTIVE UPDATE
           // =========================
 
-          wrap
-            .querySelectorAll(
-              ".cover-card"
-            )
-            .forEach(c => {
-
-              c.classList.remove(
-                "active"
-              );
-
-            });
+          setSelected(type,id);
 
           card.classList.add(
             "active"
