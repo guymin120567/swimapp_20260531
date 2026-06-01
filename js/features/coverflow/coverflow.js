@@ -225,8 +225,6 @@ if(deleteBtn){
           // FORCE ACTIVE UPDATE
           // =========================
 
-          setSelected(type,id);
-
           card.classList.add(
             "active"
           );
