@@ -48,10 +48,6 @@ export function renderRoulette(){
   target.innerHTML = `
     <div class="block">
 
-      <div class="section-title">
-        룰렛 결과
-      </div>
-
       <div class="roulette-wrap">
 
         <div
