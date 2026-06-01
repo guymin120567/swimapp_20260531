@@ -56,7 +56,7 @@ export function renderRoulette(){
         >
 
           <div class="roulette-label">
-            CAP
+            🧢 수모
           </div>
 
           <div class="roulette-card">
@@ -95,7 +95,7 @@ export function renderRoulette(){
         >
 
           <div class="roulette-label">
-            🧢 수모
+            🩳 수영복
           </div>
 
           <div class="roulette-card">
