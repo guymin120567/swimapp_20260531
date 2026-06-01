@@ -221,22 +221,34 @@ if(deleteBtn){
             id
           );
 
-          // =========================
-          // FORCE ACTIVE UPDATE
-          // =========================
+/* 즉시 active 갱신 */
+wrap
+  .querySelectorAll(
+    ".cover-card"
+  )
+  .forEach(c => {
 
-          card.classList.add(
-            "active"
-          );
+    c.classList.remove(
+      "active",
+      "depth-1",
+      "depth-2"
+    );
 
-          requestAnimationFrame(()=>{
+  });
 
-            centerCard(
-              wrap,
-              card
-            );
+card.classList.add(
+  "active"
+);
 
-          });
+/* 중앙 이동 */
+requestAnimationFrame(()=>{
+
+  centerCard(
+    wrap,
+    card
+  );
+
+});
 
         }
       );
