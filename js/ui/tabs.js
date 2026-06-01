@@ -1,5 +1,7 @@
 // js/ui/tabs.js
-
+import {
+  renderRecords
+} from "../features/records/renderRecords.js";
 import {
   renderRoulette
 } from "../features/roulette/renderRoulette.js";
@@ -124,7 +126,7 @@ function activateTab(type){
 
   if(type === "inventory"){
 
-    renderCoverflow();
+     renderRecords();
 
   }
 

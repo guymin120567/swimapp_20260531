@@ -1,3 +1,14 @@
+// =========================
+// STORAGE
+// =========================
+
+const STORAGE_KEY =
+  "swim-roulette-state";
+
+// =========================
+// DEFAULT
+// =========================
+
 export const defaultState = {
 
   items: [],
@@ -9,6 +20,15 @@ export const defaultState = {
     capId: null,
 
     swimId: null
+
+  },
+
+  rouletteResult: {
+
+    capId: null,
+
+    swimId: null
+
   },
 
   ui: {
@@ -18,13 +38,63 @@ export const defaultState = {
     activeItemId: null,
 
     isSpinning: false
+
   }
+
 };
 
+// =========================
+// LOAD
+// =========================
+
+function loadState(){
+
+  try{
+
+    const saved =
+      localStorage.getItem(
+        STORAGE_KEY
+      );
+
+    if(!saved){
+
+      return structuredClone(
+        defaultState
+      );
+
+    }
+
+    return {
+
+      ...structuredClone(
+        defaultState
+      ),
+
+      ...JSON.parse(saved)
+
+    };
+
+  }catch(err){
+
+    console.error(
+      "state load fail",
+      err
+    );
+
+    return structuredClone(
+      defaultState
+    );
+
+  }
+
+}
+
+// =========================
+// STATE
+// =========================
+
 let state =
-  structuredClone(
-    defaultState
-  );
+  loadState();
 
 const listeners =
   new Set();
@@ -36,6 +106,7 @@ const listeners =
 export function getState(){
 
   return state;
+
 }
 
 // =========================
@@ -51,13 +122,46 @@ export function subscribe(fn){
     listeners.delete(fn);
 
   };
+
 }
+
+// =========================
+// SAVE
+// =========================
+
+function saveState(){
+
+  try{
+
+    localStorage.setItem(
+
+      STORAGE_KEY,
+
+      JSON.stringify(state)
+
+    );
+
+  }catch(err){
+
+    console.error(
+      "state save fail",
+      err
+    );
+
+  }
+
+}
+
+// =========================
+// EMIT
+// =========================
 
 function emit(){
 
   listeners.forEach(
-    fn=>fn(state)
+    fn => fn(state)
   );
+
 }
 
 // =========================
@@ -80,6 +184,14 @@ export function setState(partial){
 
     },
 
+    rouletteResult: {
+
+      ...state.rouletteResult,
+
+      ...(partial.rouletteResult || {})
+
+    },
+
     ui: {
 
       ...state.ui,
@@ -90,5 +202,8 @@ export function setState(partial){
 
   };
 
+  saveState();
+
   emit();
+
 }

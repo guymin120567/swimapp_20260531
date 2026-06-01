@@ -5,8 +5,9 @@ import {
 } from "../../state/state.js";
 
 import {
-  setSelected,
-  setSpinning
+  setRouletteResult,
+  setSpinning,
+  addRecord
 } from "../../state/actions.js";
 
 // =========================
@@ -75,8 +76,10 @@ if(
     return;
   }
 
-  setSpinning(true);
+  window.__isSpinning = true;
 
+  setSpinning(true);
+  
   const spinBtn =
     document.querySelector(
       "#rouletteSection .spin-btn"
@@ -189,70 +192,83 @@ if(
   run();
 
   function finish(
-    finalCap,
+  finalCap,
+  finalSwim
+){
+
+  renderFinal(
+    capSlot,
+    finalCap
+  );
+
+  renderFinal(
+    swimSlot,
     finalSwim
-  ){
+  );
 
-    renderFinal(
-      capSlot,
-      finalCap
+  capSlot.classList.remove(
+    "spinning"
+  );
+
+  swimSlot.classList.remove(
+    "spinning"
+  );
+
+  capSlot.classList.add(
+    "winner"
+  );
+
+  swimSlot.classList.add(
+    "winner"
+  );
+
+  burst("cap");
+
+  burst("swim");
+
+
+    setRouletteResult(
+      finalCap.id,
+      finalSwim.id
     );
-
-    renderFinal(
-      swimSlot,
-      finalSwim
-    );
-
-    capSlot.classList.remove(
-      "spinning"
-    );
-
-    swimSlot.classList.remove(
-      "spinning"
-    );
-
-    capSlot.classList.add(
-      "winner"
-    );
-
-    swimSlot.classList.add(
-      "winner"
-    );
-
-    setSelected(
-      "cap",
-      finalCap.id
-    );
-
-    setSelected(
-      "swim",
+    
+    addRecord(
+      finalCap.id,
       finalSwim.id
     );
 
-    burst("cap");
 
-    burst("swim");
+  setTimeout(()=>{
 
-    setTimeout(()=>{
+    capSlot.classList.remove(
+      "winner"
+    );
 
-      setSpinning(false);
+    swimSlot.classList.remove(
+      "winner"
+    );
 
-      if(spinBtn){
-        spinBtn.disabled = false;
-      }
+    setSpinning(false);
 
-      window.dispatchEvent(
-        new CustomEvent(
-          "spin-stop"
-        )
-      );
+    window.__isSpinning = false;
 
-    }, 500);
 
-  }
+    if(spinBtn){
+      spinBtn.disabled = false;
+    }
+
+    
+    window.dispatchEvent(
+      new CustomEvent(
+        "spin-stop"
+      )
+    );
+
+  },1800);
 
 }
-
+  
+}
 // =========================
 // UPDATE SLOT
 // =========================

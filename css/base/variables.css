@@ -1,5 +1,8 @@
 :root{
 
+  --safe-top:
+  env(safe-area-inset-top);
+  
   --bg1:#dff6ff;
   --bg2:#c7ecff;
 

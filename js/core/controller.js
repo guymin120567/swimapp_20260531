@@ -1,5 +1,7 @@
 // js/core/controller.js
-
+import {
+  renderRecords
+} from "../features/records/renderRecords.js";
 import {
   setState,
   defaultState,
@@ -45,6 +47,8 @@ export function initController(){
     renderRoulette();
 
     renderCoverflow();
+
+    renderRecords();
 
   }
 

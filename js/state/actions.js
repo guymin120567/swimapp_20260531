@@ -42,6 +42,16 @@ export function removeItem(id){
 
   };
 
+  const nextRouletteResult = {
+
+    ...(state.rouletteResult || {})
+
+  };
+
+  // =========================
+  // selection 정리
+  // =========================
+
   if(
     nextSelection.capId === id
   ){
@@ -70,12 +80,37 @@ export function removeItem(id){
 
   }
 
+  // =========================
+  // rouletteResult 정리
+  // =========================
+
+  if(
+    nextRouletteResult.capId === id
+  ){
+
+    nextRouletteResult.capId =
+      null;
+
+  }
+
+  if(
+    nextRouletteResult.swimId === id
+  ){
+
+    nextRouletteResult.swimId =
+      null;
+
+  }
+
   setState({
 
     items:nextItems,
 
     selection:
-      nextSelection
+      nextSelection,
+
+    rouletteResult:
+      nextRouletteResult
 
   });
 
@@ -111,6 +146,34 @@ export function setSelected(type,id){
 }
 
 // =========================
+// ROULETTE RESULT
+// =========================
+
+export function setRouletteResult(
+  capId,
+  swimId
+){
+
+  const state =
+    getState();
+
+  setState({
+
+    rouletteResult:{
+
+      ...(state.rouletteResult || {}),
+
+      capId,
+
+      swimId
+
+    }
+
+  });
+
+}
+
+// =========================
 // SPINNING
 // =========================
 
@@ -122,9 +185,69 @@ export function setSpinning(value){
   setState({
 
     ui:{
+
       ...(state.ui || {}),
+
       isSpinning:value
+
     }
+
+  });
+
+}
+
+// =========================
+// RECORDS
+// =========================
+
+export function addRecord(
+  capId,
+  swimId
+){
+
+  const state =
+    getState();
+
+  const now =
+    Date.now();
+
+  const sevenDays =
+    7 *
+    24 *
+    60 *
+    60 *
+    1000;
+
+  const nextRecords = [
+
+    {
+
+      id:String(now),
+
+      capId,
+
+      swimId,
+
+      createdAt:now
+
+    },
+
+    ...(state.records || [])
+
+  ].filter(
+
+    record =>
+
+      now -
+      record.createdAt <
+      sevenDays
+
+  );
+
+  setState({
+
+    records:
+      nextRecords
 
   });
 

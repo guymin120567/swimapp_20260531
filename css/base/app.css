@@ -12,15 +12,11 @@
 }
 
 .container{
-  position:relative;
 
-  width:100%;
-  max-width:760px;
+  padding-top:
+    calc(
+      22px +
+      var(--safe-top)
+    );
 
-  margin:0 auto;
-
-  padding:
-    22px
-    16px
-    130px;
 }

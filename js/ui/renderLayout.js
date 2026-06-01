@@ -112,13 +112,6 @@ export function renderLayout(){
           <!-- SWIM -->
 <div class="block">
 
-  <div class="section-header">
-
-    <div class="section-title">
-              수영복 리스트
-            </div>
-
-            <div class="block">
 
   <div class="section-header">
 
