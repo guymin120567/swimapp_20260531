@@ -40,7 +40,7 @@
 
   position:relative;
 
-  margin-left:-68px;
+  margin-left:-78px;
 
   z-index:1;
 
@@ -114,7 +114,7 @@
   filter:none;
 
   transform:
-    scale(1.08);
+    scale(1.14);
     box-shadow:
        0 18px 34px
        rgba(125,211,252,.35);
