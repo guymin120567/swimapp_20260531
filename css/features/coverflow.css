@@ -16,7 +16,7 @@
   overflow-y:visible;
 
   padding:
-    6px 18vw 18px;
+    6px calc(50vw - 74px) 18px;
 
   min-height:140px;
 
@@ -40,7 +40,7 @@
 
   position:relative;
 
-  margin-left:-78px;
+  margin-left:-70px;
 
   z-index:1;
 
