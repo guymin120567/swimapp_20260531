@@ -529,22 +529,5 @@ function updateDepth(
     }
 
   });
-
-  const type =
-  wrap.dataset.type;
-
-const activeId =
-  closest?.dataset.id;
-
-if(
-  activeId
-){
-
-  setSelected(
-    type,
-    activeId
-  );
-
-}
   
 }
