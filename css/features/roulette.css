@@ -535,3 +535,20 @@
   }
 
 }
+
+
+.roulette-label{
+
+  text-align:center;
+
+  font-size:15px;
+
+  font-weight:800;
+
+  color:var(--text);
+
+  margin-bottom:10px;
+
+  letter-spacing:-0.02em;
+
+}
