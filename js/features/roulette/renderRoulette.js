@@ -95,7 +95,7 @@ export function renderRoulette(){
         >
 
           <div class="roulette-label">
-            SWIM
+            🧢 수모
           </div>
 
           <div class="roulette-card">
