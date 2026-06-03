@@ -1,4 +1,5 @@
 // js/features/coverflow/drag.js
+
 import {
   setSelected
 } from "../../state/actions.js";
@@ -16,13 +17,14 @@ export function bindDrag(){
       wrap.dataset.dragBound
     ){
 
-      requestAnimationFrame(()=>{
+      requestAnimationFrame(() => {
 
         updateDepth(wrap);
 
       });
 
       return;
+
     }
 
     wrap.dataset.dragBound =
@@ -38,17 +40,18 @@ export function bindDrag(){
 
     let lastX = 0;
 
-    wrap._isProgrammatic = false;
+    wrap._isProgrammatic =
+      false;
 
     /* =========================
        INIT CENTER
     ========================= */
 
-    requestAnimationFrame(()=>{
+    requestAnimationFrame(() => {
 
       centerFirst(wrap);
 
-      requestAnimationFrame(()=>{
+      requestAnimationFrame(() => {
 
         updateDepth(wrap);
 
@@ -76,9 +79,11 @@ export function bindDrag(){
           "dragging"
         );
 
-        startX = e.pageX;
+        startX =
+          e.pageX;
 
-        lastX = e.pageX;
+        lastX =
+          e.pageX;
 
         scrollLeft =
           wrap.scrollLeft;
@@ -87,38 +92,37 @@ export function bindDrag(){
     );
 
     /* =========================
-   TOUCH START
-========================= */
+       TOUCH START
+    ========================= */
 
-wrap.addEventListener(
-  "touchstart",
-  e => {
+    wrap.addEventListener(
+      "touchstart",
+      e => {
 
-    if(
-      wrap._isProgrammatic
-    ){
-      return;
-    }
+        if(
+          wrap._isProgrammatic
+        ){
+          return;
+        }
 
-    isDown = true;
+        isDown = true;
 
-    wrap.classList.add(
-      "dragging"
+        wrap.classList.add(
+          "dragging"
+        );
+
+        startX =
+          e.touches[0].pageX;
+
+        lastX =
+          startX;
+
+        scrollLeft =
+          wrap.scrollLeft;
+
+      },
+      { passive:true }
     );
-
-    startX =
-      e.touches[0].pageX;
-
-    lastX =
-      startX;
-
-    scrollLeft =
-      wrap.scrollLeft;
-
-  },
-  { passive:true }
-);
-    
 
     /* =========================
        MOVE
@@ -143,12 +147,13 @@ wrap.addEventListener(
         velocity =
           x - lastX;
 
-        lastX = x;
+        lastX =
+          x;
 
         wrap.scrollLeft =
           scrollLeft - walk;
 
-        requestAnimationFrame(()=>{
+        requestAnimationFrame(() => {
 
           updateDepth(wrap);
 
@@ -158,45 +163,45 @@ wrap.addEventListener(
     );
 
     wrap.addEventListener(
-  "touchmove",
-  e => {
+      "touchmove",
+      e => {
 
-    if(!isDown){
-      return;
-    }
+        if(!isDown){
+          return;
+        }
 
-    const x =
-      e.touches[0].pageX;
+        const x =
+          e.touches[0].pageX;
 
-    const walk =
-      (x - startX) * 1.08;
+        const walk =
+          (x - startX) * 1.08;
 
-    velocity =
-      x - lastX;
+        velocity =
+          x - lastX;
 
-    lastX = x;
+        lastX =
+          x;
 
-    wrap.scrollLeft =
-      scrollLeft - walk;
+        wrap.scrollLeft =
+          scrollLeft - walk;
 
-    requestAnimationFrame(()=>{
+        requestAnimationFrame(() => {
 
-      updateDepth(wrap);
+          updateDepth(wrap);
 
-    });
+        });
 
-  },
-  { passive:true }
-);
+      },
+      { passive:true }
+    );
 
-    
     /* =========================
        END
     ========================= */
 
     window.addEventListener(
       "mouseup",
-      ()=>{
+      () => {
 
         if(!isDown){
           return;
@@ -218,7 +223,7 @@ wrap.addEventListener(
 
     wrap.addEventListener(
       "mouseleave",
-      ()=>{
+      () => {
 
         if(!isDown){
           return;
@@ -239,33 +244,100 @@ wrap.addEventListener(
     );
 
     window.addEventListener(
-  "touchend",
-  ()=>{
+      "touchend",
+      () => {
 
-    if(!isDown){
-      return;
-    }
+        if(!isDown){
+          return;
+        }
 
-    isDown = false;
+        isDown = false;
 
-    wrap.classList.remove(
-      "dragging"
+        wrap.classList.remove(
+          "dragging"
+        );
+
+        inertia(
+          wrap,
+          velocity
+        );
+
+      }
     );
 
-    inertia(
-      wrap,
-      velocity
-    );
+    /* =========================
+       CLICK CENTER
+    ========================= */
 
-  }
-);
+    const cards =
+      wrap.querySelectorAll(
+        ".cover-card"
+      );
+
+    cards.forEach(card => {
+
+      card.addEventListener(
+        "click",
+        () => {
+
+          cards.forEach(c => {
+
+            c.classList.remove(
+              "active",
+              "depth-1",
+              "depth-2"
+            );
+
+          });
+
+          card.classList.add(
+            "active"
+          );
+
+          const type =
+            wrap.dataset.type;
+
+          const id =
+            card.dataset.id;
+
+          setSelected(
+            type,
+            id
+          );
+
+          wrap._isProgrammatic =
+            true;
+
+          centerCard(
+            wrap,
+            card
+          );
+
+          setTimeout(() => {
+
+            wrap._isProgrammatic =
+              false;
+
+            requestAnimationFrame(() => {
+
+              updateDepth(wrap);
+
+            });
+
+          }, 420);
+
+        }
+      );
+
+    });
+
     /* =========================
        SCROLL
     ========================= */
 
     wrap.addEventListener(
       "scroll",
-      ()=>{
+      () => {
 
         if(
           wrap._isProgrammatic
@@ -273,7 +345,7 @@ wrap.addEventListener(
           return;
         }
 
-        requestAnimationFrame(()=>{
+        requestAnimationFrame(() => {
 
           updateDepth(wrap);
 
@@ -311,6 +383,34 @@ function centerFirst(
 
   wrap.scrollLeft =
     Math.max(0, target);
+
+}
+
+/* =========================
+   CENTER CARD
+========================= */
+
+function centerCard(
+  wrap,
+  card,
+  smooth = true
+){
+
+  const target =
+    card.offsetLeft +
+    card.clientWidth / 2 -
+    wrap.clientWidth / 2;
+
+  wrap.scrollTo({
+
+    left:target,
+
+    behavior:
+      smooth
+        ? "smooth"
+        : "auto"
+
+  });
 
 }
 
@@ -363,14 +463,12 @@ function snapToCenter(
   wrap,
   smooth = true
 ){
-  
 
-  const cards =
-    [
-      ...wrap.querySelectorAll(
-        ".cover-card"
-      )
-    ];
+  const cards = [
+    ...wrap.querySelectorAll(
+      ".cover-card"
+    )
+  ];
 
   if(!cards.length){
     return;
@@ -408,34 +506,36 @@ function snapToCenter(
   if(!closest){
     return;
   }
+
   const type =
     wrap.dataset.type;
 
   const activeId =
     closest.dataset.id;
 
-setSelected(
-  type,
-  activeId
-);
-
-/* =========================
-   ACTIVE SYNC
-========================= */
-
-cards.forEach(card => {
-
-  card.classList.remove(
-    "active",
-    "depth-1",
-    "depth-2"
+  setSelected(
+    type,
+    activeId
   );
 
-});
+  /* =========================
+     ACTIVE SYNC
+  ========================= */
 
-closest.classList.add(
-  "active"
-);
+  cards.forEach(card => {
+
+    card.classList.remove(
+      "active",
+      "depth-1",
+      "depth-2"
+    );
+
+  });
+
+  closest.classList.add(
+    "active"
+  );
+
   const target =
     closest.offsetLeft +
     closest.clientWidth / 2 -
@@ -455,18 +555,18 @@ closest.classList.add(
 
   });
 
-  setTimeout(()=>{
+  setTimeout(() => {
 
-  wrap._isProgrammatic =
-    false;
+    wrap._isProgrammatic =
+      false;
 
-  requestAnimationFrame(()=>{
+    requestAnimationFrame(() => {
 
-    updateDepth(wrap);
+      updateDepth(wrap);
 
-  });
+    });
 
-}, 420);
+  }, 420);
 
 }
 
@@ -478,12 +578,11 @@ function updateDepth(
   wrap
 ){
 
-  const cards =
-    [
-      ...wrap.querySelectorAll(
-        ".cover-card"
-      )
-    ];
+  const cards = [
+    ...wrap.querySelectorAll(
+      ".cover-card"
+    )
+  ];
 
   if(!cards.length){
     return;
@@ -561,5 +660,5 @@ function updateDepth(
     }
 
   });
-  
+
 }
