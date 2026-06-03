@@ -47,63 +47,35 @@ export const defaultState = {
 // LOAD
 // =========================
 
-function loadState(){
+function loadState() {
 
-  try{
+  try {
 
-    const saved =
-      localStorage.getItem(
-        STORAGE_KEY
-      );
+    const saved = localStorage.getItem(STORAGE_KEY);
 
-    if(!saved){
-
-      return structuredClone(
-        defaultState
-      );
-
+    if (!saved) {
+      return structuredClone(defaultState);
     }
 
+    const parsed = JSON.parse(saved);
+
     return {
+      ...structuredClone(defaultState),
+      ...parsed,
+      ui: {
+        ...structuredClone(defaultState).ui,
+        ...(parsed.ui || {}),
+        isSpinning: false
+      }
+    };
 
-const parsed =
-  JSON.parse(saved);
+  } catch (err) {
 
-return {
+    console.error("state load fail", err);
 
-  ...structuredClone(
-    defaultState
-  ),
-
-  ...parsed,
-
-  ui:{
-
-    ...structuredClone(
-      defaultState
-    ).ui,
-
-    ...(parsed.ui || {}),
-
-    isSpinning:false
+    return structuredClone(defaultState);
 
   }
-
-};
-
-  }catch(err){
-
-    console.error(
-      "state load fail",
-      err
-    );
-
-    return structuredClone(
-      defaultState
-    );
-
-  }
-
 }
 
 // =========================
