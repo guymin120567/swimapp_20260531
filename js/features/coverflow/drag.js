@@ -72,6 +72,12 @@ export function bindDrag(){
         ){
           return;
         }
+        if(
+  wrap.scrollWidth <=
+  wrap.clientWidth
+){
+  return;
+}
 
         isDown = true;
 
@@ -104,6 +110,12 @@ export function bindDrag(){
         ){
           return;
         }
+        if(
+  wrap.scrollWidth <=
+  wrap.clientWidth
+){
+  return;
+}
 
         isDown = true;
 
@@ -310,13 +322,26 @@ function centerFirst(
     return;
   }
 
-  const target =
+  const rawTarget =
     first.offsetLeft +
     first.clientWidth / 2 -
     wrap.clientWidth / 2;
 
+  const maxScroll =
+    wrap.scrollWidth -
+    wrap.clientWidth;
+
+  const target =
+    Math.max(
+      0,
+      Math.min(
+        rawTarget,
+        maxScroll
+      )
+    );
+
   wrap.scrollLeft =
-    Math.max(0, target);
+    target;
 
 }
 
@@ -370,6 +395,13 @@ function inertia(
   velocity
 ){
 
+  if(
+    wrap.scrollWidth <=
+    wrap.clientWidth
+  ){
+    return;
+  }
+
   let current =
     velocity * 1.8;
 
@@ -377,8 +409,21 @@ function inertia(
 
     current *= 0.92;
 
-    wrap.scrollLeft -=
-      current;
+    const next =
+      wrap.scrollLeft - current;
+
+    const maxScroll =
+      wrap.scrollWidth -
+      wrap.clientWidth;
+
+    wrap.scrollLeft =
+      Math.max(
+        0,
+        Math.min(
+          next,
+          maxScroll
+        )
+      );
 
     updateDepth(wrap);
 
@@ -411,15 +456,22 @@ function snapToCenter(
   smooth = true
 ){
 
-  const cards = [
-    ...wrap.querySelectorAll(
-      ".cover-card"
-    )
-  ];
+const cards = [
+  ...wrap.querySelectorAll(
+    ".cover-card"
+  )
+];
 
-  if(!cards.length){
-    return;
-  }
+if(!cards.length){
+  return;
+}
+
+if(
+  wrap.scrollWidth <=
+  wrap.clientWidth
+){
+  return;
+}
 
   const wrapCenter =
     wrap.scrollLeft +
@@ -469,11 +521,23 @@ function snapToCenter(
      ACTIVE SYNC
   ========================= */
 
-  const target =
-    closest.offsetLeft +
-    closest.clientWidth / 2 -
-    wrap.clientWidth / 2;
+const rawTarget =
+  closest.offsetLeft +
+  closest.clientWidth / 2 -
+  wrap.clientWidth / 2;
 
+const maxScroll =
+  wrap.scrollWidth -
+  wrap.clientWidth;
+
+const target =
+  Math.max(
+    0,
+    Math.min(
+      rawTarget,
+      maxScroll
+    )
+  );
   wrap._isProgrammatic =
     true;
 
