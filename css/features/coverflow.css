@@ -10,22 +10,30 @@
 
   align-items:center;
 
-  gap:0;
+  gap:12;
 
   overflow-x:auto;
   overflow-y:visible;
 
   padding:
-    6px calc(50vw - 74px) 18px;
+    6px 24px 18px;
 
-  min-height:140px;
+  scroll-behavior:smooth;
+
+  -ms-overflow-style:none;
 
   scrollbar-width:none;
 
-  -webkit-overflow-scrolling:touch;
+}
+.coverflow::before,
+.coverflow::after{
+
+  content:"";
+
+  flex:0 0
+    calc(50vw - 86px);
 
 }
-
 .coverflow::-webkit-scrollbar{
   display:none;
 }
