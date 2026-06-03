@@ -249,25 +249,57 @@ function bindSelect(){
           const id =
             card.dataset.id;
 
+          /* =========================
+             STATE
+          ========================= */
+
           setSelected(
             type,
             id
           );
+
+          /* =========================
+             ACTIVE SYNC
+          ========================= */
+
           wrap
-  .querySelectorAll(
-    ".cover-card"
-  )
-  .forEach(c => {
+            .querySelectorAll(
+              ".cover-card"
+            )
+            .forEach(c => {
 
-    c.classList.remove(
-      "active"
-    );
+              c.classList.remove(
+                "active"
+              );
 
-  });
+            });
 
-card.classList.add(
-  "active"
-);
+          card.classList.add(
+            "active"
+          );
+
+          /* =========================
+             CENTER
+          ========================= */
+
+          wrap._isProgrammatic =
+            true;
+
+          requestAnimationFrame(() => {
+
+            centerCard(
+              wrap,
+              card
+            );
+
+            setTimeout(() => {
+
+              wrap._isProgrammatic =
+                false;
+
+            }, 420);
+
+          });
 
         }
       );
