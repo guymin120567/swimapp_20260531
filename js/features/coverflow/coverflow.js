@@ -19,11 +19,23 @@ let spinRAF = [];
    RENDER
 ========================= */
 
-export function renderCoverflow(){
+export function renderCoverflow(
+  changedType = null
+){
 
+if(
+  !changedType ||
+  changedType === "cap"
+){
   renderType("cap");
+}
 
+if(
+  !changedType ||
+  changedType === "swim"
+){
   renderType("swim");
+}
 
   bindSelect();
 
@@ -72,6 +84,18 @@ function renderType(type){
 
   if(!items.length){
 
+    const currentSelected =
+  target.dataset.selected;
+
+if(
+  currentSelected === selectedId &&
+  target.children.length === items.length
+){
+  return;
+}
+
+target.dataset.selected =
+  selectedId;
     target.innerHTML = `
 
       <div class="empty-coverflow">
