@@ -250,6 +250,29 @@ function bindSelect(){
             return;
           }
 
+          /* =========================
+             DRAG BLOCK
+          ========================= */
+
+          if(
+            wrap.classList.contains(
+              "dragging"
+            )
+          ){
+            return;
+          }
+
+          /* =========================
+             STOP INERTIA
+          ========================= */
+
+          cancelAnimationFrame(
+            wrap._inertiaRAF
+          );
+
+          wrap._isProgrammatic =
+            true;
+
           const type =
             card.dataset.type;
 
@@ -289,38 +312,30 @@ function bindSelect(){
              CENTER
           ========================= */
 
-          wrap._isProgrammatic =
-            true;
+          centerCard(
+            wrap,
+            card
+          );
 
-          requestAnimationFrame(() => {
+          clearTimeout(
+            wrap._clickTimer
+          );
 
-wrap._isProgrammatic =
-  true;
-
-cancelAnimationFrame(
-  wrap._inertiaRAF
-);
-
-centerCard(
-  wrap,
-  card
-);
-
-setTimeout(() => {
-
-  wrap._isProgrammatic =
-    false;
-
-}, 420);
-
+          wrap._clickTimer =
             setTimeout(() => {
 
               wrap._isProgrammatic =
                 false;
 
-            }, 420);
+              requestAnimationFrame(() => {
 
-          });
+                updateDepth(
+                  wrap
+                );
+
+              });
+
+            }, 420);
 
         }
       );
