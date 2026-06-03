@@ -18,7 +18,7 @@
    overscroll-behavior-x:contain;
    
   padding:
-    6px 8px 18px;
+    6px calc(50vw - 86px) 18px;
 
   scroll-behavior:smooth;
 
@@ -27,15 +27,7 @@
   scrollbar-width:none;
 
 }
-.coverflow::before,
-.coverflow::after{
 
-  content:"";
-
-  flex:0 0
-    calc(50vw - 110px);
-
-}
 .coverflow::-webkit-scrollbar{
   display:none;
 }
