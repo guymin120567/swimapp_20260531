@@ -79,21 +79,28 @@ function renderType(type){
       : state.selection?.swimId;
 
   /* =========================
-     RENDER SKIP
+     RENDER SIGNATURE
   ========================= */
 
-  const currentSelected =
-    target.dataset.selected;
+  const signature =
+    JSON.stringify({
+
+      ids:
+        items.map(i => i.id),
+
+      selectedId
+
+    });
 
   if(
-    currentSelected === selectedId &&
-    target.children.length === items.length
+    target.dataset.signature ===
+    signature
   ){
     return;
   }
 
-  target.dataset.selected =
-    selectedId || "";
+  target.dataset.signature =
+    signature;
 
   /* =========================
      EMPTY FIX
