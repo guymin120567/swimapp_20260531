@@ -57,28 +57,27 @@ function handleTabClick(e){
     return;
   }
 
-  /* =========================
-     SPIN LOCK
-  ========================= */
+  const state =
+    getState();
 
-const state =
-  getState();
+  if(
+    state.ui?.isSpinning === true
+  ){
 
-if(
-  state.ui?.isSpinning === true
-){
+    alert(
+      "룰렛 진행 중입니다 🎲"
+    );
 
-  alert(
-    "룰렛 진행 중입니다 🎲"
+    return;
+
+  }
+
+  activateTab(
+    button.dataset.tab
   );
-
-  return;
 
 }
 
-activateTab(
-  button.dataset.tab
-);
 /* =========================
    ACTIVATE
 ========================= */
@@ -124,7 +123,7 @@ function activateTab(type){
   Object.entries(
     sections
   ).forEach(
-    ([key,section]) => {
+    ([key, section]) => {
 
       if(!section){
         return;
