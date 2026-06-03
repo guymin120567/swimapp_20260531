@@ -10,7 +10,7 @@
 
   align-items:center;
 
-  gap:12px;
+  gap:0px;
 
   overflow-x:auto;
   overflow-y:visible;
@@ -50,11 +50,18 @@
 
   position:relative;
 
-  margin-left:-70px;
-
   z-index:1;
 
   cursor:pointer;
+
+  transform:
+    translateX(-70px);
+
+}
+
+.cover-card:first-child{
+
+  transform:none;
 
 }
 
