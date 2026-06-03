@@ -57,17 +57,19 @@ export function bindDrag(){
        INIT CENTER
     ========================= */
 
-    requestAnimationFrame(() => {
+    window.addEventListener(
+      "load",
+      () => {
 
-      centerFirst(wrap);
+        centerFirst(wrap);
 
-      requestAnimationFrame(() => {
+        requestDepthUpdate(
+          wrap
+        );
 
-        updateDepth(wrap);
-
-      });
-
-    });
+      },
+      { once:true }
+    );
 
     /* =========================
        DOWN
