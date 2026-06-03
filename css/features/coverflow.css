@@ -18,7 +18,7 @@
    overscroll-behavior-x:contain;
    
   padding:
-    6px calc(50vw - 86px) 18px;
+    6px 0 18px;
 
   scroll-behavior:smooth;
 
@@ -46,8 +46,7 @@
 
   cursor:pointer;
 
-  transform:
-    translateX(-70px);
+  transform: none;
 
 }
 
@@ -95,7 +94,8 @@
   transition:
     transform .28s cubic-bezier(.22,1,.36,1),
     opacity .28s ease,
-    filter .28s ease;
+    filter .28s ease,
+    box-shadow .28s ease;
 
   filter:
     blur(2px);
@@ -116,19 +116,19 @@
 
 }
 
-.cover-card.active .card-inner{
+.cover-card.active .card-inner {
 
-  opacity:1;
+  opacity: 1;
 
-  filter:none;
+  filter: none;
 
-  transform:
-    scale(1.04);
-    box-shadow:
-       0 18px 34px
-       rgba(125,211,252,.35);
+  transform: scale(1.04);
+
+  box-shadow:
+    0 18px 34px
+    rgba(125,211,252,.35);
+
 }
-
 /* =========================
    DEPTH
 ========================= */
