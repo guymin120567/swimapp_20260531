@@ -23,25 +23,25 @@ export function renderCoverflow(
   changedType = null
 ){
 
-if(
-  !changedType ||
-  changedType === "cap"
-){
-  renderType("cap");
-}
+  if(
+    !changedType ||
+    changedType === "cap"
+  ){
+    renderType("cap");
+  }
 
-if(
-  !changedType ||
-  changedType === "swim"
-){
-  renderType("swim");
-}
+  if(
+    !changedType ||
+    changedType === "swim"
+  ){
+    renderType("swim");
+  }
 
   bindSelect();
 
   bindSpinEvents();
 
-  requestAnimationFrame(()=>{
+  requestAnimationFrame(() => {
 
     bindDrag();
 
@@ -79,23 +79,28 @@ function renderType(type){
       : state.selection?.swimId;
 
   /* =========================
+     RENDER SKIP
+  ========================= */
+
+  const currentSelected =
+    target.dataset.selected;
+
+  if(
+    currentSelected === selectedId &&
+    target.children.length === items.length
+  ){
+    return;
+  }
+
+  target.dataset.selected =
+    selectedId || "";
+
+  /* =========================
      EMPTY FIX
   ========================= */
 
   if(!items.length){
 
-    const currentSelected =
-  target.dataset.selected;
-
-if(
-  currentSelected === selectedId &&
-  target.children.length === items.length
-){
-  return;
-}
-
-target.dataset.selected =
-  selectedId;
     target.innerHTML = `
 
       <div class="empty-coverflow">
@@ -105,6 +110,7 @@ target.dataset.selected =
     `;
 
     return;
+
   }
 
   target.innerHTML =
@@ -122,12 +128,13 @@ target.dataset.selected =
         <div class="card-inner">
 
           <button
-    class="delete-btn"
-    data-action="delete"
-    data-id="${item.id}"
-  >
-    ×
-  </button>
+            class="delete-btn"
+            data-action="delete"
+            data-id="${item.id}"
+          >
+            ×
+          </button>
+
           ${
             item.image
               ? `
@@ -159,7 +166,7 @@ target.dataset.selected =
 
     `).join("");
 
-  requestAnimationFrame(()=>{
+  requestAnimationFrame(() => {
 
     const active =
       target.querySelector(
@@ -246,15 +253,6 @@ function bindSelect(){
             type,
             id
           );
-
-          requestAnimationFrame(() => {
-
-            centerCard(
-              wrap,
-              card
-            );
-
-          });
 
         }
       );
@@ -425,7 +423,6 @@ function stopSpin(){
         return;
       }
 
-
       centerCard(
         flow,
         closest
@@ -445,23 +442,23 @@ function centerCard(
   smooth = true
 ){
 
-const rawTarget =
-  card.offsetLeft +
-  card.clientWidth / 2 -
-  wrap.clientWidth / 2;
+  const rawTarget =
+    card.offsetLeft +
+    card.clientWidth / 2 -
+    wrap.clientWidth / 2;
 
-const maxScroll =
-  wrap.scrollWidth -
-  wrap.clientWidth;
+  const maxScroll =
+    wrap.scrollWidth -
+    wrap.clientWidth;
 
-const target =
-  Math.max(
-    0,
-    Math.min(
-      rawTarget,
-      maxScroll
-    )
-  );
+  const target =
+    Math.max(
+      0,
+      Math.min(
+        rawTarget,
+        maxScroll
+      )
+    );
 
   wrap.scrollTo({
 
