@@ -1,741 +1,332 @@
 // js/features/coverflow/drag.js
 
-import {
-  setSelected
-} from "../../state/actions.js";
+import { setSelected } from "../../state/actions.js";
+import { getState } from "../../state/state.js";
 
-import {
-  getState
-} from "../../state/state.js";
+export function bindDrag() {
 
-export function bindDrag(){
-
-  const wraps =
-    document.querySelectorAll(
-      ".coverflow"
-    );
+  const wraps = document.querySelectorAll(".coverflow");
 
   wraps.forEach(wrap => {
 
-    if(
-      wrap.dataset.dragBound
-    ){
+    if (wrap.dataset.dragBound) {
 
       requestAnimationFrame(() => {
-
         updateDepth(wrap);
-
       });
 
       return;
-
     }
 
-    wrap.dataset.dragBound =
-      "true";
+    wrap.dataset.dragBound = "true";
 
     let isDown = false;
-
-    let moved = false;
+    let isDragging = false;
 
     let startX = 0;
-
+    let lastX = 0;
     let scrollLeft = 0;
-
     let velocity = 0;
 
-    let lastX = 0;
-
-    wrap._isProgrammatic =
-      false;
-
-    wrap._inertiaRAF =
-      null;
-
-    wrap._depthTicking =
-      false;
+    wrap._isProgrammatic = false;
+    wrap._inertiaRAF = null;
+    wrap._depthTicking = false;
 
     /* =========================
        INIT CENTER
     ========================= */
 
     requestAnimationFrame(() => {
-
       centerFirst(wrap);
-
-      requestDepthUpdate(
-        wrap
-      );
-
+      requestDepthUpdate(wrap);
     });
 
     /* =========================
-       DOWN
+       POINTER DOWN
     ========================= */
 
-    wrap.addEventListener(
-      "mousedown",
-      e => {
+    function onDown(x) {
 
-        if(
-          wrap._isProgrammatic
-        ){
-          return;
-        }
+      if (wrap._isProgrammatic) return;
 
-if(
-  getState().ui?.isSpinning === true
-){
-  return;
-}
+      if (getState().ui?.isSpinning) return;
 
-        if(
-          wrap.scrollWidth <=
-          wrap.clientWidth
-        ){
-          return;
-        }
+      if (wrap.scrollWidth <= wrap.clientWidth) return;
 
-        cancelAnimationFrame(
-          wrap._inertiaRAF
-        );
+      cancelAnimationFrame(wrap._inertiaRAF);
 
-        isDown = true;
+      isDown = true;
+      isDragging = false;
 
-        moved = false;
+      wrap.classList.add("dragging");
 
-        wrap.classList.add(
-          "dragging"
-        );
+      startX = x;
+      lastX = x;
+      scrollLeft = wrap.scrollLeft;
+      velocity = 0;
+    }
 
-        startX =
-          e.pageX;
+    wrap.addEventListener("mousedown", e => {
+      onDown(e.pageX);
+    });
 
-        lastX =
-          e.pageX;
-
-        scrollLeft =
-          wrap.scrollLeft;
-
-      }
-    );
-
-    /* =========================
-       TOUCH START
-    ========================= */
-
-    wrap.addEventListener(
-      "touchstart",
-      e => {
-
-        if(
-          wrap._isProgrammatic
-        ){
-          return;
-        }
-
-if(
-  getState().ui?.isSpinning === true
-){
-  return;
-}
-
-        if(
-          wrap.scrollWidth <=
-          wrap.clientWidth
-        ){
-          return;
-        }
-
-        cancelAnimationFrame(
-          wrap._inertiaRAF
-        );
-
-        isDown = true;
-
-        moved = false;
-
-        wrap.classList.add(
-          "dragging"
-        );
-
-        startX =
-          e.touches[0].pageX;
-
-        lastX =
-          startX;
-
-        scrollLeft =
-          wrap.scrollLeft;
-
-      },
-      { passive:true }
-    );
+    wrap.addEventListener("touchstart", e => {
+      onDown(e.touches[0].pageX);
+    }, { passive: true });
 
     /* =========================
        MOVE
     ========================= */
 
-    wrap.addEventListener(
-      "mousemove",
-      e => {
+    function onMove(x) {
 
-        if(!isDown){
-          return;
-        }
+      if (!isDown) return;
 
-        e.preventDefault();
+      const delta = Math.abs(x - startX);
 
-        const x =
-          e.pageX;
-
-        const delta =
-          Math.abs(
-            x - startX
-          );
-
-        if(delta > 4){
-
-          moved = true;
-
-        }
-
-        const walk =
-          (x - startX) * 1.08;
-
-        velocity =
-          x - lastX;
-
-        lastX =
-          x;
-
-        const next =
-          scrollLeft - walk;
-
-        const maxScroll =
-          wrap.scrollWidth -
-          wrap.clientWidth;
-
-        wrap.scrollLeft =
-          Math.max(
-            0,
-            Math.min(
-              next,
-              maxScroll
-            )
-          );
-
-        requestDepthUpdate(
-          wrap
-        );
-
+      if (delta > 5) {
+        isDragging = true;
       }
-    );
 
-    wrap.addEventListener(
-      "touchmove",
-      e => {
+      const walk = (x - startX) * 1.05;
 
-        if(!isDown){
-          return;
-        }
+      velocity = x - lastX;
+      lastX = x;
 
-        const x =
-          e.touches[0].pageX;
+      const next = scrollLeft - walk;
 
-        const delta =
-          Math.abs(
-            x - startX
-          );
+      const max = wrap.scrollWidth - wrap.clientWidth;
 
-        if(delta > 4){
+      wrap.scrollLeft = Math.max(0, Math.min(next, max));
 
-          moved = true;
+      requestDepthUpdate(wrap);
+    }
 
-        }
+    wrap.addEventListener("mousemove", e => {
+      onMove(e.pageX);
+    });
 
-        const walk =
-          (x - startX) * 1.08;
-
-        velocity =
-          x - lastX;
-
-        lastX =
-          x;
-
-        const next =
-          scrollLeft - walk;
-
-        const maxScroll =
-          wrap.scrollWidth -
-          wrap.clientWidth;
-
-        wrap.scrollLeft =
-          Math.max(
-            0,
-            Math.min(
-              next,
-              maxScroll
-            )
-          );
-
-        requestDepthUpdate(
-          wrap
-        );
-
-      },
-      { passive:true }
-    );
+    wrap.addEventListener("touchmove", e => {
+      onMove(e.touches[0].pageX);
+    }, { passive: true });
 
     /* =========================
        CLICK BLOCK
     ========================= */
 
-    wrap.addEventListener(
-      "click",
-      e => {
+    wrap.addEventListener("click", e => {
 
-        if(!moved){
-          return;
-        }
-
+      if (isDragging) {
         e.preventDefault();
-
         e.stopPropagation();
+        return;
+      }
 
-        moved = false;
-
-      },
-      true
-    );
+      isDragging = false;
+    }, true);
 
     /* =========================
-       END
+       END EVENTS
     ========================= */
 
-    window.addEventListener(
-      "mouseup",
-      () => {
+    function endDrag() {
 
-        if(!isDown){
-          return;
-        }
+      if (!isDown) return;
 
-        isDown = false;
+      isDown = false;
 
-        wrap.classList.remove(
-          "dragging"
-        );
+      wrap.classList.remove("dragging");
 
-        inertia(
-          wrap,
-          velocity
-        );
+      inertia(wrap, velocity);
+    }
 
-      }
-    );
-
-    wrap.addEventListener(
-      "mouseleave",
-      () => {
-
-        if(!isDown){
-          return;
-        }
-
-        isDown = false;
-
-        wrap.classList.remove(
-          "dragging"
-        );
-
-        inertia(
-          wrap,
-          velocity
-        );
-
-      }
-    );
-
-    window.addEventListener(
-      "touchend",
-      () => {
-
-        if(!isDown){
-          return;
-        }
-
-        isDown = false;
-
-        wrap.classList.remove(
-          "dragging"
-        );
-
-        inertia(
-          wrap,
-          velocity
-        );
-
-      }
-    );
+    window.addEventListener("mouseup", endDrag);
+    window.addEventListener("mouseleave", endDrag);
+    window.addEventListener("touchend", endDrag);
 
     /* =========================
-       SCROLL
+       SCROLL DEPTH
     ========================= */
 
-    wrap.addEventListener(
-      "scroll",
-      () => {
+    wrap.addEventListener("scroll", () => {
 
-        if(
-          wrap._isProgrammatic
-        ){
-          return;
-        }
+      if (wrap._isProgrammatic) return;
 
-        requestDepthUpdate(
-          wrap
-        );
+      requestDepthUpdate(wrap);
 
-      },
-      { passive:true }
-    );
+    }, { passive: true });
 
   });
-
 }
 
 /* =========================
    DEPTH RAF
 ========================= */
 
-function requestDepthUpdate(
-  wrap
-){
+function requestDepthUpdate(wrap) {
 
-  if(
-    wrap._depthTicking
-  ){
-    return;
-  }
+  if (wrap._depthTicking) return;
 
-  wrap._depthTicking =
-    true;
+  wrap._depthTicking = true;
 
   requestAnimationFrame(() => {
 
     updateDepth(wrap);
 
-    wrap._depthTicking =
-      false;
+    wrap._depthTicking = false;
 
   });
-
 }
 
 /* =========================
    CENTER FIRST
 ========================= */
 
-function centerFirst(
-  wrap
-){
+function centerFirst(wrap) {
 
-  const first =
-    wrap.querySelector(
-      ".cover-card"
-    );
+  const first = wrap.querySelector(".cover-card");
+  if (!first) return;
 
-  if(!first){
-    return;
-  }
-
-  centerCard(
-    wrap,
-    first,
-    false
-  );
-
+  centerCard(wrap, first, false);
 }
 
 /* =========================
    CENTER CARD
 ========================= */
 
-function centerCard(
-  wrap,
-  card,
-  smooth = true
-){
+function centerCard(wrap, card, smooth = true) {
 
-  if(!card){
-    return;
-  }
+  if (!card) return;
 
-  const rawTarget =
-    card.offsetLeft +
-    card.clientWidth / 2 -
-    wrap.clientWidth / 2;
+  requestAnimationFrame(() => {
 
-  const maxScroll =
-    Math.max(
-      0,
-      wrap.scrollWidth -
-      wrap.clientWidth
-    );
+    const cardCenter =
+      card.offsetLeft + card.clientWidth / 2;
 
-  const target =
-    Math.max(
-      0,
-      Math.min(
-        rawTarget,
-        maxScroll
-      )
-    );
+    const target =
+      cardCenter - wrap.clientWidth / 2;
 
-  wrap._isProgrammatic =
-    true;
+    const max =
+      Math.max(0, wrap.scrollWidth - wrap.clientWidth);
 
-  wrap.scrollTo({
+    const final = Math.max(0, Math.min(target, max));
 
-    left:target,
+    wrap._isProgrammatic = true;
 
-    behavior:
-      smooth
-        ? "smooth"
-        : "auto"
+    wrap.scrollTo({
+      left: final,
+      behavior: smooth ? "smooth" : "auto"
+    });
 
-  });
+    clearTimeout(wrap._programmaticTimer);
 
-  clearTimeout(
-    wrap._programmaticTimer
-  );
-
-  wrap._programmaticTimer =
-    setTimeout(() => {
-
-      wrap._isProgrammatic =
-        false;
-
-      requestDepthUpdate(
-        wrap
-      );
-
+    wrap._programmaticTimer = setTimeout(() => {
+      wrap._isProgrammatic = false;
+      requestDepthUpdate(wrap);
     }, smooth ? 420 : 0);
 
+  });
 }
 
 /* =========================
    INERTIA
 ========================= */
 
-function inertia(
-  wrap,
-  velocity
-){
+function inertia(wrap, velocity) {
 
-  if(
-    wrap.scrollWidth <=
-    wrap.clientWidth
-  ){
-    return;
-  }
+  if (wrap.scrollWidth <= wrap.clientWidth) return;
 
-  let current =
-    velocity * 1.8;
+  let current = velocity * 1.7;
 
-  function frame(){
+  function frame() {
 
     current *= 0.92;
 
-    const next =
-      wrap.scrollLeft - current;
+    const next = wrap.scrollLeft - current;
 
-    const maxScroll =
-      wrap.scrollWidth -
-      wrap.clientWidth;
+    const max = wrap.scrollWidth - wrap.clientWidth;
 
-    wrap.scrollLeft =
-      Math.max(
-        0,
-        Math.min(
-          next,
-          maxScroll
-        )
-      );
+    wrap.scrollLeft = Math.max(0, Math.min(next, max));
 
-    requestDepthUpdate(
-      wrap
-    );
+    requestDepthUpdate(wrap);
 
-    if(
-      Math.abs(current) > 0.35
-    ){
-
-      wrap._inertiaRAF =
-        requestAnimationFrame(
-          frame
-        );
-
-    }else{
-
+    if (Math.abs(current) > 0.35) {
+      wrap._inertiaRAF = requestAnimationFrame(frame);
+    } else {
       snapToCenter(wrap);
-
     }
 
   }
 
-  wrap._inertiaRAF =
-    requestAnimationFrame(
-      frame
-    );
-
+  wrap._inertiaRAF = requestAnimationFrame(frame);
 }
 
 /* =========================
-   SNAP CENTER
+   SNAP
 ========================= */
 
-function snapToCenter(
-  wrap,
-  smooth = true
-){
+function snapToCenter(wrap) {
 
-  const cards = [
-    ...wrap.querySelectorAll(
-      ".cover-card"
-    )
-  ];
-
-  if(!cards.length){
-    return;
-  }
+  const cards = [...wrap.querySelectorAll(".cover-card")];
+  if (!cards.length) return;
 
   const wrapCenter =
-    wrap.scrollLeft +
-    wrap.clientWidth / 2;
+    wrap.scrollLeft + wrap.clientWidth / 2;
 
-  let closest =
-    null;
-
-  let min =
-    Infinity;
+  let closest = null;
+  let min = Infinity;
 
   cards.forEach(card => {
 
-    const center =
-      card.offsetLeft +
-      card.clientWidth / 2;
+    const c =
+      card.offsetLeft + card.clientWidth / 2;
 
-    const dist =
-      Math.abs(
-        wrapCenter - center
-      );
+    const d = Math.abs(wrapCenter - c);
 
-    if(dist < min){
-
-      min =
-        dist;
-
-      closest =
-        card;
-
+    if (d < min) {
+      min = d;
+      closest = card;
     }
 
   });
 
-  if(!closest){
-    return;
-  }
-
-  const type =
-    wrap.dataset.type;
-
-  const activeId =
-    closest.dataset.id;
+  if (!closest) return;
 
   setSelected(
-    type,
-    activeId
+    wrap.dataset.type,
+    closest.dataset.id
   );
 
-  cards.forEach(card => {
+  cards.forEach(c => c.classList.remove("active"));
+  closest.classList.add("active");
 
-    card.classList.remove(
-      "active"
-    );
-
-  });
-
-  closest.classList.add(
-    "active"
-  );
-
-  centerCard(
-    wrap,
-    closest,
-    smooth
-  );
-
+  centerCard(wrap, closest, true);
 }
 
 /* =========================
    DEPTH
 ========================= */
 
-function updateDepth(
-  wrap
-){
+function updateDepth(wrap) {
 
-  const cards = [
-    ...wrap.querySelectorAll(
-      ".cover-card"
-    )
-  ];
+  const cards = [...wrap.querySelectorAll(".cover-card")];
+  if (!cards.length) return;
 
-  if(!cards.length){
-    return;
-  }
+  const active =
+    wrap.querySelector(".cover-card.active") || cards[0];
 
-  const activeCard =
-    wrap.querySelector(
-      ".cover-card.active"
-    ) || cards[0];
-
-  const activeIndex =
-    cards.indexOf(
-      activeCard
-    );
+  const activeIndex = cards.indexOf(active);
 
   cards.forEach(card => {
 
-    const index =
-      cards.indexOf(card);
+    const index = cards.indexOf(card);
 
-    const distance =
-      Math.abs(
-        index - activeIndex
-      );
+    const dist = Math.abs(index - activeIndex);
 
-    card.classList.remove(
-      "depth-1",
-      "depth-2"
-    );
+    card.classList.remove("depth-1", "depth-2");
 
-    if(distance === 1){
-
-      card.classList.add(
-        "depth-1"
-      );
-
-    }else if(distance >= 2){
-
-      card.classList.add(
-        "depth-2"
-      );
-
-    }
+    if (dist === 1) card.classList.add("depth-1");
+    else if (dist >= 2) card.classList.add("depth-2");
 
   });
-
 }
