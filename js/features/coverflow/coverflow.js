@@ -279,19 +279,20 @@ function centerCard(wrap, card, smooth = true) {
 
   requestAnimationFrame(() => {
 
-    const rawTarget =
-      card.offsetLeft +
-      card.clientWidth / 2 -
-      wrap.clientWidth / 2;
+    const cardCenter =
+      card.offsetLeft + card.clientWidth / 2;
+
+    const target =
+      cardCenter - wrap.clientWidth / 2;
 
     const maxScroll =
       wrap.scrollWidth - wrap.clientWidth;
 
-    const target =
-      Math.max(0, Math.min(rawTarget, maxScroll));
+    const finalTarget =
+      Math.max(0, Math.min(target, maxScroll));
 
     wrap.scrollTo({
-      left: target,
+      left: finalTarget,
       behavior: smooth ? "smooth" : "auto"
     });
 
