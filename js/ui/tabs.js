@@ -1,7 +1,13 @@
 // js/ui/tabs.js
+
+import {
+  getState
+} from "../state/state.js";
+
 import {
   renderRecords
 } from "../features/records/renderRecords.js";
+
 import {
   renderRoulette
 } from "../features/roulette/renderRoulette.js";
@@ -10,9 +16,9 @@ import {
   renderCoverflow
 } from "../features/coverflow/coverflow.js";
 
-// =========================
-// INIT
-// =========================
+/* =========================
+   INIT
+========================= */
 
 export function initTabs(){
 
@@ -36,9 +42,9 @@ export function initTabs(){
 
 }
 
-// =========================
-// CLICK
-// =========================
+/* =========================
+   CLICK
+========================= */
 
 function handleTabClick(e){
 
@@ -51,15 +57,34 @@ function handleTabClick(e){
     return;
   }
 
+  /* =========================
+     SPIN LOCK
+  ========================= */
+
+  const state =
+    getState();
+
+  if(
+    state.ui?.isSpinning
+  ){
+
+    alert(
+      "룰렛 진행 중입니다 🎲"
+    );
+
+    return;
+
+  }
+
   activateTab(
     button.dataset.tab
   );
 
 }
 
-// =========================
-// ACTIVATE
-// =========================
+/* =========================
+   ACTIVATE
+========================= */
 
 function activateTab(type){
 
@@ -68,7 +93,7 @@ function activateTab(type){
       ".bottom-tab"
     );
 
-  tabs.forEach(tab=>{
+  tabs.forEach(tab => {
 
     tab.classList.toggle(
 
@@ -102,7 +127,7 @@ function activateTab(type){
   Object.entries(
     sections
   ).forEach(
-    ([key,section])=>{
+    ([key,section]) => {
 
       if(!section){
         return;
@@ -114,9 +139,9 @@ function activateTab(type){
     }
   );
 
-  // =========================
-  // RENDER
-  // =========================
+  /* =========================
+     RENDER
+  ========================= */
 
   if(type === "roulette"){
 
@@ -126,7 +151,13 @@ function activateTab(type){
 
   if(type === "inventory"){
 
-     renderRecords();
+    renderCoverflow();
+
+  }
+
+  if(type === "records"){
+
+    renderRecords();
 
   }
 
