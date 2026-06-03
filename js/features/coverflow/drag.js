@@ -606,7 +606,17 @@ function snapToCenter(
     type,
     activeId
   );
+cards.forEach(card => {
 
+  card.classList.remove(
+    "active"
+  );
+
+});
+
+closest.classList.add(
+  "active"
+);
   const rawTarget =
     closest.offsetLeft +
     closest.clientWidth / 2 -
