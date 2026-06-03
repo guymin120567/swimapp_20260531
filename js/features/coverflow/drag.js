@@ -36,6 +36,8 @@ export function bindDrag(){
 
     let isDown = false;
 
+    let moved = false;
+
     let startX = 0;
 
     let scrollLeft = 0;
@@ -57,19 +59,15 @@ export function bindDrag(){
        INIT CENTER
     ========================= */
 
-    window.addEventListener(
-      "load",
-      () => {
+    requestAnimationFrame(() => {
 
-        centerFirst(wrap);
+      centerFirst(wrap);
 
-        requestDepthUpdate(
-          wrap
-        );
+      requestDepthUpdate(
+        wrap
+      );
 
-      },
-      { once:true }
-    );
+    });
 
     /* =========================
        DOWN
@@ -103,6 +101,8 @@ export function bindDrag(){
         );
 
         isDown = true;
+
+        moved = false;
 
         wrap.classList.add(
           "dragging"
@@ -153,6 +153,8 @@ export function bindDrag(){
 
         isDown = true;
 
+        moved = false;
+
         wrap.classList.add(
           "dragging"
         );
@@ -186,6 +188,17 @@ export function bindDrag(){
 
         const x =
           e.pageX;
+
+        const delta =
+          Math.abs(
+            x - startX
+          );
+
+        if(delta > 4){
+
+          moved = true;
+
+        }
 
         const walk =
           (x - startX) * 1.08;
@@ -230,6 +243,17 @@ export function bindDrag(){
         const x =
           e.touches[0].pageX;
 
+        const delta =
+          Math.abs(
+            x - startX
+          );
+
+        if(delta > 4){
+
+          moved = true;
+
+        }
+
         const walk =
           (x - startX) * 1.08;
 
@@ -261,6 +285,28 @@ export function bindDrag(){
 
       },
       { passive:true }
+    );
+
+    /* =========================
+       CLICK BLOCK
+    ========================= */
+
+    wrap.addEventListener(
+      "click",
+      e => {
+
+        if(!moved){
+          return;
+        }
+
+        e.preventDefault();
+
+        e.stopPropagation();
+
+        moved = false;
+
+      },
+      true
     );
 
     /* =========================
@@ -404,26 +450,11 @@ function centerFirst(
     return;
   }
 
-  const rawTarget =
-    first.offsetLeft +
-    first.clientWidth / 2 -
-    wrap.clientWidth / 2;
-
-  const maxScroll =
-    wrap.scrollWidth -
-    wrap.clientWidth;
-
-  const target =
-    Math.max(
-      0,
-      Math.min(
-        rawTarget,
-        maxScroll
-      )
-    );
-
-  wrap.scrollLeft =
-    target;
+  centerCard(
+    wrap,
+    first,
+    false
+  );
 
 }
 
@@ -437,14 +468,21 @@ function centerCard(
   smooth = true
 ){
 
+  if(!card){
+    return;
+  }
+
   const rawTarget =
     card.offsetLeft +
     card.clientWidth / 2 -
     wrap.clientWidth / 2;
 
   const maxScroll =
-    wrap.scrollWidth -
-    wrap.clientWidth;
+    Math.max(
+      0,
+      wrap.scrollWidth -
+      wrap.clientWidth
+    );
 
   const target =
     Math.max(
@@ -454,6 +492,9 @@ function centerCard(
         maxScroll
       )
     );
+
+  wrap._isProgrammatic =
+    true;
 
   wrap.scrollTo({
 
@@ -465,6 +506,22 @@ function centerCard(
         : "auto"
 
   });
+
+  clearTimeout(
+    wrap._programmaticTimer
+  );
+
+  wrap._programmaticTimer =
+    setTimeout(() => {
+
+      wrap._isProgrammatic =
+        false;
+
+      requestDepthUpdate(
+        wrap
+      );
+
+    }, smooth ? 420 : 0);
 
 }
 
@@ -554,13 +611,6 @@ function snapToCenter(
     return;
   }
 
-  if(
-    wrap.scrollWidth <=
-    wrap.clientWidth
-  ){
-    return;
-  }
-
   const wrapCenter =
     wrap.scrollLeft +
     wrap.clientWidth / 2;
@@ -608,59 +658,24 @@ function snapToCenter(
     type,
     activeId
   );
-cards.forEach(card => {
 
-  card.classList.remove(
-    "active"
-  );
+  cards.forEach(card => {
 
-});
-
-closest.classList.add(
-  "active"
-);
-  const rawTarget =
-    closest.offsetLeft +
-    closest.clientWidth / 2 -
-    wrap.clientWidth / 2;
-
-  const maxScroll =
-    wrap.scrollWidth -
-    wrap.clientWidth;
-
-  const target =
-    Math.max(
-      0,
-      Math.min(
-        rawTarget,
-        maxScroll
-      )
+    card.classList.remove(
+      "active"
     );
-
-  wrap._isProgrammatic =
-    true;
-
-  wrap.scrollTo({
-
-    left:target,
-
-    behavior:
-      smooth
-        ? "smooth"
-        : "auto"
 
   });
 
-  setTimeout(() => {
+  closest.classList.add(
+    "active"
+  );
 
-    wrap._isProgrammatic =
-      false;
-
-    requestDepthUpdate(
-      wrap
-    );
-
-  }, 420);
+  centerCard(
+    wrap,
+    closest,
+    smooth
+  );
 
 }
 
