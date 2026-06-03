@@ -19,538 +19,281 @@ let spinRAF = [];
    RENDER
 ========================= */
 
-export function renderCoverflow(
-  changedType = null
-){
+export function renderCoverflow(changedType = null) {
 
-  if(
-    !changedType ||
-    changedType === "cap"
-  ){
+  if (!changedType || changedType === "cap") {
     renderType("cap");
   }
 
-  if(
-    !changedType ||
-    changedType === "swim"
-  ){
+  if (!changedType || changedType === "swim") {
     renderType("swim");
   }
 
   bindSelect();
-
   bindSpinEvents();
 
   requestAnimationFrame(() => {
-
     bindDrag();
-
   });
-
 }
 
 /* =========================
    TYPE
 ========================= */
 
-function renderType(type){
+function renderType(type) {
 
   const target =
-    document.querySelector(
-      `.coverflow[data-type="${type}"]`
-    );
+    document.querySelector(`.coverflow[data-type="${type}"]`);
 
-  if(!target){
-    return;
-  }
+  if (!target) return;
 
-  const state =
-    getState();
+  const state = getState();
 
   const items =
-    (state.items || [])
-      .filter(
-        i => i.type === type
-      );
+    (state.items || []).filter(i => i.type === type);
 
   const selectedId =
     type === "cap"
       ? state.selection?.capId
       : state.selection?.swimId;
 
-  /* =========================
-     RENDER SIGNATURE
-  ========================= */
+  const signature = JSON.stringify({
+    ids: items.map(i => i.id),
+    selectedId
+  });
 
-  const signature =
-    JSON.stringify({
+  if (target.dataset.signature === signature) return;
 
-      ids:
-        items.map(i => i.id),
+  target.dataset.signature = signature;
 
-      selectedId
-
-    });
-
-  if(
-    target.dataset.signature ===
-    signature
-  ){
-    return;
-  }
-
-  target.dataset.signature =
-    signature;
-
-  /* =========================
-     EMPTY FIX
-  ========================= */
-
-  if(!items.length){
-
+  if (!items.length) {
     target.innerHTML = `
-
       <div class="empty-coverflow">
         아직 아이템이 없습니다
       </div>
-
     `;
-
     return;
-
   }
 
-  target.innerHTML =
-    items.map(item => `
+  target.innerHTML = items.map(item => `
+    <div
+      class="cover-card ${item.id === selectedId ? "active" : ""}"
+      data-id="${item.id}"
+      data-type="${type}"
+    >
+      <div class="card-inner">
 
-      <div
-        class="
-          cover-card
-          ${item.id === selectedId ? "active" : ""}
-        "
-        data-id="${item.id}"
-        data-type="${type}"
-      >
+        <button
+          class="delete-btn"
+          data-action="delete"
+          data-id="${item.id}"
+        >
+          ×
+        </button>
 
-        <div class="card-inner">
+        ${
+          item.image
+            ? `
+              <img
+                class="card-image"
+                src="${item.image}"
+                alt="${item.name}"
+                draggable="false"
+              />
+            `
+            : `
+              <div class="card-placeholder">🏊</div>
+            `
+        }
 
-          <button
-            class="delete-btn"
-            data-action="delete"
-            data-id="${item.id}"
-          >
-            ×
-          </button>
-
-          ${
-            item.image
-              ? `
-                <img
-                  class="card-image"
-                  src="${item.image}"
-                  alt="${item.name}"
-                  draggable="false"
-                />
-              `
-              : `
-                <div class="card-placeholder">
-                  🏊
-                </div>
-              `
-          }
-
-          <div class="card-overlay">
-
-            <div class="card-title">
-              ${item.name}
-            </div>
-
-          </div>
-
+        <div class="card-overlay">
+          <div class="card-title">${item.name}</div>
         </div>
 
       </div>
-
-    `).join("");
+    </div>
+  `).join("");
 
   requestAnimationFrame(() => {
 
-    const active =
-      target.querySelector(
-        ".cover-card.active"
-      );
+    const active = target.querySelector(".cover-card.active");
 
-    if(active){
-
-      centerCard(
-        target,
-        active,
-        false
-      );
-
+    if (active) {
+      centerCard(target, active, false);
     }
 
   });
-
 }
 
 /* =========================
    CLICK
 ========================= */
 
-function bindSelect(){
+function bindSelect() {
 
-  document
-    .querySelectorAll(".coverflow")
-    .forEach(wrap => {
+  document.querySelectorAll(".coverflow").forEach(wrap => {
 
-      if(
-        wrap.dataset.bound
-      ){
+    if (wrap.dataset.bound) return;
+
+    wrap.dataset.bound = "true";
+
+    wrap.addEventListener("click", e => {
+
+      const deleteBtn = e.target.closest(".delete-btn");
+
+      if (deleteBtn) {
+
+        if (!confirm("삭제하시겠습니까?")) return;
+
+        removeItem(deleteBtn.dataset.id);
         return;
       }
 
-      wrap.dataset.bound =
-        "true";
+      const card = e.target.closest(".cover-card");
+      if (!card) return;
 
-      wrap.addEventListener(
-        "click",
-        e => {
+      if (wrap.classList.contains("dragging")) return;
 
-          const deleteBtn =
-            e.target.closest(
-              ".delete-btn"
-            );
+      cancelAnimationFrame(wrap._inertiaRAF);
 
-          if(deleteBtn){
+      wrap._isProgrammatic = true;
 
-            const ok =
-              confirm(
-                "삭제하시겠습니까?"
-              );
+      const type = card.dataset.type;
+      const id = card.dataset.id;
 
-            if(!ok){
-              return;
-            }
+      setSelected(type, id);
 
-            removeItem(
-              deleteBtn.dataset.id
-            );
+      wrap.querySelectorAll(".cover-card")
+        .forEach(c => c.classList.remove("active"));
 
-            return;
+      card.classList.add("active");
 
-          }
+      centerCard(wrap, card, true);
 
-          const card =
-            e.target.closest(
-              ".cover-card"
-            );
+      clearTimeout(wrap._clickTimer);
 
-          if(!card){
-            return;
-          }
+      wrap._clickTimer = setTimeout(() => {
 
-          /* =========================
-             DRAG BLOCK
-          ========================= */
+        wrap._isProgrammatic = false;
 
-          if(
-            wrap.classList.contains(
-              "dragging"
-            )
-          ){
-            return;
-          }
-
-          /* =========================
-             STOP INERTIA
-          ========================= */
-
-          cancelAnimationFrame(
-            wrap._inertiaRAF
-          );
-
-          wrap._isProgrammatic =
-            true;
-
-          const type =
-            card.dataset.type;
-
-          const id =
-            card.dataset.id;
-
-          /* =========================
-             STATE
-          ========================= */
-
-          setSelected(
-            type,
-            id
-          );
-
-          /* =========================
-             ACTIVE SYNC
-          ========================= */
-
-          wrap
-            .querySelectorAll(
-              ".cover-card"
-            )
-            .forEach(c => {
-
-              c.classList.remove(
-                "active"
-              );
-
-            });
-
-          card.classList.add(
-            "active"
-          );
-
-          /* =========================
-             CENTER
-          ========================= */
-
-          centerCard(
-            wrap,
-            card
-          );
-
-          clearTimeout(
-            wrap._clickTimer
-          );
-
-          wrap._clickTimer =
-            setTimeout(() => {
-
-              wrap._isProgrammatic =
-                false;
-
-              requestAnimationFrame(() => {
-
-                updateDepth(
-                  wrap
-                );
-
-              });
-
-            }, 420);
-
-        }
-      );
+      }, 400);
 
     });
 
+  });
 }
 
 /* =========================
    SPIN EVENTS
 ========================= */
 
-function bindSpinEvents(){
+function bindSpinEvents() {
 
-  if(
-    window.__coverflowSpinBound
-  ){
-    return;
-  }
+  if (window.__coverflowSpinBound) return;
 
-  window.addEventListener(
-    "spin-start",
-    startSpin
-  );
+  window.addEventListener("spin-start", startSpin);
+  window.addEventListener("spin-stop", stopSpin);
 
-  window.addEventListener(
-    "spin-stop",
-    stopSpin
-  );
-
-  window.__coverflowSpinBound =
-    true;
-
+  window.__coverflowSpinBound = true;
 }
 
 /* =========================
    START SPIN
 ========================= */
 
-function startSpin(){
+function startSpin() {
 
   stopSpin();
 
-  const flows =
-    document.querySelectorAll(
-      ".coverflow"
-    );
+  const flows = document.querySelectorAll(".coverflow");
 
   flows.forEach(flow => {
 
     let velocity = 0;
+    let raf;
 
-    let raf = null;
+    const maxSpeed = 38;
 
-    const maxSpeed =
-      38;
+    function tick() {
 
-    function tick(){
+      velocity = Math.min(velocity + 0.9, maxSpeed);
 
-      velocity += 0.9;
+      flow.scrollLeft += velocity;
 
-      if(
-        velocity > maxSpeed
-      ){
-
-        velocity =
-          maxSpeed;
-
-      }
-
-      flow.scrollLeft +=
-        velocity;
-
-      raf =
-        requestAnimationFrame(
-          tick
-        );
-
+      raf = requestAnimationFrame(tick);
     }
 
-    raf =
-      requestAnimationFrame(
-        tick
-      );
+    raf = requestAnimationFrame(tick);
 
-    spinRAF.push({
-      flow,
-      raf
-    });
+    spinRAF.push({ flow, raf });
 
   });
-
 }
 
 /* =========================
-   STOP
+   STOP SPIN
 ========================= */
 
-function stopSpin(){
+function stopSpin() {
 
-  spinRAF.forEach(item => {
-
-    cancelAnimationFrame(
-      item.raf
-    );
-
-  });
-
+  spinRAF.forEach(item => cancelAnimationFrame(item.raf));
   spinRAF = [];
 
-  document
-    .querySelectorAll(
-      ".coverflow"
-    )
-    .forEach(flow => {
+  document.querySelectorAll(".coverflow").forEach(flow => {
 
-      const cards = [
+    const cards = [...flow.querySelectorAll(".cover-card")];
+    if (!cards.length) return;
 
-        ...flow.querySelectorAll(
-          ".cover-card"
-        )
+    const center = flow.scrollLeft + flow.clientWidth / 2;
 
-      ];
+    let closest = null;
+    let minDist = Infinity;
 
-      if(
-        !cards.length
-      ){
-        return;
+    cards.forEach(card => {
+
+      const cardCenter =
+        card.offsetLeft + card.clientWidth / 2;
+
+      const dist = Math.abs(center - cardCenter);
+
+      if (dist < minDist) {
+        minDist = dist;
+        closest = card;
       }
-
-      const center =
-        flow.scrollLeft +
-        flow.clientWidth / 2;
-
-      let closest =
-        null;
-
-      let minDist =
-        Infinity;
-
-      cards.forEach(card => {
-
-        const cardCenter =
-          card.offsetLeft +
-          card.clientWidth / 2;
-
-        const dist =
-          Math.abs(
-            center -
-            cardCenter
-          );
-
-        if(
-          dist < minDist
-        ){
-
-          minDist =
-            dist;
-
-          closest =
-            card;
-
-        }
-
-      });
-
-      if(!closest){
-        return;
-      }
-
-      centerCard(
-        flow,
-        closest
-      );
 
     });
 
+    if (closest) {
+      centerCard(flow, closest, true);
+    }
+
+  });
 }
 
 /* =========================
-   CENTER
+   CENTER (FIXED)
 ========================= */
 
-function centerCard(
-  wrap,
-  card,
-  smooth = true
-){
+function centerCard(wrap, card, smooth = true) {
 
-  const rawTarget =
-    card.offsetLeft +
-    card.clientWidth / 2 -
-    wrap.clientWidth / 2;
+  requestAnimationFrame(() => {
 
-  const maxScroll =
-    wrap.scrollWidth -
-    wrap.clientWidth;
+    const rawTarget =
+      card.offsetLeft +
+      card.clientWidth / 2 -
+      wrap.clientWidth / 2;
 
-  const target =
-    Math.max(
-      0,
-      Math.min(
-        rawTarget,
-        maxScroll
-      )
-    );
+    const maxScroll =
+      wrap.scrollWidth - wrap.clientWidth;
 
-  wrap.scrollTo({
+    const target =
+      Math.max(0, Math.min(rawTarget, maxScroll));
 
-    left:target,
-
-    behavior:
-      smooth
-        ? "smooth"
-        : "auto"
+    wrap.scrollTo({
+      left: target,
+      behavior: smooth ? "smooth" : "auto"
+    });
 
   });
 
