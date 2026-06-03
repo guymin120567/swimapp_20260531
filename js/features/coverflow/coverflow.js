@@ -253,6 +253,21 @@ function bindSelect(){
             type,
             id
           );
+          wrap
+  .querySelectorAll(
+    ".cover-card"
+  )
+  .forEach(c => {
+
+    c.classList.remove(
+      "active"
+    );
+
+  });
+
+card.classList.add(
+  "active"
+);
 
         }
       );
