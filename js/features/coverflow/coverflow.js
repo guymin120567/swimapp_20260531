@@ -180,27 +180,29 @@ function bindSelect(){
         e => {
 
           const deleteBtn =
-  e.target.closest(
-    ".delete-btn"
-  );
+            e.target.closest(
+              ".delete-btn"
+            );
 
-if(deleteBtn){
+          if(deleteBtn){
 
-  const ok =
-    confirm(
-      "삭제하시겠습니까?"
-    );
+            const ok =
+              confirm(
+                "삭제하시겠습니까?"
+              );
 
-  if(!ok){
-    return;
-  }
+            if(!ok){
+              return;
+            }
 
-  removeItem(
-    deleteBtn.dataset.id
-  );
+            removeItem(
+              deleteBtn.dataset.id
+            );
 
-  return;
-}
+            return;
+
+          }
+
           const card =
             e.target.closest(
               ".cover-card"
@@ -221,34 +223,14 @@ if(deleteBtn){
             id
           );
 
-/* 즉시 active 갱신 */
-wrap
-  .querySelectorAll(
-    ".cover-card"
-  )
-  .forEach(c => {
+          requestAnimationFrame(() => {
 
-    c.classList.remove(
-      "active",
-      "depth-1",
-      "depth-2"
-    );
+            centerCard(
+              wrap,
+              card
+            );
 
-  });
-
-card.classList.add(
-  "active"
-);
-
-/* 중앙 이동 */
-requestAnimationFrame(()=>{
-
-  centerCard(
-    wrap,
-    card
-  );
-
-});
+          });
 
         }
       );
