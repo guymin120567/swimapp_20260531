@@ -266,72 +266,6 @@ export function bindDrag(){
     );
 
     /* =========================
-       CLICK CENTER
-    ========================= */
-
-    const cards =
-      wrap.querySelectorAll(
-        ".cover-card"
-      );
-
-    cards.forEach(card => {
-
-      card.addEventListener(
-        "click",
-        () => {
-
-          cards.forEach(c => {
-
-            c.classList.remove(
-              "active",
-              "depth-1",
-              "depth-2"
-            );
-
-          });
-
-          card.classList.add(
-            "active"
-          );
-
-          const type =
-            wrap.dataset.type;
-
-          const id =
-            card.dataset.id;
-
-          setSelected(
-            type,
-            id
-          );
-
-          wrap._isProgrammatic =
-            true;
-
-          centerCard(
-            wrap,
-            card
-          );
-
-          setTimeout(() => {
-
-            wrap._isProgrammatic =
-              false;
-
-            requestAnimationFrame(() => {
-
-              updateDepth(wrap);
-
-            });
-
-          }, 420);
-
-        }
-      );
-
-    });
-
-    /* =========================
        SCROLL
     ========================= */
 
@@ -521,20 +455,6 @@ function snapToCenter(
   /* =========================
      ACTIVE SYNC
   ========================= */
-
-  cards.forEach(card => {
-
-    card.classList.remove(
-      "active",
-      "depth-1",
-      "depth-2"
-    );
-
-  });
-
-  closest.classList.add(
-    "active"
-  );
 
   const target =
     closest.offsetLeft +
