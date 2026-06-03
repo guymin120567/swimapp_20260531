@@ -294,10 +294,24 @@ function bindSelect(){
 
           requestAnimationFrame(() => {
 
-            centerCard(
-              wrap,
-              card
-            );
+wrap._isProgrammatic =
+  true;
+
+cancelAnimationFrame(
+  wrap._inertiaRAF
+);
+
+centerCard(
+  wrap,
+  card
+);
+
+setTimeout(() => {
+
+  wrap._isProgrammatic =
+    false;
+
+}, 420);
 
             setTimeout(() => {
 
