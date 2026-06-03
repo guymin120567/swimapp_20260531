@@ -330,10 +330,23 @@ function centerCard(
   smooth = true
 ){
 
-  const target =
-    card.offsetLeft +
-    card.clientWidth / 2 -
-    wrap.clientWidth / 2;
+const rawTarget =
+  card.offsetLeft +
+  card.clientWidth / 2 -
+  wrap.clientWidth / 2;
+
+const maxScroll =
+  wrap.scrollWidth -
+  wrap.clientWidth;
+
+const target =
+  Math.max(
+    0,
+    Math.min(
+      rawTarget,
+      maxScroll
+    )
+  );
 
   wrap.scrollTo({
 
