@@ -1,4 +1,7 @@
 // js/features/coverflow/drag.js
+import {
+  setSelected
+} from "../../state/actions.js";
 
 export function bindDrag(){
 
@@ -360,6 +363,7 @@ function snapToCenter(
   wrap,
   smooth = true
 ){
+  
 
   const cards =
     [
@@ -404,7 +408,16 @@ function snapToCenter(
   if(!closest){
     return;
   }
+  const type =
+    wrap.dataset.type;
 
+  const activeId =
+    closest.dataset.id;
+
+  setSelected(
+    type,
+    activeId
+);
   const target =
     closest.offsetLeft +
     closest.clientWidth / 2 -
@@ -526,5 +539,5 @@ function updateDepth(
     }
 
   });
-
+  
 }
