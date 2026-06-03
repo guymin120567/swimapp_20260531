@@ -61,27 +61,24 @@ function handleTabClick(e){
      SPIN LOCK
   ========================= */
 
-  const state =
-    getState();
+const state =
+  getState();
 
-  if(
-    state.ui?.isSpinning
-  ){
+if(
+  state.ui?.isSpinning === true
+){
 
-    alert(
-      "룰렛 진행 중입니다 🎲"
-    );
-
-    return;
-
-  }
-
-  activateTab(
-    button.dataset.tab
+  alert(
+    "룰렛 진행 중입니다 🎲"
   );
+
+  return;
 
 }
 
+activateTab(
+  button.dataset.tab
+);
 /* =========================
    ACTIVATE
 ========================= */
