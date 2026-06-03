@@ -83,11 +83,11 @@ export function bindDrag(){
           return;
         }
 
-        if(
-          getState().ui?.isSpinning
-        ){
-          return;
-        }
+if(
+  getState().ui?.isSpinning === true
+){
+  return;
+}
 
         if(
           wrap.scrollWidth <=
@@ -134,11 +134,11 @@ export function bindDrag(){
           return;
         }
 
-        if(
-          getState().ui?.isSpinning
-        ){
-          return;
-        }
+if(
+  getState().ui?.isSpinning === true
+){
+  return;
+}
 
         if(
           wrap.scrollWidth <=
