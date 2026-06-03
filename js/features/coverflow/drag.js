@@ -508,45 +508,24 @@ function updateDepth(
     return;
   }
 
-  const wrapCenter =
-    wrap.getBoundingClientRect().left +
-    wrap.clientWidth / 2;
+  const activeCard =
+    wrap.querySelector(
+      ".cover-card.active"
+    );
 
-  let closest = null;
+  if(!activeCard){
+    return;
+  }
 
-  let min = Infinity;
-
-  cards.forEach(card => {
-
-    const rect =
-      card.getBoundingClientRect();
-
-    const center =
-      rect.left +
-      rect.width / 2;
-
-    const dist =
-      Math.abs(
-        wrapCenter - center
-      );
-
-    if(dist < min){
-
-      min = dist;
-
-      closest = card;
-
-    }
-
-  });
+  const activeIndex =
+    cards.indexOf(
+      activeCard
+    );
 
   cards.forEach(card => {
 
     const index =
       cards.indexOf(card);
-
-    const activeIndex =
-      cards.indexOf(closest);
 
     const distance =
       Math.abs(
@@ -554,24 +533,17 @@ function updateDepth(
       );
 
     card.classList.remove(
-      "active",
       "depth-1",
       "depth-2"
     );
 
-    if(distance === 0){
-
-      card.classList.add(
-        "active"
-      );
-
-    }else if(distance === 1){
+    if(distance === 1){
 
       card.classList.add(
         "depth-1"
       );
 
-    }else{
+    }else if(distance >= 2){
 
       card.classList.add(
         "depth-2"
