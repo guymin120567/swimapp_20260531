@@ -10,13 +10,13 @@
 
   align-items:center;
 
-  gap:12;
+  gap:12px;
 
   overflow-x:auto;
   overflow-y:visible;
 
   padding:
-    6px 24px 18px;
+    6px 8px 18px;
 
   scroll-behavior:smooth;
 
@@ -31,7 +31,7 @@
   content:"";
 
   flex:0 0
-    calc(50vw - 86px);
+    calc(50vw - 110px);
 
 }
 .coverflow::-webkit-scrollbar{
