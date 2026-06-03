@@ -414,9 +414,27 @@ function snapToCenter(
   const activeId =
     closest.dataset.id;
 
-  setSelected(
-    type,
-    activeId
+setSelected(
+  type,
+  activeId
+);
+
+/* =========================
+   ACTIVE SYNC
+========================= */
+
+cards.forEach(card => {
+
+  card.classList.remove(
+    "active",
+    "depth-1",
+    "depth-2"
+  );
+
+});
+
+closest.classList.add(
+  "active"
 );
   const target =
     closest.offsetLeft +
@@ -439,12 +457,16 @@ function snapToCenter(
 
   setTimeout(()=>{
 
-    wrap._isProgrammatic =
-      false;
+  wrap._isProgrammatic =
+    false;
+
+  requestAnimationFrame(()=>{
 
     updateDepth(wrap);
 
-  }, 420);
+  });
+
+}, 420);
 
 }
 
