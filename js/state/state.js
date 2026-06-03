@@ -66,13 +66,30 @@ function loadState(){
 
     return {
 
-      ...structuredClone(
-        defaultState
-      ),
+const parsed =
+  JSON.parse(saved);
 
-      ...JSON.parse(saved)
+return {
 
-    };
+  ...structuredClone(
+    defaultState
+  ),
+
+  ...parsed,
+
+  ui:{
+
+    ...structuredClone(
+      defaultState
+    ).ui,
+
+    ...(parsed.ui || {}),
+
+    isSpinning:false
+
+  }
+
+};
 
   }catch(err){
 
