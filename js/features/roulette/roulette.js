@@ -1,4 +1,5 @@
 // js/features/roulette/roulette.js
+
 import {
   renderCoverflow
 } from "../coverflow/coverflow.js";
@@ -265,19 +266,26 @@ export async function spinAll(){
        SYNC SELECTED
     ========================= */
 
-    setSelected(
-      "cap",
-      finalCap.id
-    );
+    const changedCap =
+      setSelected(
+        "cap",
+        finalCap.id
+      );
 
-    setSelected(
-      "swim",
-      finalSwim.id
-    );
-    renderCoverflow("cap");
+    const changedSwim =
+      setSelected(
+        "swim",
+        finalSwim.id
+      );
 
-    renderCoverflow("swim");
-    
+    if(changedCap){
+      renderCoverflow("cap");
+    }
+
+    if(changedSwim){
+      renderCoverflow("swim");
+    }
+
     addRecord(
       finalCap.id,
       finalSwim.id
