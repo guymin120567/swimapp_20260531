@@ -25,39 +25,61 @@ export function setSelected(
     );
 
   if(!exists){
-    return;
+    return false;
   }
+
+  /* =========================
+     CAP
+  ========================= */
 
   if(type === "cap"){
 
     if(
       state.selection.capId === id
     ){
-      return;
+      return false;
     }
 
     setState({
+
       selection:{
+
         capId:id
+
       }
+
     });
+
+    return true;
 
   }
 
-  else if(type === "swim"){
+  /* =========================
+     SWIM
+  ========================= */
+
+  if(type === "swim"){
 
     if(
       state.selection.swimId === id
     ){
-      return;
+      return false;
     }
 
     setState({
+
       selection:{
+
         swimId:id
+
       }
+
     });
 
+    return true;
+
   }
+
+  return false;
 
 }
