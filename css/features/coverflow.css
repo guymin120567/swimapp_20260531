@@ -35,6 +35,90 @@
 }
 
 /* =========================
+   SECTION HEADER
+========================= */
+
+.section-header{
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:space-between;
+
+  gap:12px;
+
+  padding:
+    0 6px 10px;
+
+}
+
+/* =========================
+   ADD BUTTON
+========================= */
+
+.add-mini-btn{
+
+  flex:0 0 auto;
+
+  width:34px;
+  height:34px;
+
+  border:none;
+
+  border-radius:50%;
+
+  background:
+    linear-gradient(
+      180deg,
+      #8fdcff,
+      #73c8ff
+    );
+
+  color:#fff;
+
+  font-size:20px;
+
+  font-weight:700;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  cursor:pointer;
+
+  box-shadow:
+    0 10px 20px
+    rgba(125,211,252,.24);
+
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease,
+    opacity .18s ease;
+
+}
+
+.add-mini-btn:hover{
+
+  transform:
+    translateY(-1px);
+
+  box-shadow:
+    0 14px 24px
+    rgba(125,211,252,.34);
+
+}
+
+.add-mini-btn:active{
+
+  transform:
+    scale(.95);
+
+}
+
+/* =========================
    CARD WRAP
 ========================= */
 
