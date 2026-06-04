@@ -5,250 +5,59 @@ import {
   setState
 } from "./state.js";
 
-// =========================
-// ITEMS
-// =========================
+/* =========================
+   SELECT
+========================= */
 
-export function addItem(item){
-
-  const state =
-    getState();
-
-  setState({
-
-    items:[
-      ...(state.items || []),
-      item
-    ]
-
-  });
-
-}
-
-export function removeItem(id){
-
-  const state =
-    getState();
-
-  const nextItems =
-    (state.items || [])
-      .filter(
-        i => i.id !== id
-      );
-
-  const nextSelection = {
-
-    ...(state.selection || {})
-
-  };
-
-  const nextRouletteResult = {
-
-    ...(state.rouletteResult || {})
-
-  };
-
-  // =========================
-  // selection 정리
-  // =========================
-
-  if(
-    nextSelection.capId === id
-  ){
-
-    const firstCap =
-      nextItems.find(
-        i => i.type === "cap"
-      );
-
-    nextSelection.capId =
-      firstCap?.id || null;
-
-  }
-
-  if(
-    nextSelection.swimId === id
-  ){
-
-    const firstSwim =
-      nextItems.find(
-        i => i.type === "swim"
-      );
-
-    nextSelection.swimId =
-      firstSwim?.id || null;
-
-  }
-
-  // =========================
-  // rouletteResult 정리
-  // =========================
-
-  if(
-    nextRouletteResult.capId === id
-  ){
-
-    nextRouletteResult.capId =
-      null;
-
-  }
-
-  if(
-    nextRouletteResult.swimId === id
-  ){
-
-    nextRouletteResult.swimId =
-      null;
-
-  }
-
-  setState({
-
-    items:nextItems,
-
-    selection:
-      nextSelection,
-
-    rouletteResult:
-      nextRouletteResult
-
-  });
-
-}
-
-// =========================
-// SELECTION
-// =========================
-
-export function setSelected(type,id){
-
-  const state =
-    getState();
-
-  setState({
-
-    selection:{
-
-      ...(state.selection || {}),
-
-      ...(type === "cap"
-        ? { capId:id }
-        : {}),
-
-      ...(type === "swim"
-        ? { swimId:id }
-        : {})
-
-    }
-
-  });
-
-}
-
-// =========================
-// ROULETTE RESULT
-// =========================
-
-export function setRouletteResult(
-  capId,
-  swimId
+export function setSelected(
+  type,
+  id
 ){
 
   const state =
     getState();
 
-  setState({
+  const exists =
+    state.items.some(
+      i =>
+        i.id === id &&
+        i.type === type
+    );
 
-    rouletteResult:{
+  if(!exists){
+    return;
+  }
 
-      ...(state.rouletteResult || {}),
+  if(type === "cap"){
 
-      capId,
-
-      swimId
-
+    if(
+      state.selection.capId === id
+    ){
+      return;
     }
 
-  });
+    setState({
+      selection:{
+        capId:id
+      }
+    });
 
-}
+  }
 
-// =========================
-// SPINNING
-// =========================
+  else if(type === "swim"){
 
-export function setSpinning(value){
-
-  const state =
-    getState();
-
-  setState({
-
-    ui:{
-
-      ...(state.ui || {}),
-
-      isSpinning:value
-
+    if(
+      state.selection.swimId === id
+    ){
+      return;
     }
 
-  });
+    setState({
+      selection:{
+        swimId:id
+      }
+    });
 
-}
-
-// =========================
-// RECORDS
-// =========================
-
-export function addRecord(
-  capId,
-  swimId
-){
-
-  const state =
-    getState();
-
-  const now =
-    Date.now();
-
-  const sevenDays =
-    7 *
-    24 *
-    60 *
-    60 *
-    1000;
-
-  const nextRecords = [
-
-    {
-
-      id:String(now),
-
-      capId,
-
-      swimId,
-
-      createdAt:now
-
-    },
-
-    ...(state.records || [])
-
-  ].filter(
-
-    record =>
-
-      now -
-      record.createdAt <
-      sevenDays
-
-  );
-
-  setState({
-
-    records:
-      nextRecords
-
-  });
+  }
 
 }
