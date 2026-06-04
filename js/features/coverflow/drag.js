@@ -1,7 +1,16 @@
 // js/features/coverflow/drag.js
 
-import { setSelected } from "../../state/actions.js";
-import { getState } from "../../state/state.js";
+import {
+  setSelected
+} from "../../state/actions.js";
+
+import {
+  getState
+} from "../../state/state.js";
+
+import {
+  renderCoverflow
+} from "./coverflow.js";
 
 export function bindDrag() {
 
@@ -218,6 +227,7 @@ export function bindDrag() {
           moved = false;
 
           return;
+
         }
 
       },
@@ -376,11 +386,14 @@ function centerCard(
       true;
 
     wrap.scrollTo({
+
       left: final,
+
       behavior:
         smooth
           ? "smooth"
           : "auto"
+
     });
 
     clearTimeout(
@@ -522,20 +535,8 @@ function snapToCenter(
     closest.dataset.id
   );
 
-  cards.forEach(c => {
-    c.classList.remove(
-      "active"
-    );
-  });
-
-  closest.classList.add(
-    "active"
-  );
-
-  centerCard(
-    wrap,
-    closest,
-    true
+  renderCoverflow(
+    wrap.dataset.type
   );
 
 }
