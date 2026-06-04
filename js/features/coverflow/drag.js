@@ -12,7 +12,7 @@ import {
   renderCoverflow
 } from "./coverflow.js";
 
-export function bindDrag() {
+export function bindDrag(){
 
   const wraps =
     document.querySelectorAll(
@@ -21,23 +21,24 @@ export function bindDrag() {
 
   wraps.forEach(wrap => {
 
-    if (
+    if(
       wrap.dataset.dragBound
-    ) {
+    ){
 
-      requestAnimationFrame(() => {
+      requestAnimationFrame(()=>{
+
         updateDepth(wrap);
+
       });
 
       return;
+
     }
 
     wrap.dataset.dragBound =
       "true";
 
     let isDown = false;
-
-    let isDragging = false;
 
     let moved = false;
 
@@ -62,7 +63,7 @@ export function bindDrag() {
        INIT
     ========================= */
 
-    requestAnimationFrame(() => {
+    requestAnimationFrame(()=>{
 
       centerSelected(wrap);
 
@@ -74,32 +75,32 @@ export function bindDrag() {
        DOWN
     ========================= */
 
-    function onDown(x) {
+    function onDown(x){
 
-      if (
+      if(
         wrap._isProgrammatic
-      ) {
+      ){
         return;
       }
 
-      if (
+      if(
         getState().ui?.isSpinning
-      ) {
+      ){
         return;
       }
 
-      if (
+      if(
         wrap.classList.contains(
           "spinning-lock"
         )
-      ) {
+      ){
         return;
       }
 
-      if (
+      if(
         wrap.scrollWidth <=
         wrap.clientWidth
-      ) {
+      ){
         return;
       }
 
@@ -108,8 +109,6 @@ export function bindDrag() {
       );
 
       isDown = true;
-
-      isDragging = false;
 
       moved = false;
 
@@ -131,38 +130,46 @@ export function bindDrag() {
     wrap.addEventListener(
       "mousedown",
       e => {
-        onDown(e.pageX);
+
+        onDown(
+          e.pageX
+        );
+
       }
     );
 
     wrap.addEventListener(
       "touchstart",
       e => {
+
         onDown(
           e.touches[0].pageX
         );
+
       },
-      { passive: true }
+      {
+        passive:true
+      }
     );
 
     /* =========================
        MOVE
     ========================= */
 
-    function onMove(x) {
+    function onMove(x){
 
-      if (!isDown) return;
+      if(!isDown){
+        return;
+      }
 
       const delta =
         Math.abs(
           x - startX
         );
 
-      if (delta > 6) {
+      if(delta > 6){
 
         moved = true;
-
-        isDragging = true;
 
       }
 
@@ -184,7 +191,10 @@ export function bindDrag() {
       wrap.scrollLeft =
         Math.max(
           0,
-          Math.min(next, max)
+          Math.min(
+            next,
+            max
+          )
         );
 
       requestDepthUpdate(
@@ -196,18 +206,26 @@ export function bindDrag() {
     wrap.addEventListener(
       "mousemove",
       e => {
-        onMove(e.pageX);
+
+        onMove(
+          e.pageX
+        );
+
       }
     );
 
     wrap.addEventListener(
       "touchmove",
       e => {
+
         onMove(
           e.touches[0].pageX
         );
+
       },
-      { passive: true }
+      {
+        passive:true
+      }
     );
 
     /* =========================
@@ -218,7 +236,7 @@ export function bindDrag() {
       "click",
       e => {
 
-        if (moved) {
+        if(moved){
 
           e.preventDefault();
 
@@ -238,9 +256,11 @@ export function bindDrag() {
        END
     ========================= */
 
-    function endDrag() {
+    function endDrag(){
 
-      if (!isDown) return;
+      if(!isDown){
+        return;
+      }
 
       isDown = false;
 
@@ -276,11 +296,11 @@ export function bindDrag() {
 
     wrap.addEventListener(
       "scroll",
-      () => {
+      ()=>{
 
-        if (
+        if(
           wrap._isProgrammatic
-        ) {
+        ){
           return;
         }
 
@@ -289,7 +309,9 @@ export function bindDrag() {
         );
 
       },
-      { passive: true }
+      {
+        passive:true
+      }
     );
 
   });
@@ -302,18 +324,18 @@ export function bindDrag() {
 
 function requestDepthUpdate(
   wrap
-) {
+){
 
-  if (
+  if(
     wrap._depthTicking
-  ) {
+  ){
     return;
   }
 
   wrap._depthTicking =
     true;
 
-  requestAnimationFrame(() => {
+  requestAnimationFrame(()=>{
 
     updateDepth(wrap);
 
@@ -330,14 +352,16 @@ function requestDepthUpdate(
 
 function centerSelected(
   wrap
-) {
+){
 
   const active =
     wrap.querySelector(
       ".cover-card.active"
     );
 
-  if (!active) return;
+  if(!active){
+    return;
+  }
 
   centerCard(
     wrap,
@@ -355,11 +379,13 @@ function centerCard(
   wrap,
   card,
   smooth = true
-) {
+){
 
-  if (!card) return;
+  if(!card){
+    return;
+  }
 
-  requestAnimationFrame(() => {
+  requestAnimationFrame(()=>{
 
     const cardCenter =
       card.offsetLeft +
@@ -379,7 +405,10 @@ function centerCard(
     const final =
       Math.max(
         0,
-        Math.min(target, max)
+        Math.min(
+          target,
+          max
+        )
       );
 
     wrap._isProgrammatic =
@@ -387,7 +416,7 @@ function centerCard(
 
     wrap.scrollTo({
 
-      left: final,
+      left:final,
 
       behavior:
         smooth
@@ -401,7 +430,7 @@ function centerCard(
     );
 
     wrap._programmaticTimer =
-      setTimeout(() => {
+      setTimeout(()=>{
 
         wrap._isProgrammatic =
           false;
@@ -423,19 +452,19 @@ function centerCard(
 function inertia(
   wrap,
   velocity
-) {
+){
 
-  if (
+  if(
     wrap.scrollWidth <=
     wrap.clientWidth
-  ) {
+  ){
     return;
   }
 
   let current =
     velocity * 1.7;
 
-  function frame() {
+  function frame(){
 
     current *= 0.92;
 
@@ -450,25 +479,30 @@ function inertia(
     wrap.scrollLeft =
       Math.max(
         0,
-        Math.min(next, max)
+        Math.min(
+          next,
+          max
+        )
       );
 
     requestDepthUpdate(
       wrap
     );
 
-    if (
+    if(
       Math.abs(current) > 0.35
-    ) {
+    ){
 
       wrap._inertiaRAF =
         requestAnimationFrame(
           frame
         );
 
-    } else {
+    }else{
 
-      snapToCenter(wrap);
+      snapToCenter(
+        wrap
+      );
 
     }
 
@@ -487,7 +521,7 @@ function inertia(
 
 function snapToCenter(
   wrap
-) {
+){
 
   const cards = [
     ...wrap.querySelectorAll(
@@ -495,7 +529,7 @@ function snapToCenter(
     )
   ];
 
-  if (!cards.length) {
+  if(!cards.length){
     return;
   }
 
@@ -518,7 +552,7 @@ function snapToCenter(
         wrapCenter - c
       );
 
-    if (d < min) {
+    if(d < min){
 
       min = d;
 
@@ -528,12 +562,27 @@ function snapToCenter(
 
   });
 
-  if (!closest) return;
+  if(!closest){
+    return;
+  }
 
-  setSelected(
-    wrap.dataset.type,
-    closest.dataset.id
-  );
+  const changed =
+    setSelected(
+      wrap.dataset.type,
+      closest.dataset.id
+    );
+
+  if(!changed){
+
+    centerCard(
+      wrap,
+      closest,
+      true
+    );
+
+    return;
+
+  }
 
   renderCoverflow(
     wrap.dataset.type
@@ -547,7 +596,7 @@ function snapToCenter(
 
 function updateDepth(
   wrap
-) {
+){
 
   const cards = [
     ...wrap.querySelectorAll(
@@ -555,17 +604,43 @@ function updateDepth(
     )
   ];
 
-  if (!cards.length) {
+  if(!cards.length){
     return;
   }
 
-  const active =
-    wrap.querySelector(
-      ".cover-card.active"
-    ) || cards[0];
+  const wrapCenter =
+    wrap.scrollLeft +
+    wrap.clientWidth / 2;
+
+  let closest = null;
+
+  let min = Infinity;
+
+  cards.forEach(card => {
+
+    const center =
+      card.offsetLeft +
+      card.clientWidth / 2;
+
+    const dist =
+      Math.abs(
+        wrapCenter - center
+      );
+
+    if(dist < min){
+
+      min = dist;
+
+      closest = card;
+
+    }
+
+  });
 
   const activeIndex =
-    cards.indexOf(active);
+    cards.indexOf(
+      closest
+    );
 
   cards.forEach(card => {
 
@@ -578,19 +653,26 @@ function updateDepth(
       );
 
     card.classList.remove(
+      "active",
       "depth-1",
       "depth-2"
     );
 
-    if (dist === 1) {
+    if(dist === 0){
+
+      card.classList.add(
+        "active"
+      );
+
+    }else if(
+      dist === 1
+    ){
 
       card.classList.add(
         "depth-1"
       );
 
-    } else if (
-      dist >= 2
-    ) {
+    }else{
 
       card.classList.add(
         "depth-2"
