@@ -59,15 +59,31 @@ export function bindDrag(){
     wrap._depthTicking =
       false;
 
+    wrap._hasInitialCentered =
+      false;
+
     /* =========================
        INIT
     ========================= */
 
     requestAnimationFrame(()=>{
 
-      centerSelected(wrap);
+      if(
+        !wrap._hasInitialCentered
+      ){
 
-      requestDepthUpdate(wrap);
+        centerSelected(
+          wrap
+        );
+
+        wrap._hasInitialCentered =
+          true;
+
+      }
+
+      requestDepthUpdate(
+        wrap
+      );
 
     });
 
@@ -107,6 +123,13 @@ export function bindDrag(){
       cancelAnimationFrame(
         wrap._inertiaRAF
       );
+
+      clearTimeout(
+        wrap._programmaticTimer
+      );
+
+      wrap._isProgrammatic =
+        false;
 
       isDown = true;
 
@@ -174,7 +197,7 @@ export function bindDrag(){
       }
 
       const walk =
-        (x - startX) * 1.05;
+        (x - startX) * 1.02;
 
       velocity =
         x - lastX;
@@ -439,7 +462,7 @@ function centerCard(
           wrap
         );
 
-      }, smooth ? 420 : 0);
+      }, smooth ? 420 : 60);
 
   });
 
@@ -462,11 +485,11 @@ function inertia(
   }
 
   let current =
-    velocity * 1.7;
+    velocity * 1.35;
 
   function frame(){
 
-    current *= 0.94;
+    current *= 0.9;
 
     const next =
       wrap.scrollLeft -
@@ -490,7 +513,7 @@ function inertia(
     );
 
     if(
-      Math.abs(current) > 0.25
+      Math.abs(current) > 0.22
     ){
 
       wrap._inertiaRAF =
