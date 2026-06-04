@@ -1,7 +1,12 @@
 // js/features/coverflow/coverflow.js
 
 import { getState } from "../../state/state.js";
-import { setSelected, removeItem } from "../../state/actions.js";
+
+import {
+  setSelected,
+  removeItem
+} from "../../state/actions.js";
+
 import { bindDrag } from "./drag.js";
 
 let spinRAF = [];
@@ -10,17 +15,26 @@ let spinRAF = [];
    RENDER
 ========================= */
 
-export function renderCoverflow(changedType = null) {
+export function renderCoverflow(
+  changedType = null
+) {
 
-  if (!changedType || changedType === "cap") {
+  if (
+    !changedType ||
+    changedType === "cap"
+  ) {
     renderType("cap");
   }
 
-  if (!changedType || changedType === "swim") {
+  if (
+    !changedType ||
+    changedType === "swim"
+  ) {
     renderType("swim");
   }
 
   bindSelect();
+
   bindSpinEvents();
 
   requestAnimationFrame(() => {
@@ -54,13 +68,19 @@ function renderType(type) {
       ? state.selection?.capId
       : state.selection?.swimId;
 
-  const signature = JSON.stringify({
-    ids: items.map(i => i.id),
-    selectedId
-  });
+  const signature =
+    JSON.stringify({
+
+      ids:
+        items.map(i => i.id),
+
+      selectedId
+
+    });
 
   if (
-    target.dataset.signature === signature
+    target.dataset.signature ===
+    signature
   ) {
     return;
   }
@@ -77,80 +97,82 @@ function renderType(type) {
     `;
 
     return;
+
   }
 
-  target.innerHTML = items.map(item => {
+  target.innerHTML =
+    items.map(item => {
 
-    const isActive =
-      item.id === selectedId;
+      const isActive =
+        item.id === selectedId;
 
-    return `
-      <div
-        class="
-          cover-card
-          ${isActive ? "active" : ""}
-        "
-        data-id="${item.id}"
-        data-type="${type}"
-      >
+      return `
 
-        <div class="card-inner">
+        <div
+          class="
+            cover-card
+            ${isActive ? "active" : ""}
+          "
+          data-id="${item.id}"
+          data-type="${type}"
+        >
 
-          <button
-            class="delete-btn"
-            data-action="delete"
-            data-id="${item.id}"
-          >
-            ×
-          </button>
+          <div class="card-inner">
 
-          ${
-            item.image
-              ? `
-                <img
-                  class="card-image"
-                  src="${item.image}"
-                  draggable="false"
-                />
-              `
-              : `
-                <div class="card-placeholder">
-                  🏊
-                </div>
-              `
-          }
+            <button
+              class="delete-btn"
+              data-action="delete"
+              data-id="${item.id}"
+            >
+              ×
+            </button>
 
-          <div class="card-overlay">
+            ${
+              item.image
+                ? `
+                  <img
+                    class="card-image"
+                    src="${item.image}"
+                    draggable="false"
+                  />
+                `
+                : `
+                  <div class="card-placeholder">
+                    🏊
+                  </div>
+                `
+            }
 
-            <div class="card-title">
-              ${item.name}
+            <div class="card-overlay">
+
+              <div class="card-title">
+                ${item.name}
+              </div>
+
             </div>
 
           </div>
 
         </div>
 
-      </div>
-    `;
+      `;
 
-  }).join("");
+    }).join("");
 
   requestAnimationFrame(() => {
 
     const active =
       target.querySelector(
-        '.cover-card.active'
+        ".cover-card.active"
       );
 
-    if (active) {
+    if (!active) return;
 
-      centerCard(
-        target,
-        active,
-        false
-      );
-
-    }
+    centerCard(
+      target,
+      active,
+      false
+    );
 
   });
 
@@ -199,6 +221,7 @@ function bindSelect() {
             );
 
             return;
+
           }
 
           const card =
@@ -226,9 +249,6 @@ function bindSelect() {
             wrap._inertiaRAF
           );
 
-          wrap._isProgrammatic =
-            true;
-
           const type =
             card.dataset.type;
 
@@ -240,37 +260,7 @@ function bindSelect() {
             id
           );
 
-          wrap
-            .querySelectorAll(
-              ".cover-card"
-            )
-            .forEach(c => {
-              c.classList.remove(
-                "active"
-              );
-            });
-
-          card.classList.add(
-            "active"
-          );
-
-          centerCard(
-            wrap,
-            card,
-            true
-          );
-
-          clearTimeout(
-            wrap._clickTimer
-          );
-
-          wrap._clickTimer =
-            setTimeout(() => {
-
-              wrap._isProgrammatic =
-                false;
-
-            }, 420);
+          renderCoverflow(type);
 
         }
       );
@@ -431,20 +421,8 @@ function stopSpin() {
         closest.dataset.id
       );
 
-      cards.forEach(c => {
-        c.classList.remove(
-          "active"
-        );
-      });
-
-      closest.classList.add(
-        "active"
-      );
-
-      centerCard(
-        flow,
-        closest,
-        true
+      renderCoverflow(
+        flow.dataset.type
       );
 
     });
@@ -487,11 +465,14 @@ function centerCard(
       );
 
     wrap.scrollTo({
+
       left: final,
+
       behavior:
         smooth
           ? "smooth"
           : "auto"
+
     });
 
   });
