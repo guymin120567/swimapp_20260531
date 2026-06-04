@@ -15,46 +15,65 @@ export function renderLayout(){
 
     <div class="container">
 
-<div
-  id="addModal"
-  class="add-modal"
-  hidden
->
+      <!-- =====================
+           ADD MODAL
+      ====================== -->
 
-  <div
-    class="add-modal-backdrop"
-    data-action="close-add"
-  ></div>
+      <div
+        id="addModal"
+        class="add-modal"
+        hidden
+      >
 
-  <div class="add-modal-sheet">
+        <div
+          class="add-modal-backdrop"
+          data-action="close-add"
+        ></div>
 
-    <div class="add-modal-header">
-      <div class="section-title">아이템 추가</div>
-      <button class="modal-close-btn" data-action="close-add">×</button>
-    </div>
+        <div class="add-modal-sheet">
 
-    <input
-      id="itemText"
-      type="text"
-      placeholder="이름 입력"
-    />
+          <div class="add-modal-header">
 
-    <input
-      id="itemImage"
-      type="file"
-      accept="image/*"
-    />
+            <div class="section-title">
+              아이템 추가
+            </div>
 
-    <button
-      class="spin-btn"
-      data-action="add"
-    >
-      추가하기
-    </button>
+            <button
+              class="modal-close-btn"
+              data-action="close-add"
+            >
+              ×
+            </button>
 
-  </div>
+          </div>
 
-</div>
+          <input
+            id="itemText"
+            type="text"
+            placeholder="이름 입력"
+          />
+
+          <input
+            id="itemImage"
+            type="file"
+            accept="image/*"
+          />
+
+          <button
+            class="spin-btn"
+            data-action="add"
+          >
+            추가하기
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- =====================
+           MAIN
+      ====================== -->
+
       <main class="main-content">
 
         <!-- =====================
@@ -82,62 +101,66 @@ export function renderLayout(){
           hidden
         >
 
-          <!-- CAP -->
+          <!-- =====================
+               CAP
+          ====================== -->
 
-<div class="block">
+          <div class="block">
 
-  <div class="section-header">
+            <div class="section-header">
 
-    <div class="section-title">
-      🧢 수모
-    </div>
+              <div class="section-title">
+                🧢 수모
+              </div>
 
-    <button
-      class="add-mini-btn"
-      data-action="open-add"
-      data-type="cap"
-    >
-      +
-    </button>
+              <button
+                class="add-mini-btn"
+                data-action="open-add"
+                data-type="cap"
+                aria-label="수모 추가"
+              >
+                +
+              </button>
 
-  </div>
+            </div>
 
-  <div
-    class="coverflow"
-    data-type="cap"
-  ></div>
-
-</div>
-
-          <!-- SWIM -->
-<div class="block">
-
-
-  <div class="section-header">
-
-    <div class="section-title">
-      🩳 수영복
-    </div>
-
-    <button
-      class="add-mini-btn"
-      data-action="open-add"
-      data-type="swim"
-    >
-      +
-    </button>
-
-  </div>
-
-  <div
-    class="coverflow"
-    data-type="swim"
-  ></div>
-
-</div></div>
+            <div
+              class="coverflow"
+              data-type="cap"
+            ></div>
 
           </div>
-          
+
+          <!-- =====================
+               SWIM
+          ====================== -->
+
+          <div class="block">
+
+            <div class="section-header">
+
+              <div class="section-title">
+                🩳 수영복
+              </div>
+
+              <button
+                class="add-mini-btn"
+                data-action="open-add"
+                data-type="swim"
+                aria-label="수영복 추가"
+              >
+                +
+              </button>
+
+            </div>
+
+            <div
+              class="coverflow"
+              data-type="swim"
+            ></div>
+
+          </div>
+
         </section>
 
         <!-- =====================
