@@ -7,12 +7,13 @@ import {
 import {
   setRouletteResult,
   setSpinning,
-  addRecord
+  addRecord,
+  setSelected
 } from "../../state/actions.js";
 
-// =========================
-// SPIN
-// =========================
+/* =========================
+   SPIN
+========================= */
 
 export async function spinAll(){
 
@@ -35,29 +36,29 @@ export async function spinAll(){
       i => i.type === "swim"
     );
 
- if(
-  caps.length < 2
-){
+  if(
+    caps.length < 2
+  ){
 
-  alert(
-    "수모를 최소 2개 이상 등록해주세요."
-  );
+    alert(
+      "수모를 최소 2개 이상 등록해주세요."
+    );
 
-  return;
+    return;
 
-}
+  }
 
-if(
-  swims.length < 2
-){
+  if(
+    swims.length < 2
+  ){
 
-  alert(
-    "수영복을 최소 2개 이상 등록해주세요."
-  );
+    alert(
+      "수영복을 최소 2개 이상 등록해주세요."
+    );
 
-  return;
+    return;
 
-}
+  }
 
   const capSlot =
     document.querySelector(
@@ -76,10 +77,28 @@ if(
     return;
   }
 
+  /* =========================
+     CLEAR INERTIA
+  ========================= */
+
+  document
+    .querySelectorAll(".coverflow")
+    .forEach(wrap => {
+
+      cancelAnimationFrame(
+        wrap._inertiaRAF
+      );
+
+      wrap.classList.remove(
+        "dragging"
+      );
+
+    });
+
   window.__isSpinning = true;
 
   setSpinning(true);
-  
+
   const spinBtn =
     document.querySelector(
       "#rouletteSection .spin-btn"
@@ -191,87 +210,130 @@ if(
 
   run();
 
+  /* =========================
+     FINISH
+  ========================= */
+
   function finish(
-  finalCap,
-  finalSwim
-){
-
-  renderFinal(
-    capSlot,
-    finalCap
-  );
-
-  renderFinal(
-    swimSlot,
+    finalCap,
     finalSwim
-  );
+  ){
 
-  capSlot.classList.remove(
-    "spinning"
-  );
+    renderFinal(
+      capSlot,
+      finalCap
+    );
 
-  swimSlot.classList.remove(
-    "spinning"
-  );
+    renderFinal(
+      swimSlot,
+      finalSwim
+    );
 
-  capSlot.classList.add(
-    "winner"
-  );
+    capSlot.classList.remove(
+      "spinning"
+    );
 
-  swimSlot.classList.add(
-    "winner"
-  );
+    swimSlot.classList.remove(
+      "spinning"
+    );
 
-  burst("cap");
+    capSlot.classList.add(
+      "winner"
+    );
 
-  burst("swim");
+    swimSlot.classList.add(
+      "winner"
+    );
 
+    burst("cap");
+
+    burst("swim");
+
+    /* =========================
+       RESULT
+    ========================= */
 
     setRouletteResult(
       finalCap.id,
       finalSwim.id
     );
-    
+
+    /* =========================
+       SYNC SELECTED
+    ========================= */
+
+    setSelected(
+      "cap",
+      finalCap.id
+    );
+
+    setSelected(
+      "swim",
+      finalSwim.id
+    );
+
     addRecord(
       finalCap.id,
       finalSwim.id
     );
 
+    /* =========================
+       UNLOCK
+    ========================= */
 
-  setTimeout(()=>{
+    setTimeout(()=>{
 
-    capSlot.classList.remove(
-      "winner"
-    );
+      capSlot.classList.remove(
+        "winner"
+      );
 
-    swimSlot.classList.remove(
-      "winner"
-    );
+      swimSlot.classList.remove(
+        "winner"
+      );
 
-    setSpinning(false);
+      setSpinning(false);
 
-    window.__isSpinning = false;
+      window.__isSpinning = false;
 
+      document
+        .querySelectorAll(
+          ".coverflow"
+        )
+        .forEach(wrap => {
 
-    if(spinBtn){
-      spinBtn.disabled = false;
-    }
+          wrap.classList.remove(
+            "dragging",
+            "spinning-lock"
+          );
 
-    
-    window.dispatchEvent(
-      new CustomEvent(
-        "spin-stop"
-      )
-    );
+          wrap._isProgrammatic =
+            false;
 
-  },1800);
+          cancelAnimationFrame(
+            wrap._inertiaRAF
+          );
+
+        });
+
+      if(spinBtn){
+        spinBtn.disabled = false;
+      }
+
+      window.dispatchEvent(
+        new CustomEvent(
+          "spin-stop"
+        )
+      );
+
+    },1800);
+
+  }
 
 }
-  
-}
-// =========================
-// UPDATE SLOT
-// =========================
+
+/* =========================
+   UPDATE SLOT
+========================= */
 
 function updateSlot(
   slot,
@@ -314,9 +376,9 @@ function updateSlot(
 
 }
 
-// =========================
-// FINAL
-// =========================
+/* =========================
+   FINAL
+========================= */
 
 function renderFinal(
   slot,
@@ -360,9 +422,9 @@ function renderFinal(
 
 }
 
-// =========================
-// CONFETTI
-// =========================
+/* =========================
+   CONFETTI
+========================= */
 
 function burst(type){
 
