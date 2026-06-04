@@ -65,14 +65,29 @@ export function removeItem(
     state.selection.capId === id
   ){
 
-    const nextCap =
-      nextItems.find(
+    const caps =
+      nextItems.filter(
         i => i.type === "cap"
       );
 
+    const removedIndex =
+      state.items
+        .filter(i => i.type === "cap")
+        .findIndex(
+          i => i.id === id
+        );
+
+    const fallback =
+      caps[
+        Math.max(
+          0,
+          removedIndex - 1
+        )
+      ] || caps[0];
+
     nextSelection.capId =
-      nextCap
-        ? nextCap.id
+      fallback
+        ? fallback.id
         : null;
 
   }
@@ -82,21 +97,37 @@ export function removeItem(
     state.selection.swimId === id
   ){
 
-    const nextSwim =
-      nextItems.find(
+    const swims =
+      nextItems.filter(
         i => i.type === "swim"
       );
 
+    const removedIndex =
+      state.items
+        .filter(i => i.type === "swim")
+        .findIndex(
+          i => i.id === id
+        );
+
+    const fallback =
+      swims[
+        Math.max(
+          0,
+          removedIndex - 1
+        )
+      ] || swims[0];
+
     nextSelection.swimId =
-      nextSwim
-        ? nextSwim.id
+      fallback
+        ? fallback.id
         : null;
 
   }
 
   setState({
 
-    items: nextItems,
+    items:
+      nextItems,
 
     selection:
       nextSelection
