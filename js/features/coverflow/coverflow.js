@@ -12,8 +12,13 @@ let spinRAF = [];
 
 export function renderCoverflow(changedType = null) {
 
-  if (!changedType || changedType === "cap") renderType("cap");
-  if (!changedType || changedType === "swim") renderType("swim");
+  if (!changedType || changedType === "cap") {
+    renderType("cap");
+  }
+
+  if (!changedType || changedType === "swim") {
+    renderType("swim");
+  }
 
   bindSelect();
   bindSpinEvents();
@@ -21,6 +26,7 @@ export function renderCoverflow(changedType = null) {
   requestAnimationFrame(() => {
     bindDrag();
   });
+
 }
 
 /* =========================
@@ -30,14 +36,18 @@ export function renderCoverflow(changedType = null) {
 function renderType(type) {
 
   const target =
-    document.querySelector(`.coverflow[data-type="${type}"]`);
+    document.querySelector(
+      `.coverflow[data-type="${type}"]`
+    );
 
   if (!target) return;
 
-  const state = getState();
+  const state =
+    getState();
 
   const items =
-    (state.items || []).filter(i => i.type === type);
+    (state.items || [])
+      .filter(i => i.type === type);
 
   const selectedId =
     type === "cap"
@@ -49,44 +59,101 @@ function renderType(type) {
     selectedId
   });
 
-  if (target.dataset.signature === signature) return;
-
-  target.dataset.signature = signature;
-
-  if (!items.length) {
-    target.innerHTML = `<div class="empty-coverflow">아직 아이템이 없습니다</div>`;
+  if (
+    target.dataset.signature === signature
+  ) {
     return;
   }
 
-  target.innerHTML = items.map(item => `
-    <div class="cover-card ${item.id === selectedId ? "active" : ""}"
-      data-id="${item.id}" data-type="${type}">
+  target.dataset.signature =
+    signature;
 
-      <div class="card-inner">
+  if (!items.length) {
 
-        <button class="delete-btn" data-action="delete" data-id="${item.id}">
-          ×
-        </button>
+    target.innerHTML = `
+      <div class="empty-coverflow">
+        아직 아이템이 없습니다
+      </div>
+    `;
 
-        ${
-          item.image
-            ? `<img class="card-image" src="${item.image}" draggable="false" />`
-            : `<div class="card-placeholder">🏊</div>`
-        }
+    return;
+  }
 
-        <div class="card-overlay">
-          <div class="card-title">${item.name}</div>
+  target.innerHTML = items.map(item => {
+
+    const isActive =
+      item.id === selectedId;
+
+    return `
+      <div
+        class="
+          cover-card
+          ${isActive ? "active" : ""}
+        "
+        data-id="${item.id}"
+        data-type="${type}"
+      >
+
+        <div class="card-inner">
+
+          <button
+            class="delete-btn"
+            data-action="delete"
+            data-id="${item.id}"
+          >
+            ×
+          </button>
+
+          ${
+            item.image
+              ? `
+                <img
+                  class="card-image"
+                  src="${item.image}"
+                  draggable="false"
+                />
+              `
+              : `
+                <div class="card-placeholder">
+                  🏊
+                </div>
+              `
+          }
+
+          <div class="card-overlay">
+
+            <div class="card-title">
+              ${item.name}
+            </div>
+
+          </div>
+
         </div>
 
       </div>
+    `;
 
-    </div>
-  `).join("");
+  }).join("");
 
   requestAnimationFrame(() => {
-    const active = target.querySelector(".cover-card.active");
-    if (active) centerCard(target, active, false);
+
+    const active =
+      target.querySelector(
+        '.cover-card.active'
+      );
+
+    if (active) {
+
+      centerCard(
+        target,
+        active,
+        false
+      );
+
+    }
+
   });
+
 }
 
 /* =========================
@@ -95,47 +162,121 @@ function renderType(type) {
 
 function bindSelect() {
 
-  document.querySelectorAll(".coverflow").forEach(wrap => {
+  document
+    .querySelectorAll(".coverflow")
+    .forEach(wrap => {
 
-    if (wrap.dataset.bound) return;
-    wrap.dataset.bound = "true";
-
-    wrap.addEventListener("click", e => {
-
-      const deleteBtn = e.target.closest(".delete-btn");
-
-      if (deleteBtn) {
-        if (!confirm("삭제하시겠습니까?")) return;
-        removeItem(deleteBtn.dataset.id);
+      if (
+        wrap.dataset.bound
+      ) {
         return;
       }
 
-      const card = e.target.closest(".cover-card");
-      if (!card) return;
+      wrap.dataset.bound =
+        "true";
 
-      if (wrap.classList.contains("dragging")) return;
+      wrap.addEventListener(
+        "click",
+        e => {
 
-      cancelAnimationFrame(wrap._inertiaRAF);
+          const deleteBtn =
+            e.target.closest(
+              ".delete-btn"
+            );
 
-      wrap._isProgrammatic = true;
+          if (deleteBtn) {
 
-      setSelected(card.dataset.type, card.dataset.id);
+            if (
+              !confirm(
+                "삭제하시겠습니까?"
+              )
+            ) {
+              return;
+            }
 
-      wrap.querySelectorAll(".cover-card")
-        .forEach(c => c.classList.remove("active"));
+            removeItem(
+              deleteBtn.dataset.id
+            );
 
-      card.classList.add("active");
+            return;
+          }
 
-      centerCard(wrap, card, true);
+          const card =
+            e.target.closest(
+              ".cover-card"
+            );
 
-      clearTimeout(wrap._clickTimer);
-      wrap._clickTimer = setTimeout(() => {
-        wrap._isProgrammatic = false;
-      }, 400);
+          if (!card) return;
+
+          if (
+            wrap.classList.contains(
+              "dragging"
+            )
+          ) {
+            return;
+          }
+
+          if (
+            getState().ui?.isSpinning
+          ) {
+            return;
+          }
+
+          cancelAnimationFrame(
+            wrap._inertiaRAF
+          );
+
+          wrap._isProgrammatic =
+            true;
+
+          const type =
+            card.dataset.type;
+
+          const id =
+            card.dataset.id;
+
+          setSelected(
+            type,
+            id
+          );
+
+          wrap
+            .querySelectorAll(
+              ".cover-card"
+            )
+            .forEach(c => {
+              c.classList.remove(
+                "active"
+              );
+            });
+
+          card.classList.add(
+            "active"
+          );
+
+          centerCard(
+            wrap,
+            card,
+            true
+          );
+
+          clearTimeout(
+            wrap._clickTimer
+          );
+
+          wrap._clickTimer =
+            setTimeout(() => {
+
+              wrap._isProgrammatic =
+                false;
+
+            }, 420);
+
+        }
+      );
 
     });
 
-  });
 }
 
 /* =========================
@@ -144,40 +285,79 @@ function bindSelect() {
 
 function bindSpinEvents() {
 
-  if (window.__coverflowSpinBound) return;
+  if (
+    window.__coverflowSpinBound
+  ) {
+    return;
+  }
 
-  window.addEventListener("spin-start", startSpin);
-  window.addEventListener("spin-stop", stopSpin);
+  window.addEventListener(
+    "spin-start",
+    startSpin
+  );
 
-  window.__coverflowSpinBound = true;
+  window.addEventListener(
+    "spin-stop",
+    stopSpin
+  );
+
+  window.__coverflowSpinBound =
+    true;
+
 }
 
 /* =========================
-   SPIN
+   START SPIN
 ========================= */
 
 function startSpin() {
 
   stopSpin();
 
-  document.querySelectorAll(".coverflow").forEach(flow => {
+  document
+    .querySelectorAll(".coverflow")
+    .forEach(flow => {
 
-    let velocity = 0;
-    let raf;
-    const maxSpeed = 38;
+      flow.classList.add(
+        "spinning-lock"
+      );
 
-    function tick() {
+      let velocity = 0;
 
-      velocity = Math.min(velocity + 0.9, maxSpeed);
-      flow.scrollLeft += velocity;
+      let raf;
 
-      raf = requestAnimationFrame(tick);
-    }
+      const maxSpeed = 38;
 
-    raf = requestAnimationFrame(tick);
-    spinRAF.push({ flow, raf });
+      function tick() {
 
-  });
+        velocity =
+          Math.min(
+            velocity + 0.9,
+            maxSpeed
+          );
+
+        flow.scrollLeft +=
+          velocity;
+
+        raf =
+          requestAnimationFrame(
+            tick
+          );
+
+      }
+
+      raf =
+        requestAnimationFrame(
+          tick
+        );
+
+      spinRAF.push({
+        flow,
+        raf
+      });
+
+    });
+
 }
 
 /* =========================
@@ -186,59 +366,134 @@ function startSpin() {
 
 function stopSpin() {
 
-  spinRAF.forEach(i => cancelAnimationFrame(i.raf));
+  spinRAF.forEach(i => {
+
+    cancelAnimationFrame(
+      i.raf
+    );
+
+    i.flow.classList.remove(
+      "spinning-lock"
+    );
+
+  });
+
   spinRAF = [];
 
-  document.querySelectorAll(".coverflow").forEach(flow => {
+  document
+    .querySelectorAll(".coverflow")
+    .forEach(flow => {
 
-    const cards = [...flow.querySelectorAll(".cover-card")];
-    if (!cards.length) return;
+      flow._isProgrammatic =
+        false;
 
-    const center = flow.scrollLeft + flow.clientWidth / 2;
+      const cards = [
+        ...flow.querySelectorAll(
+          ".cover-card"
+        )
+      ];
 
-    let closest = null;
-    let minDist = Infinity;
-
-    cards.forEach(card => {
-
-      const c = card.offsetLeft + card.clientWidth / 2;
-      const d = Math.abs(center - c);
-
-      if (d < minDist) {
-        minDist = d;
-        closest = card;
+      if (!cards.length) {
+        return;
       }
+
+      const center =
+        flow.scrollLeft +
+        flow.clientWidth / 2;
+
+      let closest = null;
+
+      let minDist = Infinity;
+
+      cards.forEach(card => {
+
+        const c =
+          card.offsetLeft +
+          card.clientWidth / 2;
+
+        const d =
+          Math.abs(center - c);
+
+        if (d < minDist) {
+
+          minDist = d;
+
+          closest = card;
+
+        }
+
+      });
+
+      if (!closest) return;
+
+      setSelected(
+        flow.dataset.type,
+        closest.dataset.id
+      );
+
+      cards.forEach(c => {
+        c.classList.remove(
+          "active"
+        );
+      });
+
+      closest.classList.add(
+        "active"
+      );
+
+      centerCard(
+        flow,
+        closest,
+        true
+      );
 
     });
 
-    if (closest) centerCard(flow, closest, true);
-
-  });
 }
 
 /* =========================
-   CENTER (STABLE)
+   CENTER
 ========================= */
 
-function centerCard(wrap, card, smooth = true) {
+function centerCard(
+  wrap,
+  card,
+  smooth = true
+) {
+
+  if (!card) return;
 
   requestAnimationFrame(() => {
 
     const cardCenter =
-      card.offsetLeft + card.clientWidth / 2;
+      card.offsetLeft +
+      card.clientWidth / 2;
 
     const target =
-      cardCenter - wrap.clientWidth / 2;
+      cardCenter -
+      wrap.clientWidth / 2;
 
     const max =
-      Math.max(0, wrap.scrollWidth - wrap.clientWidth);
+      Math.max(
+        0,
+        wrap.scrollWidth -
+        wrap.clientWidth
+      );
 
-    const final = Math.max(0, Math.min(target, max));
+    const final =
+      Math.max(
+        0,
+        Math.min(target, max)
+      );
 
     wrap.scrollTo({
       left: final,
-      behavior: smooth ? "smooth" : "auto"
+      behavior:
+        smooth
+          ? "smooth"
+          : "auto"
     });
 
   });
+
 }
