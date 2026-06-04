@@ -466,7 +466,7 @@ function inertia(
 
   function frame(){
 
-    current *= 0.92;
+    current *= 0.94;
 
     const next =
       wrap.scrollLeft -
@@ -490,7 +490,7 @@ function inertia(
     );
 
     if(
-      Math.abs(current) > 0.35
+      Math.abs(current) > 0.25
     ){
 
       wrap._inertiaRAF =
@@ -543,18 +543,18 @@ function snapToCenter(
 
   cards.forEach(card => {
 
-    const c =
+    const center =
       card.offsetLeft +
       card.clientWidth / 2;
 
-    const d =
+    const dist =
       Math.abs(
-        wrapCenter - c
+        wrapCenter - center
       );
 
-    if(d < min){
+    if(dist < min){
 
-      min = d;
+      min = dist;
 
       closest = card;
 
@@ -612,11 +612,11 @@ function updateDepth(
     wrap.scrollLeft +
     wrap.clientWidth / 2;
 
-  let closest = null;
+  let activeIndex = 0;
 
   let min = Infinity;
 
-  cards.forEach(card => {
+  cards.forEach((card,index)=>{
 
     const center =
       card.offsetLeft +
@@ -631,21 +631,13 @@ function updateDepth(
 
       min = dist;
 
-      closest = card;
+      activeIndex = index;
 
     }
 
   });
 
-  const activeIndex =
-    cards.indexOf(
-      closest
-    );
-
-  cards.forEach(card => {
-
-    const index =
-      cards.indexOf(card);
+  cards.forEach((card,index)=>{
 
     const dist =
       Math.abs(
