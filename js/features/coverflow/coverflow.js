@@ -41,6 +41,8 @@ export function renderCoverflow(
 
   bindSpinEvents();
 
+  bindResize();
+
   requestAnimationFrame(()=>{
 
     bindDrag();
@@ -82,7 +84,11 @@ function renderType(type){
     JSON.stringify({
 
       ids:
-        items.map(i => i.id),
+        items.map(i => ({
+          id:i.id,
+          image:i.image,
+          name:i.name
+        })),
 
       selectedId
 
@@ -335,6 +341,7 @@ function bindSelect(){
             );
 
           if(!changed){
+
             centerCard(
               wrap,
               card,
@@ -342,6 +349,7 @@ function bindSelect(){
             );
 
             return;
+
           }
 
           renderCoverflow(type);
@@ -511,11 +519,51 @@ function stopSpin(){
         closest.dataset.id
       );
 
-      renderCoverflow(
-        flow.dataset.type
-      );
+      requestAnimationFrame(()=>{
+
+        renderCoverflow(
+          flow.dataset.type
+        );
+
+      });
 
     });
+
+}
+
+/* =========================
+   RESIZE
+========================= */
+
+function bindResize(){
+
+  if(
+    window.__coverflowResizeBound
+  ){
+    return;
+  }
+
+  window.addEventListener(
+    "resize",
+    ()=>{
+
+      document
+        .querySelectorAll(
+          ".coverflow"
+        )
+        .forEach(wrap => {
+
+          applyEdgeSpacing(
+            wrap
+          );
+
+        });
+
+    }
+  );
+
+  window.__coverflowResizeBound =
+    true;
 
 }
 
@@ -532,6 +580,10 @@ function centerCard(
   if(!card){
     return;
   }
+
+  cancelAnimationFrame(
+    wrap._inertiaRAF
+  );
 
   requestAnimationFrame(()=>{
 
