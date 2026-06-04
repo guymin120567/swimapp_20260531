@@ -1,13 +1,17 @@
 // js/features/coverflow/coverflow.js
 
-import { getState } from "../../state/state.js";
+import {
+  getState
+} from "../../state/state.js";
 
 import {
   setSelected,
   removeItem
 } from "../../state/actions.js";
 
-import { bindDrag } from "./drag.js";
+import {
+  bindDrag
+} from "./drag.js";
 
 let spinRAF = [];
 
@@ -17,19 +21,19 @@ let spinRAF = [];
 
 export function renderCoverflow(
   changedType = null
-) {
+){
 
-  if (
+  if(
     !changedType ||
     changedType === "cap"
-  ) {
+  ){
     renderType("cap");
   }
 
-  if (
+  if(
     !changedType ||
     changedType === "swim"
-  ) {
+  ){
     renderType("swim");
   }
 
@@ -37,8 +41,10 @@ export function renderCoverflow(
 
   bindSpinEvents();
 
-  requestAnimationFrame(() => {
+  requestAnimationFrame(()=>{
+
     bindDrag();
+
   });
 
 }
@@ -47,21 +53,25 @@ export function renderCoverflow(
    TYPE
 ========================= */
 
-function renderType(type) {
+function renderType(type){
 
   const target =
     document.querySelector(
       `.coverflow[data-type="${type}"]`
     );
 
-  if (!target) return;
+  if(!target){
+    return;
+  }
 
   const state =
     getState();
 
   const items =
     (state.items || [])
-      .filter(i => i.type === type);
+      .filter(
+        i => i.type === type
+      );
 
   const selectedId =
     type === "cap"
@@ -78,22 +88,24 @@ function renderType(type) {
 
     });
 
-  if (
+  if(
     target.dataset.signature ===
     signature
-  ) {
+  ){
     return;
   }
 
   target.dataset.signature =
     signature;
 
-  if (!items.length) {
+  if(!items.length){
 
     target.innerHTML = `
+
       <div class="empty-coverflow">
         아직 아이템이 없습니다
       </div>
+
     `;
 
     return;
@@ -133,6 +145,7 @@ function renderType(type) {
                   <img
                     class="card-image"
                     src="${item.image}"
+                    alt="${item.name}"
                     draggable="false"
                   />
                 `
@@ -159,14 +172,20 @@ function renderType(type) {
 
     }).join("");
 
-  requestAnimationFrame(() => {
+  requestAnimationFrame(()=>{
+
+    applyEdgeSpacing(
+      target
+    );
 
     const active =
       target.querySelector(
         ".cover-card.active"
       );
 
-    if (!active) return;
+    if(!active){
+      return;
+    }
 
     centerCard(
       target,
@@ -179,18 +198,66 @@ function renderType(type) {
 }
 
 /* =========================
+   EDGE SPACING
+========================= */
+
+function applyEdgeSpacing(
+  wrap
+){
+
+  const cards = [
+    ...wrap.querySelectorAll(
+      ".cover-card"
+    )
+  ];
+
+  if(!cards.length){
+    return;
+  }
+
+  cards.forEach(card => {
+
+    card.style.marginLeft =
+      "0px";
+
+    card.style.marginRight =
+      "0px";
+
+  });
+
+  const first =
+    cards[0];
+
+  const last =
+    cards[cards.length - 1];
+
+  const side =
+    Math.max(
+      0,
+      (wrap.clientWidth / 2) - 74
+    );
+
+  first.style.marginLeft =
+    `${side}px`;
+
+  last.style.marginRight =
+    `${side}px`;
+
+}
+
+/* =========================
    CLICK
 ========================= */
 
-function bindSelect() {
+function bindSelect(){
 
   document
     .querySelectorAll(".coverflow")
     .forEach(wrap => {
 
-      if (
+      if(
         wrap.dataset.bound
-      ) {
+      ){
         return;
       }
 
@@ -206,18 +273,22 @@ function bindSelect() {
               ".delete-btn"
             );
 
-          if (deleteBtn) {
+          if(deleteBtn){
 
-            if (
+            if(
               !confirm(
                 "삭제하시겠습니까?"
               )
-            ) {
+            ){
               return;
             }
 
             removeItem(
               deleteBtn.dataset.id
+            );
+
+            renderCoverflow(
+              wrap.dataset.type
             );
 
             return;
@@ -229,19 +300,21 @@ function bindSelect() {
               ".cover-card"
             );
 
-          if (!card) return;
-
-          if (
-            wrap.classList.contains(
-              "dragging"
-            )
-          ) {
+          if(!card){
             return;
           }
 
-          if (
+          if(
+            wrap.classList.contains(
+              "dragging"
+            )
+          ){
+            return;
+          }
+
+          if(
             getState().ui?.isSpinning
-          ) {
+          ){
             return;
           }
 
@@ -255,10 +328,21 @@ function bindSelect() {
           const id =
             card.dataset.id;
 
-          setSelected(
-            type,
-            id
-          );
+          const changed =
+            setSelected(
+              type,
+              id
+            );
+
+          if(!changed){
+            centerCard(
+              wrap,
+              card,
+              true
+            );
+
+            return;
+          }
 
           renderCoverflow(type);
 
@@ -273,11 +357,11 @@ function bindSelect() {
    SPIN EVENTS
 ========================= */
 
-function bindSpinEvents() {
+function bindSpinEvents(){
 
-  if (
+  if(
     window.__coverflowSpinBound
-  ) {
+  ){
     return;
   }
 
@@ -300,7 +384,7 @@ function bindSpinEvents() {
    START SPIN
 ========================= */
 
-function startSpin() {
+function startSpin(){
 
   stopSpin();
 
@@ -318,7 +402,7 @@ function startSpin() {
 
       const maxSpeed = 38;
 
-      function tick() {
+      function tick(){
 
         velocity =
           Math.min(
@@ -342,8 +426,10 @@ function startSpin() {
         );
 
       spinRAF.push({
+
         flow,
         raf
+
       });
 
     });
@@ -354,7 +440,7 @@ function startSpin() {
    STOP SPIN
 ========================= */
 
-function stopSpin() {
+function stopSpin(){
 
   spinRAF.forEach(i => {
 
@@ -383,7 +469,7 @@ function stopSpin() {
         )
       ];
 
-      if (!cards.length) {
+      if(!cards.length){
         return;
       }
 
@@ -402,9 +488,11 @@ function stopSpin() {
           card.clientWidth / 2;
 
         const d =
-          Math.abs(center - c);
+          Math.abs(
+            center - c
+          );
 
-        if (d < minDist) {
+        if(d < minDist){
 
           minDist = d;
 
@@ -414,7 +502,9 @@ function stopSpin() {
 
       });
 
-      if (!closest) return;
+      if(!closest){
+        return;
+      }
 
       setSelected(
         flow.dataset.type,
@@ -437,11 +527,13 @@ function centerCard(
   wrap,
   card,
   smooth = true
-) {
+){
 
-  if (!card) return;
+  if(!card){
+    return;
+  }
 
-  requestAnimationFrame(() => {
+  requestAnimationFrame(()=>{
 
     const cardCenter =
       card.offsetLeft +
@@ -461,7 +553,10 @@ function centerCard(
     const final =
       Math.max(
         0,
-        Math.min(target, max)
+        Math.min(
+          target,
+          max
+        )
       );
 
     wrap.scrollTo({
