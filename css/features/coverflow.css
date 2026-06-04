@@ -17,6 +17,8 @@
 
   overscroll-behavior-x:contain;
 
+  touch-action:pan-y;
+
   padding:
     6px calc(50% - 74px) 18px;
 
@@ -48,11 +50,7 @@
 
   transform:none;
 
-}
-
-.cover-card:first-child{
-
-  transform:none;
+  user-select:none;
 
 }
 
@@ -116,13 +114,14 @@
 
 }
 
-.cover-card.active .card-inner {
+.cover-card.active .card-inner{
 
   opacity:1;
 
   filter:none;
 
-  transform:scale(1);
+  transform:
+    scale(1);
 
   box-shadow:
     0 18px 34px
@@ -177,6 +176,7 @@
 .card-image{
 
   position:absolute;
+
   inset:0;
 
   width:100%;
@@ -185,7 +185,10 @@
   object-fit:cover;
 
   user-select:none;
+
   -webkit-user-drag:none;
+
+  pointer-events:none;
 
 }
 
@@ -209,6 +212,8 @@
       rgba(20,50,80,.82)
     );
 
+  pointer-events:none;
+
 }
 
 .card-title{
@@ -222,7 +227,9 @@
   text-align:center;
 
   white-space:nowrap;
+
   overflow:hidden;
+
   text-overflow:ellipsis;
 
 }
@@ -234,11 +241,13 @@
 .card-placeholder{
 
   position:absolute;
+
   inset:0;
 
   display:flex;
 
   align-items:center;
+
   justify-content:center;
 
   font-size:26px;
@@ -302,7 +311,9 @@
   z-index:50;
 
   display:flex;
+
   align-items:center;
+
   justify-content:center;
 
   opacity:.92;
@@ -312,16 +323,27 @@
     opacity .18s ease,
     background .18s ease;
 
+  backdrop-filter:
+    blur(6px);
+
 }
 
 .delete-btn:hover{
 
   opacity:1;
 
-  transform:scale(1.06);
+  transform:
+    scale(1.06);
 
   background:
     rgba(0,0,0,.72);
+
+}
+
+.delete-btn:active{
+
+  transform:
+    scale(.96);
 
 }
 
@@ -338,5 +360,11 @@
 .coverflow.dragging .card-inner{
 
   transition:none;
+
+}
+
+.coverflow.dragging .delete-btn{
+
+  pointer-events:none;
 
 }
