@@ -1,4 +1,7 @@
 // js/features/roulette/roulette.js
+import {
+  renderCoverflow
+} from "../coverflow/coverflow.js";
 
 import {
   getState
@@ -271,7 +274,10 @@ export async function spinAll(){
       "swim",
       finalSwim.id
     );
+    renderCoverflow("cap");
 
+    renderCoverflow("swim");
+    
     addRecord(
       finalCap.id,
       finalSwim.id
