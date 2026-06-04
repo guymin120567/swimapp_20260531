@@ -89,7 +89,7 @@ export function renderLayout(){
   <div class="section-header">
 
     <div class="section-title">
-      수모 리스트
+      🧢 수모
     </div>
 
     <button
@@ -116,7 +116,7 @@ export function renderLayout(){
   <div class="section-header">
 
     <div class="section-title">
-      수영복 리스트
+      🩳 수영복
     </div>
 
     <button
