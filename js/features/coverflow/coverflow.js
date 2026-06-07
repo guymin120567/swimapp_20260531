@@ -11,7 +11,8 @@ import {
 
 import {
   bindDrag,
-  scrollToCard
+  scrollToCard,
+  updateDepth
 } from "./drag.js";
 
 let spinRAF = [];
@@ -70,9 +71,6 @@ function renderType(type){
   cancelAnimationFrame(
     target._inertiaRAF
   );
-
-  const prevScroll =
-    target.scrollLeft || 0;
 
   const state =
     getState();
@@ -194,44 +192,23 @@ function renderType(type){
 
     requestAnimationFrame(()=>{
 
+      target._initialized =
+        true;
+
       const cards = [
         ...target.querySelectorAll(
           ".cover-card"
         )
       ];
 
-      if(
-        !target.classList.contains(
-          "dragging"
-        )
-      ){
-
-        target.scrollLeft =
-          prevScroll;
-
-      }
-
-      target._initialized =
-        true;
-
-      updateVisibleCards(
-        target
-      );
-
       const selectedCard =
         cards.find(
-          c =>
-            c.dataset.id ===
+          card =>
+            card.dataset.id ===
             selectedId
         );
 
-      if(
-        selectedCard &&
-        !target._restored
-      ){
-
-        target._restored =
-          true;
+      if(selectedCard){
 
         scrollToCard(
           target,
@@ -240,6 +217,10 @@ function renderType(type){
         );
 
       }
+
+      updateDepth(
+        target
+      );
 
     });
 
@@ -295,69 +276,6 @@ function applyEdgeSpacing(
 
   last.style.marginRight =
     `${side}px`;
-
-}
-
-/* =========================
-   VISIBLE
-========================= */
-
-function updateVisibleCards(
-  wrap
-){
-
-  const cards = [
-    ...wrap.querySelectorAll(
-      ".cover-card"
-    )
-  ];
-
-  if(!cards.length){
-    return;
-  }
-
-  const wrapCenter =
-    wrap.scrollLeft +
-    wrap.clientWidth / 2;
-
-  let activeIndex = 0;
-
-  let min = Infinity;
-
-  cards.forEach((card,index)=>{
-
-    const center =
-      card.offsetLeft +
-      card.clientWidth / 2;
-
-    const dist =
-      Math.abs(
-        wrapCenter - center
-      );
-
-    if(dist < min){
-
-      min = dist;
-
-      activeIndex = index;
-
-    }
-
-  });
-
-  cards.forEach((card,index)=>{
-
-    const offset =
-      Math.abs(
-        index - activeIndex
-      );
-
-    card.style.display =
-      offset <= 2
-        ? ""
-        : "none";
-
-  });
 
 }
 
@@ -453,6 +371,14 @@ function bindSelect(){
             wrap,
             card
           );
+
+          requestAnimationFrame(()=>{
+
+            updateDepth(
+              wrap
+            );
+
+          });
 
         }
       );
@@ -617,64 +543,15 @@ function stopSpin(){
       "dragging"
     );
 
-    i.flow.style.pointerEvents =
-      "";
-
-    i.flow.style.scrollSnapType =
-      "";
-
-    i.flow.style.overflowX =
-      "";
-
     i.flow._isProgrammatic =
       false;
 
     i.flow._isSpinning =
       false;
 
-    i.flow._dragLocked =
-      false;
-
   });
 
   spinRAF = [];
-
-  document
-    .querySelectorAll(".coverflow")
-    .forEach(flow => {
-
-      cancelAnimationFrame(
-        flow._spinRAF
-      );
-
-      cancelAnimationFrame(
-        flow._inertiaRAF
-      );
-
-      flow.classList.remove(
-        "spinning-lock",
-        "dragging"
-      );
-
-      flow.style.pointerEvents =
-        "";
-
-      flow.style.scrollSnapType =
-        "";
-
-      flow.style.overflowX =
-        "";
-
-      flow._isProgrammatic =
-        false;
-
-      flow._isSpinning =
-        false;
-
-      flow._dragLocked =
-        false;
-
-    });
 
 }
 
@@ -714,7 +591,7 @@ function bindResize(){
             wrap
           );
 
-          updateVisibleCards(
+          updateDepth(
             wrap
           );
 
