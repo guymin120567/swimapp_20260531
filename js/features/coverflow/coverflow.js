@@ -126,7 +126,7 @@ function renderType(type){
   }
 
   target.innerHTML =
-    items.map(item => {
+    items.map((item,index) => {
 
       const isActive =
         item.id === selectedId;
@@ -151,6 +151,10 @@ function renderType(type){
             >
               ×
             </button>
+
+            <div class="card-index">
+              ${index + 1} / ${items.length}
+            </div>
 
             ${
               item.image
