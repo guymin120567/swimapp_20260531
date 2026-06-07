@@ -193,8 +193,16 @@ function renderType(type){
 
     requestAnimationFrame(()=>{
 
-      target.scrollLeft =
-        prevScroll;
+      if(
+        !target.classList.contains(
+          "dragging"
+        )
+      ){
+
+        target.scrollLeft =
+          prevScroll;
+
+      }
 
       target._initialized =
         true;
@@ -446,62 +454,6 @@ function stopSpin(){
 
       flow._isProgrammatic =
         false;
-
-      const cards = [
-        ...flow.querySelectorAll(
-          ".cover-card"
-        )
-      ];
-
-      if(!cards.length){
-        return;
-      }
-
-      const center =
-        flow.scrollLeft +
-        flow.clientWidth / 2;
-
-      let closest = null;
-
-      let minDist = Infinity;
-
-      cards.forEach(card => {
-
-        const c =
-          card.offsetLeft +
-          card.clientWidth / 2;
-
-        const d =
-          Math.abs(
-            center - c
-          );
-
-        if(d < minDist){
-
-          minDist = d;
-
-          closest = card;
-
-        }
-
-      });
-
-      if(!closest){
-        return;
-      }
-
-      setSelected(
-        flow.dataset.type,
-        closest.dataset.id
-      );
-
-      requestAnimationFrame(()=>{
-
-        renderCoverflow(
-          flow.dataset.type
-        );
-
-      });
 
     });
 
