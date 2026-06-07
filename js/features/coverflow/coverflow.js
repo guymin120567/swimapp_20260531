@@ -367,6 +367,39 @@ function bindSpinEvents(){
     stopSpin
   );
 
+  window.addEventListener(
+    "pagehide",
+    forceCleanup
+  );
+
+  window.addEventListener(
+    "blur",
+    forceCleanup
+  );
+
+  window.addEventListener(
+    "touchcancel",
+    forceCleanup,
+    {
+      passive:true
+    }
+  );
+
+  document.addEventListener(
+    "visibilitychange",
+    ()=>{
+
+      if(
+        document.hidden
+      ){
+
+        forceCleanup();
+
+      }
+
+    }
+  );
+
   window.__coverflowSpinBound =
     true;
 
@@ -388,6 +421,9 @@ function startSpin(){
         "spinning-lock"
       );
 
+      flow._isSpinning =
+        true;
+
       let velocity = 0;
 
       let raf;
@@ -395,6 +431,12 @@ function startSpin(){
       const maxSpeed = 38;
 
       function tick(){
+
+        if(
+          !flow._isSpinning
+        ){
+          return;
+        }
 
         velocity =
           Math.min(
@@ -410,12 +452,18 @@ function startSpin(){
             tick
           );
 
+        flow._spinRAF =
+          raf;
+
       }
 
       raf =
         requestAnimationFrame(
           tick
         );
+
+      flow._spinRAF =
+        raf;
 
       spinRAF.push({
 
@@ -440,9 +488,36 @@ function stopSpin(){
       i.raf
     );
 
-    i.flow.classList.remove(
-      "spinning-lock"
+    cancelAnimationFrame(
+      i.flow._spinRAF
     );
+
+    cancelAnimationFrame(
+      i.flow._inertiaRAF
+    );
+
+    i.flow.classList.remove(
+      "spinning-lock",
+      "dragging"
+    );
+
+    i.flow.style.pointerEvents =
+      "";
+
+    i.flow.style.scrollSnapType =
+      "";
+
+    i.flow.style.overflowX =
+      "";
+
+    i.flow._isProgrammatic =
+      false;
+
+    i.flow._isSpinning =
+      false;
+
+    i.flow._dragLocked =
+      false;
 
   });
 
@@ -452,10 +527,48 @@ function stopSpin(){
     .querySelectorAll(".coverflow")
     .forEach(flow => {
 
+      cancelAnimationFrame(
+        flow._spinRAF
+      );
+
+      cancelAnimationFrame(
+        flow._inertiaRAF
+      );
+
+      flow.classList.remove(
+        "spinning-lock",
+        "dragging"
+      );
+
+      flow.style.pointerEvents =
+        "";
+
+      flow.style.scrollSnapType =
+        "";
+
+      flow.style.overflowX =
+        "";
+
       flow._isProgrammatic =
         false;
 
+      flow._isSpinning =
+        false;
+
+      flow._dragLocked =
+        false;
+
     });
+
+}
+
+/* =========================
+   FORCE CLEANUP
+========================= */
+
+function forceCleanup(){
+
+  stopSpin();
 
 }
 
