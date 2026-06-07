@@ -2,6 +2,8 @@
 
 .coverflow{
 
+  justify-content:flex-start;
+  
   display:flex;
 
   align-items:center;
