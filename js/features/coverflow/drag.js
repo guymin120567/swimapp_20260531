@@ -4,6 +4,10 @@ import {
   getState
 } from "../../state/state.js";
 
+import {
+  setSelected
+} from "../../state/actions.js";
+
 export function bindDrag(){
 
   const wraps =
@@ -389,6 +393,7 @@ export function scrollToCard(
   wrap.scrollTo({
 
     left,
+
     behavior:
       smooth
         ? "smooth"
@@ -488,6 +493,8 @@ function inertia(
       wrap._inertiaRAF =
         null;
 
+      snapToCenter(wrap);
+
       updateDepth(
         wrap
       );
@@ -500,6 +507,75 @@ function inertia(
     requestAnimationFrame(
       frame
     );
+
+}
+
+/* =========================
+   SNAP
+========================= */
+
+function snapToCenter(
+  wrap
+){
+
+  const cards = [
+    ...wrap.querySelectorAll(
+      ".cover-card"
+    )
+  ];
+
+  if(!cards.length){
+    return;
+  }
+
+  const wrapCenter =
+    wrap.scrollLeft +
+    wrap.clientWidth / 2;
+
+  let targetCard = null;
+
+  let min = Infinity;
+
+  cards.forEach(card => {
+
+    const center =
+      card.offsetLeft +
+      card.clientWidth / 2;
+
+    const dist =
+      Math.abs(
+        wrapCenter - center
+      );
+
+    if(dist < min){
+
+      min = dist;
+
+      targetCard = card;
+
+    }
+
+  });
+
+  if(!targetCard){
+    return;
+  }
+
+  scrollToCard(
+    wrap,
+    targetCard
+  );
+
+  const type =
+    targetCard.dataset.type;
+
+  const id =
+    targetCard.dataset.id;
+
+  setSelected(
+    type,
+    id
+  );
 
 }
 
