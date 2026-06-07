@@ -67,6 +67,10 @@ export function bindDrag(){
 
       velocity = 0;
 
+      cancelAnimationFrame(
+        wrap._inertiaRAF
+      );
+
       wrap.classList.remove(
         "dragging"
       );
@@ -294,7 +298,10 @@ export function bindDrag(){
 
     window.addEventListener(
       "touchend",
-      endDrag
+      endDrag,
+      {
+        passive:true
+      }
     );
 
     window.addEventListener(
@@ -437,6 +444,13 @@ function inertia(
         );
 
     }else{
+
+      cancelAnimationFrame(
+        wrap._inertiaRAF
+      );
+
+      wrap._inertiaRAF =
+        null;
 
       updateDepth(
         wrap
