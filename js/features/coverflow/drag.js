@@ -418,13 +418,15 @@ export function scrollToCard(
       card.clientWidth / 2
     );
 
+  const safeLeft =
+    Math.round(left);
+
   wrap._isProgrammatic =
     true;
 
   wrap.scrollTo({
 
-    left:
-      Math.round(left),
+    left:safeLeft,
 
     behavior:
       smooth
@@ -442,6 +444,11 @@ export function scrollToCard(
 
       wrap._isProgrammatic =
         false;
+
+      wrap.scrollLeft =
+        Math.round(
+          wrap.scrollLeft
+        );
 
       updateDepth(
         wrap
@@ -507,7 +514,8 @@ export function findCenterCard(
 ========================= */
 
 export function snapToNearestCard(
-  wrap
+  wrap,
+  smooth = true
 ){
 
   const targetCard =
@@ -519,7 +527,8 @@ export function snapToNearestCard(
 
   scrollToCard(
     wrap,
-    targetCard
+    targetCard,
+    smooth
   );
 
   const type =
@@ -532,6 +541,14 @@ export function snapToNearestCard(
     type,
     id
   );
+
+  requestAnimationFrame(()=>{
+
+    updateDepth(
+      wrap
+    );
+
+  });
 
 }
 
@@ -576,7 +593,14 @@ function inertia(
     wrap.scrollWidth <=
     wrap.clientWidth
   ){
+
+    snapToNearestCard(
+      wrap,
+      false
+    );
+
     return;
+
   }
 
   let current =
@@ -625,11 +649,12 @@ function inertia(
       wrap._inertiaRAF =
         null;
 
-      snapToNearestCard(
-        wrap
-      );
+      wrap.scrollLeft =
+        Math.round(
+          wrap.scrollLeft
+        );
 
-      updateDepth(
+      snapToNearestCard(
         wrap
       );
 
