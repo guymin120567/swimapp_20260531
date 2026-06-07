@@ -12,7 +12,8 @@ import {
 import {
   bindDrag,
   scrollToCard,
-  updateDepth
+  updateDepth,
+  snapToNearestCard
 } from "./drag.js";
 
 let spinRAF = [];
@@ -218,9 +219,13 @@ function renderType(type){
 
       }
 
-      updateDepth(
-        target
-      );
+      requestAnimationFrame(()=>{
+
+        updateDepth(
+          target
+        );
+
+      });
 
     });
 
@@ -371,14 +376,6 @@ function bindSelect(){
             wrap,
             card
           );
-
-          requestAnimationFrame(()=>{
-
-            updateDepth(
-              wrap
-            );
-
-          });
 
         }
       );
@@ -549,6 +546,10 @@ function stopSpin(){
     i.flow._isSpinning =
       false;
 
+    snapToNearestCard(
+      i.flow
+    );
+
   });
 
   spinRAF = [];
@@ -588,6 +589,10 @@ function bindResize(){
         .forEach(wrap => {
 
           applyEdgeSpacing(
+            wrap
+          );
+
+          snapToNearestCard(
             wrap
           );
 
