@@ -61,8 +61,6 @@ export function bindDrag(){
 
       isDown = false;
 
-      moved = false;
-
       hasMoved = false;
 
       velocity = 0;
@@ -108,10 +106,6 @@ export function bindDrag(){
 
       cancelAnimationFrame(
         wrap._inertiaRAF
-      );
-
-      clearTimeout(
-        wrap._programmaticTimer
       );
 
       wrap._isProgrammatic =
@@ -277,7 +271,11 @@ export function bindDrag(){
         return;
       }
 
-      cleanupDrag();
+      isDown = false;
+
+      wrap.classList.remove(
+        "dragging"
+      );
 
       inertia(
         wrap,
@@ -357,6 +355,44 @@ export function bindDrag(){
         passive:true
       }
     );
+
+  });
+
+}
+
+/* =========================
+   SCROLL TO CARD
+========================= */
+
+export function scrollToCard(
+  wrap,
+  card,
+  smooth = true
+){
+
+  if(
+    !wrap ||
+    !card
+  ){
+    return;
+  }
+
+  const left =
+    card.offsetLeft -
+    (
+      wrap.clientWidth / 2
+    ) +
+    (
+      card.clientWidth / 2
+    );
+
+  wrap.scrollTo({
+
+    left,
+    behavior:
+      smooth
+        ? "smooth"
+        : "auto"
 
   });
 
@@ -526,6 +562,11 @@ function updateDepth(
       "depth-1",
       "depth-2"
     );
+
+    card.style.display =
+      dist <= 2
+        ? ""
+        : "none";
 
     if(dist === 0){
 
