@@ -699,6 +699,9 @@ export function updateDepth(
       centerCard
     );
 
+  const total =
+    cards.length;
+
   cards.forEach((card,index)=>{
 
     const dist =
@@ -712,6 +715,26 @@ export function updateDepth(
       "depth-2",
       "hidden"
     );
+
+    /* =========================
+       NUMBER
+    ========================= */
+
+    const badge =
+      card.querySelector(
+        ".card-index"
+      );
+
+    if(badge){
+
+      badge.textContent =
+        `${index + 1} / ${total}`;
+
+    }
+
+    /* =========================
+       DEPTH
+    ========================= */
 
     if(dist === 0){
 
