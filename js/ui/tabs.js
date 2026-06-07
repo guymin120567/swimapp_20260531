@@ -36,6 +36,33 @@ export function initTabs(){
     handleTabClick
   );
 
+  /* =========================
+     IOS SAFARI RECOVERY
+  ========================= */
+
+  window.addEventListener(
+    "pageshow",
+    cleanupSpinState
+  );
+
+  window.addEventListener(
+    "focus",
+    cleanupSpinState
+  );
+
+  document.addEventListener(
+    "visibilitychange",
+    ()=>{
+
+      if(!document.hidden){
+
+        cleanupSpinState();
+
+      }
+
+    }
+  );
+
   activateTab(
     "roulette"
   );
@@ -60,9 +87,16 @@ function handleTabClick(e){
   const state =
     getState();
 
-  if(
-    state.ui?.isSpinning === true
-  ){
+  const hasSpinningDOM =
+    document.querySelector(
+      ".coverflow.spinning-lock"
+    );
+
+  const actuallySpinning =
+    state.ui?.isSpinning === true &&
+    hasSpinningDOM;
+
+  if(actuallySpinning){
 
     alert(
       "룰렛 진행 중입니다 🎲"
@@ -75,6 +109,47 @@ function handleTabClick(e){
   activateTab(
     button.dataset.tab
   );
+
+}
+
+/* =========================
+   CLEANUP SPIN
+========================= */
+
+function cleanupSpinState(){
+
+  const spinning =
+    document.querySelector(
+      ".coverflow.spinning-lock"
+    );
+
+  if(!spinning){
+
+    document
+      .querySelectorAll(
+        ".coverflow"
+      )
+      .forEach(flow => {
+
+        flow.classList.remove(
+          "spinning-lock",
+          "dragging"
+        );
+
+        cancelAnimationFrame(
+          flow._spinRAF
+        );
+
+        cancelAnimationFrame(
+          flow._inertiaRAF
+        );
+
+        flow._isSpinning =
+          false;
+
+      });
+
+  }
 
 }
 
