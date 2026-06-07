@@ -57,6 +57,22 @@ export function bindDrag(){
     wrap._initialized =
       false;
 
+    function cleanupDrag(){
+
+      isDown = false;
+
+      moved = false;
+
+      hasMoved = false;
+
+      velocity = 0;
+
+      wrap.classList.remove(
+        "dragging"
+      );
+
+    }
+
     function onDown(x){
 
       if(
@@ -257,11 +273,7 @@ export function bindDrag(){
         return;
       }
 
-      isDown = false;
-
-      wrap.classList.remove(
-        "dragging"
-      );
+      cleanupDrag();
 
       inertia(
         wrap,
@@ -283,6 +295,34 @@ export function bindDrag(){
     window.addEventListener(
       "touchend",
       endDrag
+    );
+
+    window.addEventListener(
+      "touchcancel",
+      cleanupDrag,
+      {
+        passive:true
+      }
+    );
+
+    window.addEventListener(
+      "blur",
+      cleanupDrag
+    );
+
+    document.addEventListener(
+      "visibilitychange",
+      ()=>{
+
+        if(
+          document.hidden
+        ){
+
+          cleanupDrag();
+
+        }
+
+      }
     );
 
     wrap.addEventListener(
