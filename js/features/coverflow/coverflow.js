@@ -66,6 +66,10 @@ function renderType(type){
     return;
   }
 
+  cancelAnimationFrame(
+    target._inertiaRAF
+  );
+
   const prevScroll =
     target.scrollLeft || 0;
 
@@ -187,8 +191,15 @@ function renderType(type){
       target
     );
 
-    target.scrollLeft =
-      prevScroll;
+    requestAnimationFrame(()=>{
+
+      target.scrollLeft =
+        prevScroll;
+
+      target._initialized =
+        true;
+
+    });
 
   });
 
