@@ -217,6 +217,13 @@ function renderType(type){
           false
         );
 
+      }else{
+
+        snapToNearestCard(
+          target,
+          false
+        );
+
       }
 
       requestAnimationFrame(()=>{
@@ -277,10 +284,10 @@ function applyEdgeSpacing(
   });
 
   first.style.marginLeft =
-    `${side}px`;
+    `${Math.round(side)}px`;
 
   last.style.marginRight =
-    `${side}px`;
+    `${Math.round(side)}px`;
 
 }
 
@@ -593,7 +600,8 @@ function bindResize(){
           );
 
           snapToNearestCard(
-            wrap
+            wrap,
+            false
           );
 
           updateDepth(
