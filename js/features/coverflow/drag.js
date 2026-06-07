@@ -1,16 +1,8 @@
 // js/features/coverflow/drag.js
 
 import {
-  setSelected
-} from "../../state/actions.js";
-
-import {
   getState
 } from "../../state/state.js";
-
-import {
-  renderCoverflow
-} from "./coverflow.js";
 
 export function bindDrag(){
 
@@ -406,7 +398,7 @@ function inertia(
 
     }else{
 
-      snapToCenter(
+      updateDepth(
         wrap
       );
 
@@ -418,73 +410,6 @@ function inertia(
     requestAnimationFrame(
       frame
     );
-
-}
-
-/* =========================
-   SNAP
-========================= */
-
-function snapToCenter(
-  wrap
-){
-
-  const cards = [
-    ...wrap.querySelectorAll(
-      ".cover-card"
-    )
-  ];
-
-  if(!cards.length){
-    return;
-  }
-
-  const wrapCenter =
-    wrap.scrollLeft +
-    wrap.clientWidth / 2;
-
-  let closest = null;
-
-  let min = Infinity;
-
-  cards.forEach(card => {
-
-    const center =
-      card.offsetLeft +
-      card.clientWidth / 2;
-
-    const dist =
-      Math.abs(
-        wrapCenter - center
-      );
-
-    if(dist < min){
-
-      min = dist;
-
-      closest = card;
-
-    }
-
-  });
-
-  if(!closest){
-    return;
-  }
-
-  const changed =
-    setSelected(
-      wrap.dataset.type,
-      closest.dataset.id
-    );
-
-  if(!changed){
-    return;
-  }
-
-  renderCoverflow(
-    wrap.dataset.type
-  );
 
 }
 
