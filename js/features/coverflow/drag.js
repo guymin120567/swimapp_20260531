@@ -59,37 +59,13 @@ export function bindDrag(){
     wrap._depthTicking =
       false;
 
-    wrap._hasInitialCentered =
-      false;
-
-    /* =========================
-       INIT
-    ========================= */
-
     requestAnimationFrame(()=>{
-
-      if(
-        !wrap._hasInitialCentered
-      ){
-
-        centerSelected(
-          wrap
-        );
-
-        wrap._hasInitialCentered =
-          true;
-
-      }
 
       requestDepthUpdate(
         wrap
       );
 
     });
-
-    /* =========================
-       DOWN
-    ========================= */
 
     function onDown(x){
 
@@ -175,10 +151,6 @@ export function bindDrag(){
       }
     );
 
-    /* =========================
-       MOVE
-    ========================= */
-
     function onMove(x){
 
       if(!isDown){
@@ -251,10 +223,6 @@ export function bindDrag(){
       }
     );
 
-    /* =========================
-       CLICK BLOCK
-    ========================= */
-
     wrap.addEventListener(
       "click",
       e => {
@@ -274,10 +242,6 @@ export function bindDrag(){
       },
       true
     );
-
-    /* =========================
-       END
-    ========================= */
 
     function endDrag(){
 
@@ -312,10 +276,6 @@ export function bindDrag(){
       "touchend",
       endDrag
     );
-
-    /* =========================
-       SCROLL
-    ========================= */
 
     wrap.addEventListener(
       "scroll",
@@ -364,105 +324,6 @@ function requestDepthUpdate(
 
     wrap._depthTicking =
       false;
-
-  });
-
-}
-
-/* =========================
-   CENTER SELECTED
-========================= */
-
-function centerSelected(
-  wrap
-){
-
-  const active =
-    wrap.querySelector(
-      ".cover-card.active"
-    );
-
-  if(!active){
-    return;
-  }
-
-  centerCard(
-    wrap,
-    active,
-    false
-  );
-
-}
-
-/* =========================
-   CENTER CARD
-========================= */
-
-function centerCard(
-  wrap,
-  card,
-  smooth = true
-){
-
-  if(!card){
-    return;
-  }
-
-  requestAnimationFrame(()=>{
-
-    const cardCenter =
-      card.offsetLeft +
-      card.clientWidth / 2;
-
-    const target =
-      cardCenter -
-      wrap.clientWidth / 2;
-
-    const max =
-      Math.max(
-        0,
-        wrap.scrollWidth -
-        wrap.clientWidth
-      );
-
-    const final =
-      Math.max(
-        0,
-        Math.min(
-          target,
-          max
-        )
-      );
-
-    wrap._isProgrammatic =
-      true;
-
-    wrap.scrollTo({
-
-      left:final,
-
-      behavior:
-        smooth
-          ? "smooth"
-          : "auto"
-
-    });
-
-    clearTimeout(
-      wrap._programmaticTimer
-    );
-
-    wrap._programmaticTimer =
-      setTimeout(()=>{
-
-        wrap._isProgrammatic =
-          false;
-
-        requestDepthUpdate(
-          wrap
-        );
-
-      }, smooth ? 420 : 60);
 
   });
 
@@ -596,15 +457,7 @@ function snapToCenter(
     );
 
   if(!changed){
-
-    centerCard(
-      wrap,
-      closest,
-      true
-    );
-
     return;
-
   }
 
   renderCoverflow(
