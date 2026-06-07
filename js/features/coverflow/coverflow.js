@@ -264,14 +264,10 @@ function applyEdgeSpacing(
   const last =
     cards[cards.length - 1];
 
-  const side =
-    Math.max(
-      0,
-      (
-        wrap.clientWidth -
-        first.clientWidth
-      ) / 2
-    );
+  const cardWidth =
+    first.offsetWidth;
+
+  const gap = 10;
 
   cards.forEach(card => {
 
@@ -282,6 +278,72 @@ function applyEdgeSpacing(
       "0px";
 
   });
+
+  /* =========================
+     SINGLE CARD
+  ========================= */
+
+  if(cards.length === 1){
+
+    const side =
+      Math.max(
+        0,
+        (
+          wrap.clientWidth -
+          cardWidth
+        ) / 2
+      );
+
+    first.style.marginLeft =
+      `${Math.round(side)}px`;
+
+    first.style.marginRight =
+      `${Math.round(side)}px`;
+
+    return;
+
+  }
+
+  /* =========================
+     DOUBLE CARD
+  ========================= */
+
+  if(cards.length === 2){
+
+    const totalWidth =
+      (cardWidth * 2) + gap;
+
+    const remain =
+      Math.max(
+        0,
+        (
+          wrap.clientWidth -
+          totalWidth
+        ) / 2
+      );
+
+    first.style.marginLeft =
+      `${Math.round(remain)}px`;
+
+    last.style.marginRight =
+      `${Math.round(remain)}px`;
+
+    return;
+
+  }
+
+  /* =========================
+     NORMAL
+  ========================= */
+
+  const side =
+    Math.max(
+      0,
+      (
+        wrap.clientWidth -
+        cardWidth
+      ) / 2
+    );
 
   first.style.marginLeft =
     `${Math.round(side)}px`;
