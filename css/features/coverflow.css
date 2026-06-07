@@ -1,7 +1,5 @@
 /* css/features/coverflow.css */
 
-// css/features/coverflow.css
-
 .coverflow{
 
   display:flex;
@@ -20,9 +18,11 @@
   touch-action:pan-y;
 
   padding:
-    6px 16px 18px;
+    10px 0 24px;
 
   scroll-behavior:smooth;
+
+  scroll-snap-type:x mandatory;
 
   -ms-overflow-style:none;
 
@@ -33,6 +33,11 @@
 .coverflow::-webkit-scrollbar{
   display:none;
 }
+
+/* =========================
+   HEADER
+========================= */
+
 .section-header{
 
   display:flex;
@@ -43,12 +48,15 @@
 
   gap:12px;
 
+  margin-bottom:10px;
+
   padding:
-    0 6px 10px;
+    0 6px;
 
 }
 
-.add-mini-btn{
+.add-mini-btn,
+.add-floating-btn{
 
   flex:0 0 auto;
 
@@ -91,7 +99,8 @@
 
 }
 
-.add-mini-btn:hover{
+.add-mini-btn:hover,
+.add-floating-btn:hover{
 
   transform:
     translateY(-1px);
@@ -102,16 +111,23 @@
 
 }
 
-.add-mini-btn:active{
+.add-mini-btn:active,
+.add-floating-btn:active{
 
   transform:
     scale(.95);
 
 }
 
+/* =========================
+   CARD
+========================= */
+
 .cover-card{
 
   flex:0 0 auto;
+
+  width:148px;
 
   position:relative;
 
@@ -119,14 +135,14 @@
 
   cursor:pointer;
 
-  transform:none;
-
   user-select:none;
 
-}
+  scroll-snap-align:center;
 
-.cover-card:first-child{
-  margin-left:0;
+  transition:
+    opacity .22s ease,
+    transform .22s ease;
+
 }
 
 .card-inner{
@@ -151,7 +167,7 @@
     0 8px 18px
     rgba(120,170,210,.12);
 
-  opacity:.2;
+  opacity:.18;
 
   transform:
     scale(.68);
@@ -170,6 +186,10 @@
     opacity;
 
 }
+
+/* =========================
+   ACTIVE
+========================= */
 
 .cover-card.active{
 
@@ -192,6 +212,10 @@
 
 }
 
+/* =========================
+   DEPTH-1
+========================= */
+
 .cover-card.depth-1{
 
   z-index:8;
@@ -209,6 +233,10 @@
     scale(.92);
 
 }
+
+/* =========================
+   DEPTH-2
+========================= */
 
 .cover-card.depth-2{
 
@@ -228,6 +256,22 @@
 
 }
 
+/* =========================
+   HIDDEN
+========================= */
+
+.cover-card.hidden{
+
+  opacity:0;
+
+  pointer-events:none;
+
+}
+
+/* =========================
+   IMAGE
+========================= */
+
 .card-image{
 
   position:absolute;
@@ -246,6 +290,10 @@
   pointer-events:none;
 
 }
+
+/* =========================
+   OVERLAY
+========================= */
 
 .card-overlay{
 
@@ -285,6 +333,10 @@
 
 }
 
+/* =========================
+   PLACEHOLDER
+========================= */
+
 .card-placeholder{
 
   position:absolute;
@@ -308,6 +360,10 @@
 
 }
 
+/* =========================
+   EMPTY
+========================= */
+
 .empty-coverflow{
 
   width:100%;
@@ -321,6 +377,10 @@
   color:#6b8aa1;
 
 }
+
+/* =========================
+   DELETE
+========================= */
 
 .delete-btn{
 
@@ -386,9 +446,15 @@
 
 }
 
+/* =========================
+   DRAGGING
+========================= */
+
 .coverflow.dragging{
 
   cursor:grabbing;
+
+  scroll-behavior:auto;
 
 }
 
@@ -404,79 +470,22 @@
 
 }
 
-.section-header{
+/* =========================
+   MOBILE
+========================= */
 
-  display:flex;
+@media (max-width:640px){
 
-  align-items:center;
+  .cover-card{
 
-  justify-content:space-between;
+    width:132px;
 
-  margin-bottom:10px;
+  }
 
-  padding:
-    0 6px;
+  .card-inner{
 
-}
+    width:132px;
 
-.add-floating-btn{
-
-  width:34px;
-  height:34px;
-
-  border:none;
-
-  border-radius:50%;
-
-  background:
-    linear-gradient(
-      180deg,
-      #8fdcff,
-      #7dd3fc
-    );
-
-  color:white;
-
-  font-size:20px;
-
-  font-weight:700;
-
-  display:flex;
-
-  align-items:center;
-
-  justify-content:center;
-
-  cursor:pointer;
-
-  box-shadow:
-    0 10px 22px
-    rgba(125,211,252,.34);
-
-  transition:
-    transform .18s ease,
-    box-shadow .18s ease,
-    opacity .18s ease;
-
-  flex-shrink:0;
-
-}
-
-.add-floating-btn:hover{
-
-  transform:
-    translateY(-1px)
-    scale(1.04);
-
-  box-shadow:
-    0 14px 28px
-    rgba(125,211,252,.42);
-
-}
-
-.add-floating-btn:active{
-
-  transform:
-    scale(.94);
+  }
 
 }
