@@ -66,6 +66,9 @@ function renderType(type){
     return;
   }
 
+  const prevScroll =
+    target.scrollLeft || 0;
+
   const state =
     getState();
 
@@ -184,20 +187,8 @@ function renderType(type){
       target
     );
 
-    const active =
-      target.querySelector(
-        ".cover-card.active"
-      );
-
-    if(!active){
-      return;
-    }
-
-    centerCard(
-      target,
-      active,
-      false
-    );
+    target.scrollLeft =
+      prevScroll;
 
   });
 
@@ -230,24 +221,6 @@ function applyEdgeSpacing(
       "0px";
 
   });
-
-  const first =
-    cards[0];
-
-  const last =
-    cards[cards.length - 1];
-
-  const side =
-    Math.max(
-      0,
-      (wrap.clientWidth / 2) - 74
-    );
-
-  first.style.marginLeft =
-    `${side}px`;
-
-  last.style.marginRight =
-    `${side}px`;
 
 }
 
@@ -341,15 +314,7 @@ function bindSelect(){
             );
 
           if(!changed){
-
-            centerCard(
-              wrap,
-              card,
-              true
-            );
-
             return;
-
           }
 
           renderCoverflow(type);
@@ -564,64 +529,5 @@ function bindResize(){
 
   window.__coverflowResizeBound =
     true;
-
-}
-
-/* =========================
-   CENTER
-========================= */
-
-function centerCard(
-  wrap,
-  card,
-  smooth = true
-){
-
-  if(!card){
-    return;
-  }
-
-  cancelAnimationFrame(
-    wrap._inertiaRAF
-  );
-
-  requestAnimationFrame(()=>{
-
-    const cardCenter =
-      card.offsetLeft +
-      card.clientWidth / 2;
-
-    const target =
-      cardCenter -
-      wrap.clientWidth / 2;
-
-    const max =
-      Math.max(
-        0,
-        wrap.scrollWidth -
-        wrap.clientWidth
-      );
-
-    const final =
-      Math.max(
-        0,
-        Math.min(
-          target,
-          max
-        )
-      );
-
-    wrap.scrollTo({
-
-      left: final,
-
-      behavior:
-        smooth
-          ? "smooth"
-          : "auto"
-
-    });
-
-  });
 
 }
