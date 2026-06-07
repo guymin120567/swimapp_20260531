@@ -583,7 +583,7 @@ function snapToCenter(
    DEPTH
 ========================= */
 
-function updateDepth(
+export function updateDepth(
   wrap
 ){
 
@@ -636,13 +636,9 @@ function updateDepth(
     card.classList.remove(
       "active",
       "depth-1",
-      "depth-2"
+      "depth-2",
+      "hidden"
     );
-
-    card.style.display =
-      dist <= 2
-        ? ""
-        : "none";
 
     if(dist === 0){
 
@@ -658,10 +654,18 @@ function updateDepth(
         "depth-1"
       );
 
-    }else{
+    }else if(
+      dist === 2
+    ){
 
       card.classList.add(
         "depth-2"
+      );
+
+    }else{
+
+      card.classList.add(
+        "hidden"
       );
 
     }
