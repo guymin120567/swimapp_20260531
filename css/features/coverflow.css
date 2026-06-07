@@ -1,12 +1,12 @@
 /* css/features/coverflow.css */
 
+// css/features/coverflow.css
+
 .coverflow{
 
   display:flex;
 
   align-items:center;
-
-  justify-content:flex-start;
 
   gap:10px;
 
@@ -15,12 +15,14 @@
 
   overscroll-behavior-x:contain;
 
+  -webkit-overflow-scrolling:touch;
+
   touch-action:pan-y;
 
   padding:
     6px 16px 18px;
 
-  scroll-behavior:auto;
+  scroll-behavior:smooth;
 
   -ms-overflow-style:none;
 
@@ -31,7 +33,6 @@
 .coverflow::-webkit-scrollbar{
   display:none;
 }
-
 .section-header{
 
   display:flex;
