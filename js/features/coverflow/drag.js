@@ -50,6 +50,9 @@ export function bindDrag(){
 
     let velocity = 0;
 
+    let hasMoved =
+      false;
+
     wrap._isProgrammatic =
       false;
 
@@ -59,13 +62,8 @@ export function bindDrag(){
     wrap._depthTicking =
       false;
 
-    requestAnimationFrame(()=>{
-
-      requestDepthUpdate(
-        wrap
-      );
-
-    });
+    wrap._initialized =
+      false;
 
     function onDown(x){
 
@@ -110,6 +108,8 @@ export function bindDrag(){
       isDown = true;
 
       moved = false;
+
+      hasMoved = false;
 
       wrap.classList.add(
         "dragging"
@@ -162,7 +162,7 @@ export function bindDrag(){
           x - startX
         );
 
-      if(delta > 6){
+      if(delta > 8){
 
         moved = true;
 
@@ -171,8 +171,18 @@ export function bindDrag(){
       const walk =
         (x - startX) * 1.02;
 
-      velocity =
-        x - lastX;
+      if(hasMoved){
+
+        velocity =
+          x - lastX;
+
+      }else{
+
+        velocity = 0;
+
+        hasMoved = true;
+
+      }
 
       lastX = x;
 
@@ -192,9 +202,15 @@ export function bindDrag(){
           )
         );
 
-      requestDepthUpdate(
-        wrap
-      );
+      if(
+        wrap._initialized
+      ){
+
+        requestDepthUpdate(
+          wrap
+        );
+
+      }
 
     }
 
@@ -287,6 +303,12 @@ export function bindDrag(){
           return;
         }
 
+        if(
+          !wrap._initialized
+        ){
+          return;
+        }
+
         requestDepthUpdate(
           wrap
         );
@@ -346,7 +368,7 @@ function inertia(
   }
 
   let current =
-    velocity * 1.35;
+    velocity * 1.1;
 
   function frame(){
 
@@ -374,7 +396,7 @@ function inertia(
     );
 
     if(
-      Math.abs(current) > 0.22
+      Math.abs(current) > 0.2
     ){
 
       wrap._inertiaRAF =
