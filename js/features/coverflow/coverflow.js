@@ -10,7 +10,8 @@ import {
 } from "../../state/actions.js";
 
 import {
-  bindDrag
+  bindDrag,
+  scrollToCard
 } from "./drag.js";
 
 let spinRAF = [];
@@ -193,6 +194,12 @@ function renderType(type){
 
     requestAnimationFrame(()=>{
 
+      const cards = [
+        ...target.querySelectorAll(
+          ".cover-card"
+        )
+      ];
+
       if(
         !target.classList.contains(
           "dragging"
@@ -206,6 +213,33 @@ function renderType(type){
 
       target._initialized =
         true;
+
+      updateVisibleCards(
+        target
+      );
+
+      const selectedCard =
+        cards.find(
+          c =>
+            c.dataset.id ===
+            selectedId
+        );
+
+      if(
+        selectedCard &&
+        !target._restored
+      ){
+
+        target._restored =
+          true;
+
+        scrollToCard(
+          target,
+          selectedCard,
+          false
+        );
+
+      }
 
     });
 
@@ -231,6 +265,21 @@ function applyEdgeSpacing(
     return;
   }
 
+  const first =
+    cards[0];
+
+  const last =
+    cards[cards.length - 1];
+
+  const side =
+    Math.max(
+      0,
+      (
+        wrap.clientWidth -
+        first.clientWidth
+      ) / 2
+    );
+
   cards.forEach(card => {
 
     card.style.marginLeft =
@@ -238,6 +287,75 @@ function applyEdgeSpacing(
 
     card.style.marginRight =
       "0px";
+
+  });
+
+  first.style.marginLeft =
+    `${side}px`;
+
+  last.style.marginRight =
+    `${side}px`;
+
+}
+
+/* =========================
+   VISIBLE
+========================= */
+
+function updateVisibleCards(
+  wrap
+){
+
+  const cards = [
+    ...wrap.querySelectorAll(
+      ".cover-card"
+    )
+  ];
+
+  if(!cards.length){
+    return;
+  }
+
+  const wrapCenter =
+    wrap.scrollLeft +
+    wrap.clientWidth / 2;
+
+  let activeIndex = 0;
+
+  let min = Infinity;
+
+  cards.forEach((card,index)=>{
+
+    const center =
+      card.offsetLeft +
+      card.clientWidth / 2;
+
+    const dist =
+      Math.abs(
+        wrapCenter - center
+      );
+
+    if(dist < min){
+
+      min = dist;
+
+      activeIndex = index;
+
+    }
+
+  });
+
+  cards.forEach((card,index)=>{
+
+    const offset =
+      Math.abs(
+        index - activeIndex
+      );
+
+    card.style.display =
+      offset <= 2
+        ? ""
+        : "none";
 
   });
 
@@ -326,17 +444,15 @@ function bindSelect(){
           const id =
             card.dataset.id;
 
-          const changed =
-            setSelected(
-              type,
-              id
-            );
+          setSelected(
+            type,
+            id
+          );
 
-          if(!changed){
-            return;
-          }
-
-          renderCoverflow(type);
+          scrollToCard(
+            wrap,
+            card
+          );
 
         }
       );
@@ -595,6 +711,10 @@ function bindResize(){
         .forEach(wrap => {
 
           applyEdgeSpacing(
+            wrap
+          );
+
+          updateVisibleCards(
             wrap
           );
 
