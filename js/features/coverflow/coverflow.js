@@ -201,7 +201,8 @@ function renderType(type){
 
       const cards = [
         ...target.querySelectorAll(
-          ".cover-card")
+          ".cover-card"
+        )
       ];
 
       const selectedCard =
@@ -273,6 +274,8 @@ function bindDeleteEvents(){
           if(!deleteBtn){
             return;
           }
+
+          e.preventDefault();
 
           e.stopPropagation();
 
