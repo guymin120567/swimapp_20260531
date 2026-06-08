@@ -71,8 +71,6 @@ export function bindDrag(){
     wrap._depthTicking =
       false;
 
-    wrap._initialized =
-      false;
 
     /* =========================
        CLEANUP
@@ -114,6 +112,14 @@ export function bindDrag(){
 
     function onDown(e){
 
+      const deleteBtn =
+  e.target.closest(
+    ".delete-btn"
+  );
+
+if(deleteBtn){
+  return;
+}
       if(
         wrap._isProgrammatic
       ){
@@ -272,9 +278,10 @@ export function bindDrag(){
       ========================= */
 
       if(
-        !moved &&
-        targetCard
-      ){
+  !moved &&
+  Math.abs(velocity) < 1 &&
+  targetCard
+){
 
         cancelAnimationFrame(
           wrap._inertiaRAF
