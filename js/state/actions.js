@@ -175,6 +175,7 @@ export function setSelected(
 
       selection:{
 
+        ...state.selection,
         capId:id
 
       }
@@ -201,6 +202,7 @@ export function setSelected(
 
       selection:{
 
+        ...state.selection,
         swimId:id
 
       }
@@ -224,9 +226,14 @@ export function setRouletteResult(
   swimId
 ){
 
+  const state =
+    getState();
+
   setState({
 
     rouletteResult: {
+
+      ...state.rouletteResult,
 
       capId,
       swimId
@@ -245,9 +252,14 @@ export function setSpinning(
   value
 ){
 
+  const state =
+    getState();
+
   setState({
 
     ui: {
+
+      ...state.ui,
 
       isSpinning:value
 
@@ -265,9 +277,14 @@ export function setActiveTab(
   tab
 ){
 
+  const state =
+    getState();
+
   setState({
 
     ui: {
+
+      ...state.ui,
 
       activeTab:tab
 
