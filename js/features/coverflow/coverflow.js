@@ -5,7 +5,6 @@ import {
 } from "../../state/state.js";
 
 import {
-  setSelected,
   removeItem
 } from "../../state/actions.js";
 
@@ -40,7 +39,7 @@ export function renderCoverflow(
     renderType("swim");
   }
 
-  bindSelect();
+  bindDeleteEvents();
 
   bindSpinEvents();
 
@@ -202,8 +201,7 @@ function renderType(type){
 
       const cards = [
         ...target.querySelectorAll(
-          ".cover-card"
-        )
+          ".cover-card")
       ];
 
       const selectedCard =
@@ -241,6 +239,63 @@ function renderType(type){
     });
 
   });
+
+}
+
+/* =========================
+   DELETE
+========================= */
+
+function bindDeleteEvents(){
+
+  document
+    .querySelectorAll(".coverflow")
+    .forEach(wrap => {
+
+      if(
+        wrap.dataset.deleteBound
+      ){
+        return;
+      }
+
+      wrap.dataset.deleteBound =
+        "true";
+
+      wrap.addEventListener(
+        "pointerup",
+        e => {
+
+          const deleteBtn =
+            e.target.closest(
+              ".delete-btn"
+            );
+
+          if(!deleteBtn){
+            return;
+          }
+
+          e.stopPropagation();
+
+          if(
+            !confirm(
+              "삭제하시겠습니까?"
+            )
+          ){
+            return;
+          }
+
+          removeItem(
+            deleteBtn.dataset.id
+          );
+
+          renderCoverflow(
+            wrap.dataset.type
+          );
+
+        }
+      );
+
+    });
 
 }
 
@@ -358,106 +413,6 @@ function applyEdgeSpacing(
 }
 
 /* =========================
-   CLICK
-========================= */
-
-function bindSelect(){
-
-  document
-    .querySelectorAll(".coverflow")
-    .forEach(wrap => {
-
-      if(
-        wrap.dataset.bound
-      ){
-        return;
-      }
-
-      wrap.dataset.bound =
-        "true";
-
-      wrap.addEventListener(
-        "click",
-        e => {
-
-          const deleteBtn =
-            e.target.closest(
-              ".delete-btn"
-            );
-
-          if(deleteBtn){
-
-            if(
-              !confirm(
-                "삭제하시겠습니까?"
-              )
-            ){
-              return;
-            }
-
-            removeItem(
-              deleteBtn.dataset.id
-            );
-
-            renderCoverflow(
-              wrap.dataset.type
-            );
-
-            return;
-
-          }
-
-          const card =
-            e.target.closest(
-              ".cover-card"
-            );
-
-          if(!card){
-            return;
-          }
-
-          if(
-            wrap.classList.contains(
-              "dragging"
-            )
-          ){
-            return;
-          }
-
-          if(
-            getState().ui?.isSpinning
-          ){
-            return;
-          }
-
-          cancelAnimationFrame(
-            wrap._inertiaRAF
-          );
-
-          const type =
-            card.dataset.type;
-
-          const id =
-            card.dataset.id;
-
-          setSelected(
-            type,
-            id
-          );
-
-          scrollToCard(
-            wrap,
-            card
-          );
-
-        }
-      );
-
-    });
-
-}
-
-/* =========================
    SPIN EVENTS
 ========================= */
 
@@ -490,11 +445,8 @@ function bindSpinEvents(){
   );
 
   window.addEventListener(
-    "touchcancel",
-    forceCleanup,
-    {
-      passive:true
-    }
+    "pointercancel",
+    forceCleanup
   );
 
   document.addEventListener(
