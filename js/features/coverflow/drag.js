@@ -1,5 +1,3 @@
-// js/features/coverflow/drag.js
-
 import {
   getState
 } from "../../state/state.js";
@@ -86,6 +84,8 @@ export function bindDrag(){
 
     let downCard = null;
 
+    let activePointerId = null;
+
     const isMobile =
       window.matchMedia(
         "(pointer:coarse)"
@@ -118,6 +118,25 @@ export function bindDrag(){
       velocity = 0;
 
       downCard = null;
+
+      wrap.dataset.dragMoved =
+        "false";
+
+      if(
+        activePointerId !== null
+      ){
+
+        try{
+
+          wrap.releasePointerCapture(
+            activePointerId
+          );
+
+        }catch(err){}
+
+      }
+
+      activePointerId = null;
 
       wrap.classList.remove(
         "dragging"
@@ -199,10 +218,6 @@ export function bindDrag(){
           ".cover-card"
         );
 
-      /* =========================
-         SIMPLE MODE
-      ========================= */
-
       if(cards.length <= 2){
 
         downCard =
@@ -237,6 +252,9 @@ export function bindDrag(){
 
       hasMoved = false;
 
+      wrap.dataset.dragMoved =
+        "false";
+
       downCard =
         e.target.closest(
           ".cover-card"
@@ -254,6 +272,17 @@ export function bindDrag(){
         wrap.scrollLeft;
 
       velocity = 0;
+
+      activePointerId =
+        e.pointerId;
+
+      try{
+
+        wrap.setPointerCapture(
+          activePointerId
+        );
+
+      }catch(err){}
 
     }
 
@@ -277,6 +306,9 @@ export function bindDrag(){
       ){
 
         moved = true;
+
+        wrap.dataset.dragMoved =
+          "true";
 
         e.preventDefault();
 
@@ -340,10 +372,6 @@ export function bindDrag(){
           ".cover-card"
         );
 
-      /* =========================
-         SIMPLE MODE CLICK
-      ========================= */
-
       if(
         cards.length <= 2
       ){
@@ -378,10 +406,6 @@ export function bindDrag(){
 
       const targetCard =
         downCard;
-
-      /* =========================
-         TAP SELECT
-      ========================= */
 
       if(
         !moved &&
@@ -422,10 +446,6 @@ export function bindDrag(){
 
       }
 
-      /* =========================
-         DRAG END
-      ========================= */
-
       if(
         Math.abs(velocity) > 0.5
       ){
@@ -441,9 +461,9 @@ export function bindDrag(){
           wrap
         );
 
-        cleanupDrag();
-
       }
+
+      cleanupDrag();
 
     }
 
@@ -472,31 +492,6 @@ export function bindDrag(){
     wrap.addEventListener(
       "pointercancel",
       cleanupDrag
-    );
-
-    window.addEventListener(
-      "blur",
-      cleanupDrag
-    );
-
-    window.addEventListener(
-      "pagehide",
-      cleanupDrag
-    );
-
-    document.addEventListener(
-      "visibilitychange",
-      ()=>{
-
-        if(
-          document.hidden
-        ){
-
-          cleanupDrag();
-
-        }
-
-      }
     );
 
     /* =========================
@@ -740,8 +735,6 @@ function inertia(
       false
     );
 
-    cleanupDrag();
-
     return;
 
   }
@@ -751,7 +744,7 @@ function inertia(
 
   function frame(){
 
-    current *= 0.9;
+    current *= 0.92;
 
     const next =
       wrap.scrollLeft -
@@ -775,7 +768,7 @@ function inertia(
     );
 
     if(
-      Math.abs(current) > 0.2
+      Math.abs(current) > 0.35
     ){
 
       wrap._inertiaRAF =
@@ -800,8 +793,6 @@ function inertia(
       snapToNearestCard(
         wrap
       );
-
-      cleanupDrag();
 
     }
 
@@ -900,6 +891,10 @@ export function updateDepth(
     if(
       total <= 2
     ){
+
+      card.classList.remove(
+        "hidden"
+      );
 
       if(
         card.dataset.id ===
