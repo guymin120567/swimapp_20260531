@@ -33,11 +33,19 @@ export function bindDrag(){
         wrap._inertiaRAF
       );
 
+      clearTimeout(
+        wrap._programmaticTimer
+      );
+
       wrap._isProgrammatic =
         false;
 
       wrap._depthTicking =
         false;
+
+      wrap.classList.remove(
+        "dragging"
+      );
 
       requestAnimationFrame(()=>{
 
@@ -137,6 +145,40 @@ export function bindDrag(){
     }
 
     /* =========================
+       SIMPLE MODE CLICK
+    ========================= */
+
+    function handleSimpleModeClick(
+      card
+    ){
+
+      if(!card){
+        return;
+      }
+
+      const type =
+        card.dataset.type;
+
+      const id =
+        card.dataset.id;
+
+      const changed =
+        setSelected(
+          type,
+          id
+        );
+
+      if(changed){
+
+        updateDepth(
+          wrap
+        );
+
+      }
+
+    }
+
+    /* =========================
        DOWN
     ========================= */
 
@@ -177,7 +219,7 @@ export function bindDrag(){
         );
 
       /* =========================
-         2 CARDS = CLICK ONLY
+         SIMPLE MODE
       ========================= */
 
       if(cards.length <= 2){
@@ -199,6 +241,10 @@ export function bindDrag(){
 
       cancelAnimationFrame(
         wrap._inertiaRAF
+      );
+
+      clearTimeout(
+        wrap._programmaticTimer
       );
 
       wrap._isProgrammatic =
@@ -315,37 +361,30 @@ export function bindDrag(){
 
     function endDrag(){
 
-      /* =========================
-         2 CARDS CLICK MODE
-      ========================= */
-
       const cards =
         wrap.querySelectorAll(
           ".cover-card"
         );
 
+      /* =========================
+         SIMPLE MODE CLICK
+      ========================= */
+
       if(
-        cards.length <= 2 &&
-        downCard
+        cards.length <= 2
       ){
 
-        const type =
-          downCard.dataset.type;
+        if(downCard){
 
-        const id =
-          downCard.dataset.id;
+          handleSimpleModeClick(
+            downCard
+          );
 
-        setSelected(
-          type,
-          id
-        );
-
-        scrollToCard(
-          wrap,
-          downCard
-        );
+        }
 
         downCard = null;
+
+        cleanupDrag();
 
         return;
 
@@ -377,6 +416,13 @@ export function bindDrag(){
         cancelAnimationFrame(
           wrap._inertiaRAF
         );
+
+        clearTimeout(
+          wrap._programmaticTimer
+        );
+
+        wrap._isProgrammatic =
+          false;
 
         const type =
           targetCard.dataset.type;
@@ -804,16 +850,40 @@ export function updateDepth(
     return;
   }
 
-  const centerCard =
-    findCenterCard(wrap);
+  const state =
+    getState();
 
-  if(!centerCard){
+  const type =
+    wrap.dataset.type;
+
+  const selectedId =
+    type === "cap"
+      ? state.selection?.capId
+      : state.selection?.swimId;
+
+  let activeCard =
+    cards.find(
+      card =>
+        card.dataset.id ===
+        selectedId
+    );
+
+  if(!activeCard){
+
+    activeCard =
+      findCenterCard(
+        wrap
+      );
+
+  }
+
+  if(!activeCard){
     return;
   }
 
   const activeIndex =
     cards.indexOf(
-      centerCard
+      activeCard
     );
 
   const total =
@@ -842,6 +912,25 @@ export function updateDepth(
 
       badge.textContent =
         `${index + 1} / ${total}`;
+
+    }
+
+    if(
+      total <= 2
+    ){
+
+      if(
+        card.dataset.id ===
+        selectedId
+      ){
+
+        card.classList.add(
+          "active"
+        );
+
+      }
+
+      return;
 
     }
 
