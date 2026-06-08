@@ -75,6 +75,10 @@ function renderType(type){
     target._inertiaRAF
   );
 
+  clearTimeout(
+    target._programmaticTimer
+  );
+
   target._isProgrammatic =
     false;
 
@@ -108,7 +112,7 @@ function renderType(type){
 
   if(
     !selectedExists &&
-    items[0]
+    items.length
   ){
 
     selectedId =
@@ -118,6 +122,27 @@ function renderType(type){
       type,
       selectedId
     );
+
+  }
+
+  /* =========================
+     EMPTY
+  ========================= */
+
+  if(!items.length){
+
+    target.innerHTML = `
+
+      <div class="empty-coverflow">
+        아직 아이템이 없습니다
+      </div>
+
+    `;
+
+    target.dataset.signature =
+      "";
+
+    return;
 
   }
 
@@ -135,26 +160,9 @@ function renderType(type){
 
     });
 
-  if(
+  const sameSignature =
     target.dataset.signature ===
-    signature
-  ){
-
-    requestAnimationFrame(()=>{
-
-      applyEdgeSpacing(
-        target
-      );
-
-      updateDepth(
-        target
-      );
-
-    });
-
-    return;
-
-  }
+    signature;
 
   target.dataset.signature =
     signature;
@@ -164,83 +172,81 @@ function renderType(type){
     items.length <= 2
   );
 
-  if(!items.length){
+  /* =========================
+     FULL RENDER
+  ========================= */
 
-    target.innerHTML = `
+  if(!sameSignature){
 
-      <div class="empty-coverflow">
-        아직 아이템이 없습니다
-      </div>
+    target.innerHTML =
+      items.map((item,index) => {
 
-    `;
+        const isActive =
+          item.id === selectedId;
 
-    return;
+        return `
 
-  }
+          <div
+            class="
+              cover-card
+              ${isActive ? "active" : ""}
+            "
+            data-id="${item.id}"
+            data-type="${type}"
+          >
 
-  target.innerHTML =
-    items.map((item,index) => {
+            <div class="card-inner">
 
-      const isActive =
-        item.id === selectedId;
+              <button
+                class="delete-btn"
+                data-action="delete"
+                data-id="${item.id}"
+              >
+                ×
+              </button>
 
-      return `
+              <div class="card-index">
+                ${index + 1} / ${items.length}
+              </div>
 
-        <div
-          class="
-            cover-card
-            ${isActive ? "active" : ""}
-          "
-          data-id="${item.id}"
-          data-type="${type}"
-        >
+              ${
+                item.image
+                  ? `
+                    <img
+                      class="card-image"
+                      src="${item.image}"
+                      alt="${item.name}"
+                      draggable="false"
+                    />
+                  `
+                  : `
+                    <div class="card-placeholder">
+                      🏊
+                    </div>
+                  `
+              }
 
-          <div class="card-inner">
+              <div class="card-overlay">
 
-            <button
-              class="delete-btn"
-              data-action="delete"
-              data-id="${item.id}"
-            >
-              ×
-            </button>
+                <div class="card-title">
+                  ${item.name}
+                </div>
 
-            <div class="card-index">
-              ${index + 1} / ${items.length}
-            </div>
-
-            ${
-              item.image
-                ? `
-                  <img
-                    class="card-image"
-                    src="${item.image}"
-                    alt="${item.name}"
-                    draggable="false"
-                  />
-                `
-                : `
-                  <div class="card-placeholder">
-                    🏊
-                  </div>
-                `
-            }
-
-            <div class="card-overlay">
-
-              <div class="card-title">
-                ${item.name}
               </div>
 
             </div>
 
           </div>
 
-        </div>
+        `;
 
-      `;
+      }).join("");
 
-    }).join("");
+  }
+
+  /* =========================
+     LAYOUT
+  ========================= */
 
   requestAnimationFrame(()=>{
 
@@ -258,6 +264,26 @@ function renderType(type){
           ".cover-card"
         )
       ];
+
+      /* =========================
+         INDEX FIX
+      ========================= */
+
+      cards.forEach((card,index)=>{
+
+        const badge =
+          card.querySelector(
+            ".card-index"
+          );
+
+        if(badge){
+
+          badge.textContent =
+            `${index + 1} / ${cards.length}`;
+
+        }
+
+      });
 
       const selectedCard =
         cards.find(
@@ -277,7 +303,10 @@ function renderType(type){
         cards.forEach(card => {
 
           card.classList.remove(
-            "active"
+            "active",
+            "depth-1",
+            "depth-2",
+            "hidden"
           );
 
         });
@@ -481,9 +510,13 @@ function bindDeleteEvents(){
             deleteBtn.dataset.id
           );
 
-          renderCoverflow(
-            wrap.dataset.type
-          );
+          requestAnimationFrame(()=>{
+
+            renderCoverflow(
+              wrap.dataset.type
+            );
+
+          });
 
         }
       );
@@ -762,6 +795,10 @@ function stopSpin(){
 
     cancelAnimationFrame(
       i.flow._inertiaRAF
+    );
+
+    clearTimeout(
+      i.flow._programmaticTimer
     );
 
     i.flow.classList.remove(
