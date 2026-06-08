@@ -12,7 +12,7 @@ import {
   bindDrag,
   scrollToCard,
   updateDepth,
-  snapToNearestCard
+ snapToNearestCard
 } from "./drag.js";
 
 let spinRAF = [];
@@ -109,6 +109,11 @@ function renderType(type){
 
   target.dataset.signature =
     signature;
+
+  target.classList.toggle(
+    "is-simple",
+    items.length <= 2
+  );
 
   if(!items.length){
 
@@ -211,6 +216,40 @@ function renderType(type){
             card.dataset.id ===
             selectedId
         );
+
+      /* =========================
+         SIMPLE MODE
+      ========================= */
+
+      if(
+        items.length <= 2
+      ){
+
+        if(selectedCard){
+
+          selectedCard.classList.add(
+            "active"
+          );
+
+        }else if(cards[0]){
+
+          cards[0].classList.add(
+            "active"
+          );
+
+        }
+
+        updateDepth(
+          target
+        );
+
+        return;
+
+      }
+
+      /* =========================
+         NORMAL MODE
+      ========================= */
 
       if(selectedCard){
 
@@ -483,6 +522,17 @@ function startSpin(){
   document
     .querySelectorAll(".coverflow")
     .forEach(flow => {
+
+      const cards =
+        flow.querySelectorAll(
+          ".cover-card"
+        );
+
+      if(
+        cards.length <= 2
+      ){
+        return;
+      }
 
       flow.classList.add(
         "spinning-lock"
