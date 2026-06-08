@@ -573,3 +573,11 @@
   -webkit-user-select:none;
   -webkit-touch-callout:none;
 }
+
+.coverflow.is-simple{
+  justify-content:center;
+}
+
+.coverflow.is-simple .cover-card{
+  transform:none !important;
+}
