@@ -5,14 +5,15 @@ import {
 } from "../../state/state.js";
 
 import {
-  removeItem
+  removeItem,
+  setSelected
 } from "../../state/actions.js";
 
 import {
   bindDrag,
   scrollToCard,
   updateDepth,
- snapToNearestCard
+  snapToNearestCard
 } from "./drag.js";
 
 let spinRAF = [];
@@ -40,6 +41,8 @@ export function renderCoverflow(
   }
 
   bindDeleteEvents();
+
+  bindSimpleSelect();
 
   bindSpinEvents();
 
@@ -72,6 +75,14 @@ function renderType(type){
     target._inertiaRAF
   );
 
+  target._isProgrammatic =
+    false;
+
+  target.classList.remove(
+    "dragging",
+    "spinning-lock"
+  );
+
   const state =
     getState();
 
@@ -81,10 +92,34 @@ function renderType(type){
         i => i.type === type
       );
 
-  const selectedId =
+  let selectedId =
     type === "cap"
       ? state.selection?.capId
       : state.selection?.swimId;
+
+  /* =========================
+     INVALID SELECT FIX
+  ========================= */
+
+  const selectedExists =
+    items.some(
+      i => i.id === selectedId
+    );
+
+  if(
+    !selectedExists &&
+    items[0]
+  ){
+
+    selectedId =
+      items[0].id;
+
+    setSelected(
+      type,
+      selectedId
+    );
+
+  }
 
   const signature =
     JSON.stringify({
@@ -104,7 +139,21 @@ function renderType(type){
     target.dataset.signature ===
     signature
   ){
+
+    requestAnimationFrame(()=>{
+
+      applyEdgeSpacing(
+        target
+      );
+
+      updateDepth(
+        target
+      );
+
+    });
+
     return;
+
   }
 
   target.dataset.signature =
@@ -225,6 +274,14 @@ function renderType(type){
         items.length <= 2
       ){
 
+        cards.forEach(card => {
+
+          card.classList.remove(
+            "active"
+          );
+
+        });
+
         if(selectedCard){
 
           selectedCard.classList.add(
@@ -279,6 +336,100 @@ function renderType(type){
     });
 
   });
+
+}
+
+/* =========================
+   SIMPLE SELECT
+========================= */
+
+function bindSimpleSelect(){
+
+  if(
+    window.__coverflowSimpleBound
+  ){
+    return;
+  }
+
+  document.addEventListener(
+    "click",
+    e => {
+
+      const card =
+        e.target.closest(
+          ".cover-card"
+        );
+
+      if(!card){
+        return;
+      }
+
+      const wrap =
+        card.closest(
+          ".coverflow"
+        );
+
+      if(!wrap){
+        return;
+      }
+
+      if(
+        !wrap.classList.contains(
+          "is-simple"
+        )
+      ){
+        return;
+      }
+
+      if(
+        e.target.closest(
+          ".delete-btn"
+        )
+      ){
+        return;
+      }
+
+      const type =
+        card.dataset.type;
+
+      const id =
+        card.dataset.id;
+
+      const changed =
+        setSelected(
+          type,
+          id
+        );
+
+      if(!changed){
+        return;
+      }
+
+      wrap
+        .querySelectorAll(
+          ".cover-card"
+        )
+        .forEach(el => {
+
+          el.classList.remove(
+            "active"
+          );
+
+        });
+
+      card.classList.add(
+        "active"
+      );
+
+      updateDepth(
+        wrap
+      );
+
+    }
+  );
+
+  window.__coverflowSimpleBound =
+    true;
 
 }
 
@@ -624,9 +775,23 @@ function stopSpin(){
     i.flow._isSpinning =
       false;
 
-    snapToNearestCard(
-      i.flow
-    );
+    if(
+      i.flow.querySelectorAll(
+        ".cover-card"
+      ).length > 2
+    ){
+
+      snapToNearestCard(
+        i.flow
+      );
+
+    }else{
+
+      updateDepth(
+        i.flow
+      );
+
+    }
 
   });
 
@@ -670,10 +835,18 @@ function bindResize(){
             wrap
           );
 
-          snapToNearestCard(
-            wrap,
-            false
-          );
+          if(
+            wrap.querySelectorAll(
+              ".cover-card"
+            ).length > 2
+          ){
+
+            snapToNearestCard(
+              wrap,
+              false
+            );
+
+          }
 
           updateDepth(
             wrap
