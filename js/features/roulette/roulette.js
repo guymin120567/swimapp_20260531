@@ -17,6 +17,8 @@ import {
 
 let spinTimeout = null;
 
+let unlockTimeout = null;
+
 /* =========================
    SPIN
 ========================= */
@@ -36,7 +38,13 @@ export async function spinAll(){
     spinTimeout
   );
 
+  clearTimeout(
+    unlockTimeout
+  );
+
   spinTimeout = null;
+
+  unlockTimeout = null;
 
   const caps =
     state.items.filter(
@@ -113,6 +121,13 @@ export async function spinAll(){
         wrap._inertiaRAF
       );
 
+      clearTimeout(
+        wrap._programmaticTimer
+      );
+
+      wrap._isProgrammatic =
+        false;
+
       wrap.classList.remove(
         "dragging"
       );
@@ -131,6 +146,8 @@ export async function spinAll(){
   if(spinBtn){
 
     spinBtn.disabled = true;
+
+    spinBtn.blur();
 
   }
 
@@ -258,6 +275,8 @@ export async function spinAll(){
 
     }else{
 
+      spinTimeout = null;
+
       finish(
         finalCap,
         finalSwim
@@ -358,14 +377,11 @@ export async function spinAll(){
        UNLOCK
     ========================= */
 
-    spinTimeout =
+    unlockTimeout =
       setTimeout(()=>{
 
-        clearTimeout(
-          spinTimeout
-        );
-
-        spinTimeout = null;
+        unlockTimeout =
+          null;
 
         capSlot.classList.remove(
           "winner"
@@ -396,6 +412,10 @@ export async function spinAll(){
 
             cancelAnimationFrame(
               wrap._inertiaRAF
+            );
+
+            clearTimeout(
+              wrap._programmaticTimer
             );
 
           });
@@ -503,8 +523,11 @@ function updateSlot(
 
     }
 
+    const currentSrc =
+      img.getAttribute("src");
+
     if(
-      img.src !== item.image
+      currentSrc !== item.image
     ){
 
       img.src =
@@ -731,15 +754,84 @@ function burst(type){
    PAGE CLEANUP
 ========================= */
 
-window.addEventListener(
-  "pagehide",
-  ()=>{
+function cleanupRoulette(){
 
-    clearTimeout(
-      spinTimeout
+  clearTimeout(
+    spinTimeout
+  );
+
+  clearTimeout(
+    unlockTimeout
+  );
+
+  spinTimeout = null;
+
+  unlockTimeout = null;
+
+  setSpinning(false);
+
+  window.__isSpinning =
+    false;
+
+  document
+    .querySelectorAll(
+      ".coverflow"
+    )
+    .forEach(wrap => {
+
+      wrap.classList.remove(
+        "dragging",
+        "spinning-lock"
+      );
+
+      wrap._isProgrammatic =
+        false;
+
+      cancelAnimationFrame(
+        wrap._inertiaRAF
+      );
+
+      clearTimeout(
+        wrap._programmaticTimer
+      );
+
+    });
+
+  const spinBtn =
+    document.querySelector(
+      "#rouletteSection .spin-btn"
     );
 
-    spinTimeout = null;
+  if(spinBtn){
+
+    spinBtn.disabled =
+      false;
+
+  }
+
+}
+
+window.addEventListener(
+  "pagehide",
+  cleanupRoulette
+);
+
+window.addEventListener(
+  "blur",
+  cleanupRoulette
+);
+
+document.addEventListener(
+  "visibilitychange",
+  ()=>{
+
+    if(
+      document.hidden
+    ){
+
+      cleanupRoulette();
+
+    }
 
   }
 );
