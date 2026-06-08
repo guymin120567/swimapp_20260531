@@ -82,6 +82,9 @@ function renderType(type){
   target._isProgrammatic =
     false;
 
+  target._pointerLocked =
+    false;
+
   target.classList.remove(
     "dragging",
     "spinning-lock"
@@ -201,6 +204,7 @@ function renderType(type){
                 class="delete-btn"
                 data-action="delete"
                 data-id="${item.id}"
+                type="button"
               >
                 ×
               </button>
@@ -414,6 +418,12 @@ function bindSimpleSelect(){
         e.target.closest(
           ".delete-btn"
         )
+      ){
+        return;
+      }
+
+      if(
+        wrap._pointerLocked
       ){
         return;
       }
@@ -807,6 +817,9 @@ function stopSpin(){
     );
 
     i.flow._isProgrammatic =
+      false;
+
+    i.flow._pointerLocked =
       false;
 
     i.flow._isSpinning =
