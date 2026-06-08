@@ -50,8 +50,17 @@ export function bindDrag(){
 
     let velocity = 0;
 
-    let hasMoved =
-      false;
+    let pointerId = null;
+
+    let hasMoved = false;
+
+    const isMobile =
+      window.matchMedia(
+        "(pointer:coarse)"
+      ).matches;
+
+    const MOVE_THRESHOLD =
+      isMobile ? 16 : 8;
 
     wrap._isProgrammatic =
       false;
@@ -73,9 +82,13 @@ export function bindDrag(){
 
       isDown = false;
 
+      moved = false;
+
       hasMoved = false;
 
       velocity = 0;
+
+      pointerId = null;
 
       cancelAnimationFrame(
         wrap._inertiaRAF
@@ -85,13 +98,21 @@ export function bindDrag(){
         "dragging"
       );
 
+      try{
+
+        wrap.releasePointerCapture?.(
+          pointerId
+        );
+
+      }catch(err){}
+
     }
 
     /* =========================
        DOWN
     ========================= */
 
-    function onDown(x){
+    function onDown(e){
 
       if(
         wrap._isProgrammatic
@@ -133,51 +154,33 @@ export function bindDrag(){
 
       hasMoved = false;
 
+      pointerId =
+        e.pointerId;
+
       wrap.classList.add(
         "dragging"
       );
 
-      startX = x;
+      startX = e.pageX;
 
-      lastX = x;
+      lastX = e.pageX;
 
       scrollLeft =
         wrap.scrollLeft;
 
       velocity = 0;
 
+      wrap.setPointerCapture?.(
+        pointerId
+      );
+
     }
-
-    wrap.addEventListener(
-      "mousedown",
-      e => {
-
-        onDown(
-          e.pageX
-        );
-
-      }
-    );
-
-    wrap.addEventListener(
-      "touchstart",
-      e => {
-
-        onDown(
-          e.touches[0].pageX
-        );
-
-      },
-      {
-        passive:true
-      }
-    );
 
     /* =========================
        MOVE
     ========================= */
 
-    function onMove(x){
+    function onMove(e){
 
       if(!isDown){
         return;
@@ -185,22 +188,24 @@ export function bindDrag(){
 
       const delta =
         Math.abs(
-          x - startX
+          e.pageX - startX
         );
 
-      if(delta > 8){
+      if(
+        delta > MOVE_THRESHOLD
+      ){
 
         moved = true;
 
       }
 
       const walk =
-        (x - startX) * 1.02;
+        (e.pageX - startX) * 1.02;
 
       if(hasMoved){
 
         velocity =
-          x - lastX;
+          e.pageX - lastX;
 
       }else{
 
@@ -210,7 +215,8 @@ export function bindDrag(){
 
       }
 
-      lastX = x;
+      lastX =
+        e.pageX;
 
       const next =
         scrollLeft - walk;
@@ -240,60 +246,11 @@ export function bindDrag(){
 
     }
 
-    wrap.addEventListener(
-      "mousemove",
-      e => {
-
-        onMove(
-          e.pageX
-        );
-
-      }
-    );
-
-    wrap.addEventListener(
-      "touchmove",
-      e => {
-
-        onMove(
-          e.touches[0].pageX
-        );
-
-      },
-      {
-        passive:true
-      }
-    );
-
-    /* =========================
-       CLICK BLOCK
-    ========================= */
-
-    wrap.addEventListener(
-      "click",
-      e => {
-
-        if(moved){
-
-          e.preventDefault();
-
-          e.stopPropagation();
-
-          moved = false;
-
-          return;
-
-        }
-
-      },
-      true
-    );
-
     /* =========================
        END
     ========================= */
 
-    function endDrag(){
+    function endDrag(e){
 
       if(!isDown){
         return;
@@ -305,6 +262,50 @@ export function bindDrag(){
         "dragging"
       );
 
+      const targetCard =
+        e.target.closest(
+          ".cover-card"
+        );
+
+      /* =========================
+         TAP SELECT
+      ========================= */
+
+      if(
+        !moved &&
+        targetCard
+      ){
+
+        cancelAnimationFrame(
+          wrap._inertiaRAF
+        );
+
+        const type =
+          targetCard.dataset.type;
+
+        const id =
+          targetCard.dataset.id;
+
+        setSelected(
+          type,
+          id
+        );
+
+        scrollToCard(
+          wrap,
+          targetCard
+        );
+
+        cleanupDrag();
+
+        return;
+
+      }
+
+      /* =========================
+         DRAG END
+      ========================= */
+
       inertia(
         wrap,
         velocity
@@ -312,34 +313,37 @@ export function bindDrag(){
 
     }
 
+    /* =========================
+       POINTER EVENTS
+    ========================= */
+
+    wrap.addEventListener(
+      "pointerdown",
+      onDown
+    );
+
+    wrap.addEventListener(
+      "pointermove",
+      onMove
+    );
+
     window.addEventListener(
-      "mouseup",
+      "pointerup",
       endDrag
     );
 
     window.addEventListener(
-      "mouseleave",
-      endDrag
-    );
-
-    window.addEventListener(
-      "touchend",
-      endDrag,
-      {
-        passive:true
-      }
-    );
-
-    window.addEventListener(
-      "touchcancel",
-      cleanupDrag,
-      {
-        passive:true
-      }
+      "pointercancel",
+      cleanupDrag
     );
 
     window.addEventListener(
       "blur",
+      cleanupDrag
+    );
+
+    window.addEventListener(
+      "pagehide",
       cleanupDrag
     );
 
@@ -458,314 +462,4 @@ export function scrollToCard(
 
 }
 
-/* =========================
-   FIND CENTER CARD
-========================= */
-
-export function findCenterCard(
-  wrap
-){
-
-  const cards = [
-    ...wrap.querySelectorAll(
-      ".cover-card"
-    )
-  ];
-
-  if(!cards.length){
-    return null;
-  }
-
-  const wrapCenter =
-    wrap.scrollLeft +
-    wrap.clientWidth / 2;
-
-  let targetCard = null;
-
-  let min = Infinity;
-
-  cards.forEach(card => {
-
-    const center =
-      card.offsetLeft +
-      card.clientWidth / 2;
-
-    const dist =
-      Math.abs(
-        wrapCenter - center
-      );
-
-    if(dist < min){
-
-      min = dist;
-
-      targetCard = card;
-
-    }
-
-  });
-
-  return targetCard;
-
-}
-
-/* =========================
-   SNAP TO NEAREST CARD
-========================= */
-
-export function snapToNearestCard(
-  wrap,
-  smooth = true
-){
-
-  const targetCard =
-    findCenterCard(wrap);
-
-  if(!targetCard){
-    return;
-  }
-
-  scrollToCard(
-    wrap,
-    targetCard,
-    smooth
-  );
-
-  const type =
-    targetCard.dataset.type;
-
-  const id =
-    targetCard.dataset.id;
-
-  setSelected(
-    type,
-    id
-  );
-
-  requestAnimationFrame(()=>{
-
-    updateDepth(
-      wrap
-    );
-
-  });
-
-}
-
-/* =========================
-   DEPTH RAF
-========================= */
-
-function requestDepthUpdate(
-  wrap
-){
-
-  if(
-    wrap._depthTicking
-  ){
-    return;
-  }
-
-  wrap._depthTicking =
-    true;
-
-  requestAnimationFrame(()=>{
-
-    updateDepth(wrap);
-
-    wrap._depthTicking =
-      false;
-
-  });
-
-}
-
-/* =========================
-   INERTIA
-========================= */
-
-function inertia(
-  wrap,
-  velocity
-){
-
-  if(
-    wrap.scrollWidth <=
-    wrap.clientWidth
-  ){
-
-    snapToNearestCard(
-      wrap,
-      false
-    );
-
-    return;
-
-  }
-
-  let current =
-    velocity * 1.1;
-
-  function frame(){
-
-    current *= 0.9;
-
-    const next =
-      wrap.scrollLeft -
-      current;
-
-    const max =
-      wrap.scrollWidth -
-      wrap.clientWidth;
-
-    wrap.scrollLeft =
-      Math.max(
-        0,
-        Math.min(
-          next,
-          max
-        )
-      );
-
-    requestDepthUpdate(
-      wrap
-    );
-
-    if(
-      Math.abs(current) > 0.2
-    ){
-
-      wrap._inertiaRAF =
-        requestAnimationFrame(
-          frame
-        );
-
-    }else{
-
-      cancelAnimationFrame(
-        wrap._inertiaRAF
-      );
-
-      wrap._inertiaRAF =
-        null;
-
-      wrap.scrollLeft =
-        Math.round(
-          wrap.scrollLeft
-        );
-
-      snapToNearestCard(
-        wrap
-      );
-
-    }
-
-  }
-
-  wrap._inertiaRAF =
-    requestAnimationFrame(
-      frame
-    );
-
-}
-
-/* =========================
-   DEPTH
-========================= */
-
-export function updateDepth(
-  wrap
-){
-
-  const cards = [
-    ...wrap.querySelectorAll(
-      ".cover-card"
-    )
-  ];
-
-  if(!cards.length){
-    return;
-  }
-
-  const centerCard =
-    findCenterCard(wrap);
-
-  if(!centerCard){
-    return;
-  }
-
-  const activeIndex =
-    cards.indexOf(
-      centerCard
-    );
-
-  const total =
-    cards.length;
-
-  cards.forEach((card,index)=>{
-
-    const dist =
-      Math.abs(
-        index - activeIndex
-      );
-
-    card.classList.remove(
-      "active",
-      "depth-1",
-      "depth-2",
-      "hidden"
-    );
-
-    /* =========================
-       NUMBER
-    ========================= */
-
-    const badge =
-      card.querySelector(
-        ".card-index"
-      );
-
-    if(badge){
-
-      badge.textContent =
-        `${index + 1} / ${total}`;
-
-    }
-
-    /* =========================
-       DEPTH
-    ========================= */
-
-    if(dist === 0){
-
-      card.classList.add(
-        "active"
-      );
-
-    }else if(
-      dist === 1
-    ){
-
-      card.classList.add(
-        "depth-1"
-      );
-
-    }else if(
-      dist === 2
-    ){
-
-      card.classList.add(
-        "depth-2"
-      );
-
-    }else{
-
-      card.classList.add(
-        "hidden"
-      );
-
-    }
-
-  });
-
-}
+/* 이하 함수 동일 */
