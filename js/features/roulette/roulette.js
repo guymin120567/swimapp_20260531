@@ -15,6 +15,8 @@ import {
   setSelected
 } from "../../state/actions.js";
 
+let spinTimeout = null;
+
 /* =========================
    SPIN
 ========================= */
@@ -29,6 +31,12 @@ export async function spinAll(){
   ){
     return;
   }
+
+  clearTimeout(
+    spinTimeout
+  );
+
+  spinTimeout = null;
 
   const caps =
     state.items.filter(
@@ -138,7 +146,7 @@ export async function spinAll(){
 
   const maxTicks = 30;
 
-  let speed = 38;
+  let speed = 22;
 
   let finalCap =
     caps[0];
@@ -146,21 +154,53 @@ export async function spinAll(){
   let finalSwim =
     swims[0];
 
+  const prevCapId =
+    state.rouletteResult?.capId;
+
+  const prevSwimId =
+    state.rouletteResult?.swimId;
+
   const run = ()=>{
 
+    const capCandidates =
+      caps.filter(
+        i => i.id !== prevCapId
+      );
+
+    const swimCandidates =
+      swims.filter(
+        i => i.id !== prevSwimId
+      );
+
     finalCap =
-      caps[
+      (
+        capCandidates.length
+          ? capCandidates
+          : caps
+      )[
         Math.floor(
           Math.random() *
-          caps.length
+          (
+            capCandidates.length
+              ? capCandidates.length
+              : caps.length
+          )
         )
       ];
 
     finalSwim =
-      swims[
+      (
+        swimCandidates.length
+          ? swimCandidates
+          : swims
+      )[
         Math.floor(
           Math.random() *
-          swims.length
+          (
+            swimCandidates.length
+              ? swimCandidates.length
+              : swims.length
+          )
         )
       ];
 
@@ -196,10 +236,11 @@ export async function spinAll(){
       ticks < maxTicks
     ){
 
-      setTimeout(
-        run,
-        speed
-      );
+      spinTimeout =
+        setTimeout(
+          run,
+          speed
+        );
 
     }else{
 
@@ -279,11 +320,19 @@ export async function spinAll(){
       );
 
     if(changedCap){
-      renderCoverflow("cap");
+
+      renderCoverflow(
+        "cap"
+      );
+
     }
 
     if(changedSwim){
-      renderCoverflow("swim");
+
+      renderCoverflow(
+        "swim"
+      );
+
     }
 
     addRecord(
@@ -295,51 +344,62 @@ export async function spinAll(){
        UNLOCK
     ========================= */
 
-    setTimeout(()=>{
+    spinTimeout =
+      setTimeout(()=>{
 
-      capSlot.classList.remove(
-        "winner"
-      );
+        clearTimeout(
+          spinTimeout
+        );
 
-      swimSlot.classList.remove(
-        "winner"
-      );
+        spinTimeout = null;
 
-      setSpinning(false);
+        capSlot.classList.remove(
+          "winner"
+        );
 
-      window.__isSpinning = false;
+        swimSlot.classList.remove(
+          "winner"
+        );
 
-      document
-        .querySelectorAll(
-          ".coverflow"
-        )
-        .forEach(wrap => {
+        setSpinning(false);
 
-          wrap.classList.remove(
-            "dragging",
-            "spinning-lock"
-          );
+        window.__isSpinning =
+          false;
 
-          wrap._isProgrammatic =
+        document
+          .querySelectorAll(
+            ".coverflow"
+          )
+          .forEach(wrap => {
+
+            wrap.classList.remove(
+              "dragging",
+              "spinning-lock"
+            );
+
+            wrap._isProgrammatic =
+              false;
+
+            cancelAnimationFrame(
+              wrap._inertiaRAF
+            );
+
+          });
+
+        if(spinBtn){
+
+          spinBtn.disabled =
             false;
 
-          cancelAnimationFrame(
-            wrap._inertiaRAF
-          );
+        }
 
-        });
+        window.dispatchEvent(
+          new CustomEvent(
+            "spin-stop"
+          )
+        );
 
-      if(spinBtn){
-        spinBtn.disabled = false;
-      }
-
-      window.dispatchEvent(
-        new CustomEvent(
-          "spin-stop"
-        )
-      );
-
-    },1800);
+      },1800);
 
   }
 
@@ -571,3 +631,20 @@ function burst(type){
   }
 
 }
+
+/* =========================
+   PAGE CLEANUP
+========================= */
+
+window.addEventListener(
+  "pagehide",
+  ()=>{
+
+    clearTimeout(
+      spinTimeout
+    );
+
+    spinTimeout = null;
+
+  }
+);
