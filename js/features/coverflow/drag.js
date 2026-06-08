@@ -119,10 +119,6 @@ export function bindDrag(){
 
       downCard = null;
 
-      cancelAnimationFrame(
-        wrap._inertiaRAF
-      );
-
       wrap.classList.remove(
         "dragging"
       );
@@ -445,9 +441,9 @@ export function bindDrag(){
           wrap
         );
 
-      }
+        cleanupDrag();
 
-      cleanupDrag();
+      }
 
     }
 
@@ -470,11 +466,6 @@ export function bindDrag(){
 
     wrap.addEventListener(
       "pointerup",
-      endDrag
-    );
-
-    wrap.addEventListener(
-      "pointerleave",
       endDrag
     );
 
@@ -749,6 +740,8 @@ function inertia(
       false
     );
 
+    cleanupDrag();
+
     return;
 
   }
@@ -807,6 +800,8 @@ function inertia(
       snapToNearestCard(
         wrap
       );
+
+      cleanupDrag();
 
     }
 
