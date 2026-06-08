@@ -90,6 +90,18 @@ export async function spinAll(){
   }
 
   /* =========================
+     PREPARE SLOT
+  ========================= */
+
+  prepareSpinSlot(
+    capSlot
+  );
+
+  prepareSpinSlot(
+    swimSlot
+  );
+
+  /* =========================
      CLEAR INERTIA
   ========================= */
 
@@ -117,7 +129,9 @@ export async function spinAll(){
     );
 
   if(spinBtn){
+
     spinBtn.disabled = true;
+
   }
 
   capSlot.classList.remove(
@@ -406,6 +420,34 @@ export async function spinAll(){
 }
 
 /* =========================
+   PREPARE SPIN SLOT
+========================= */
+
+function prepareSpinSlot(
+  slot
+){
+
+  slot.innerHTML = `
+
+    <div class="spin-image-wrap">
+
+      <img
+        class="
+          roulette-image
+          spinning-image
+        "
+        draggable="false"
+      />
+
+      <div class="spin-glow"></div>
+
+    </div>
+
+  `;
+
+}
+
+/* =========================
    UPDATE SLOT
 ========================= */
 
@@ -418,35 +460,88 @@ function updateSlot(
     item.image &&
     item.image.trim() !== "";
 
-  slot.innerHTML = `
+  let img =
+    slot.querySelector(
+      ".roulette-image"
+    );
 
-    <div class="spin-image-wrap">
+  let placeholder =
+    slot.querySelector(
+      ".roulette-placeholder"
+    );
 
-      ${
-        hasImage
-          ? `
-            <img
-              class="
-                roulette-image
-                spinning-image
-              "
-              src="${item.image}"
-              alt="${item.name}"
-              draggable="false"
-            />
-          `
-          : `
-            <div class="roulette-placeholder">
-              🏊
-            </div>
-          `
-      }
+  /* =========================
+     IMAGE MODE
+  ========================= */
 
-      <div class="spin-glow"></div>
+  if(hasImage){
 
-    </div>
+    if(!img){
 
-  `;
+      slot.innerHTML = `
+
+        <div class="spin-image-wrap">
+
+          <img
+            class="
+              roulette-image
+              spinning-image
+            "
+            draggable="false"
+          />
+
+          <div class="spin-glow"></div>
+
+        </div>
+
+      `;
+
+      img =
+        slot.querySelector(
+          ".roulette-image"
+        );
+
+    }
+
+    if(
+      img.src !== item.image
+    ){
+
+      img.src =
+        item.image;
+
+    }
+
+    img.alt =
+      item.name;
+
+  }
+
+  /* =========================
+     PLACEHOLDER MODE
+  ========================= */
+
+  else{
+
+    if(!placeholder){
+
+      slot.innerHTML = `
+
+        <div class="spin-image-wrap">
+
+          <div class="roulette-placeholder">
+            🏊
+          </div>
+
+          <div class="spin-glow"></div>
+
+        </div>
+
+      `;
+
+    }
+
+  }
 
 }
 
