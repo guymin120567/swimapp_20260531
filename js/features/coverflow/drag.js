@@ -21,13 +21,34 @@ export function bindDrag(){
 
   wraps.forEach(wrap => {
 
+    /* =========================
+       RE-BIND SAFE RESET
+    ========================= */
+
     if(
       wrap.dataset.dragBound
     ){
 
+      cancelAnimationFrame(
+        wrap._inertiaRAF
+      );
+
+      wrap._isProgrammatic =
+        false;
+
+      wrap._depthTicking =
+        false;
+
       requestAnimationFrame(()=>{
 
-        updateDepth(wrap);
+        snapToNearestCard(
+          wrap,
+          false
+        );
+
+        updateDepth(
+          wrap
+        );
 
       });
 
@@ -155,23 +176,18 @@ export function bindDrag(){
           ".cover-card"
         );
 
-      if(
-        cards.length <= 2
-      ){
+      /* =========================
+         2 CARDS = CLICK ONLY
+      ========================= */
+
+      if(cards.length <= 2){
 
         downCard =
           e.target.closest(
             ".cover-card"
           );
 
-        isDown = true;
-
-        moved = false;
-
-        velocity = 0;
-
         return;
-
       }
 
       if(
@@ -228,17 +244,6 @@ export function bindDrag(){
     function onMove(e){
 
       if(!isDown){
-        return;
-      }
-
-      const cards =
-        wrap.querySelectorAll(
-          ".cover-card"
-        );
-
-      if(
-        cards.length <= 2
-      ){
         return;
       }
 
@@ -310,6 +315,42 @@ export function bindDrag(){
 
     function endDrag(){
 
+      /* =========================
+         2 CARDS CLICK MODE
+      ========================= */
+
+      const cards =
+        wrap.querySelectorAll(
+          ".cover-card"
+        );
+
+      if(
+        cards.length <= 2 &&
+        downCard
+      ){
+
+        const type =
+          downCard.dataset.type;
+
+        const id =
+          downCard.dataset.id;
+
+        setSelected(
+          type,
+          id
+        );
+
+        scrollToCard(
+          wrap,
+          downCard
+        );
+
+        downCard = null;
+
+        return;
+
+      }
+
       if(!isDown){
         return;
       }
@@ -322,45 +363,6 @@ export function bindDrag(){
 
       const targetCard =
         downCard;
-
-      const cards =
-        wrap.querySelectorAll(
-          ".cover-card"
-        );
-
-      /* =========================
-         SIMPLE MODE
-      ========================= */
-
-      if(
-        cards.length <= 2
-      ){
-
-        if(targetCard){
-
-          const type =
-            targetCard.dataset.type;
-
-          const id =
-            targetCard.dataset.id;
-
-          setSelected(
-            type,
-            id
-          );
-
-          scrollToCard(
-            wrap,
-            targetCard
-          );
-
-        }
-
-        cleanupDrag();
-
-        return;
-
-      }
 
       /* =========================
          TAP SELECT
@@ -633,23 +635,6 @@ export function snapToNearestCard(
   smooth = true
 ){
 
-  const cards =
-    wrap.querySelectorAll(
-      ".cover-card"
-    );
-
-  if(
-    cards.length <= 2
-  ){
-
-    updateDepth(
-      wrap
-    );
-
-    return;
-
-  }
-
   const targetCard =
     findCenterCard(wrap);
 
@@ -720,24 +705,6 @@ function inertia(
   wrap,
   velocity
 ){
-
-  const cards =
-    wrap.querySelectorAll(
-      ".cover-card"
-    );
-
-  if(
-    cards.length <= 2
-  ){
-
-    snapToNearestCard(
-      wrap,
-      false
-    );
-
-    return;
-
-  }
 
   if(
     wrap.scrollWidth <=
@@ -837,43 +804,6 @@ export function updateDepth(
     return;
   }
 
-  const total =
-    cards.length;
-
-  /* =========================
-     SIMPLE MODE
-  ========================= */
-
-  if(
-    total <= 2
-  ){
-
-    cards.forEach((card,index)=>{
-
-      card.classList.remove(
-        "depth-1",
-        "depth-2",
-        "hidden"
-      );
-
-      const badge =
-        card.querySelector(
-          ".card-index"
-        );
-
-      if(badge){
-
-        badge.textContent =
-          `${index + 1} / ${total}`;
-
-      }
-
-    });
-
-    return;
-
-  }
-
   const centerCard =
     findCenterCard(wrap);
 
@@ -885,6 +815,9 @@ export function updateDepth(
     cards.indexOf(
       centerCard
     );
+
+  const total =
+    cards.length;
 
   cards.forEach((card,index)=>{
 
