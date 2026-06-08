@@ -67,6 +67,9 @@ export function bindDrag(){
     wrap.dataset.dragBound =
       "true";
 
+    wrap.style.touchAction =
+      "pan-y";
+
     let isDown = false;
 
     let moved = false;
@@ -78,8 +81,6 @@ export function bindDrag(){
     let scrollLeft = 0;
 
     let velocity = 0;
-
-    let pointerId = null;
 
     let hasMoved = false;
 
@@ -125,22 +126,6 @@ export function bindDrag(){
       wrap.classList.remove(
         "dragging"
       );
-
-      try{
-
-        if(
-          pointerId !== null
-        ){
-
-          wrap.releasePointerCapture?.(
-            pointerId
-          );
-
-        }
-
-      }catch(err){}
-
-      pointerId = null;
 
     }
 
@@ -256,9 +241,6 @@ export function bindDrag(){
 
       hasMoved = false;
 
-      pointerId =
-        e.pointerId;
-
       downCard =
         e.target.closest(
           ".cover-card"
@@ -277,10 +259,6 @@ export function bindDrag(){
 
       velocity = 0;
 
-      wrap.setPointerCapture?.(
-        pointerId
-      );
-
     }
 
     /* =========================
@@ -293,8 +271,6 @@ export function bindDrag(){
         return;
       }
 
-      e.preventDefault();
-
       const delta =
         Math.abs(
           e.pageX - startX
@@ -305,6 +281,8 @@ export function bindDrag(){
       ){
 
         moved = true;
+
+        e.preventDefault();
 
       }
 
@@ -382,8 +360,6 @@ export function bindDrag(){
 
         }
 
-        downCard = null;
-
         cleanupDrag();
 
         return;
@@ -391,7 +367,11 @@ export function bindDrag(){
       }
 
       if(!isDown){
+
+        cleanupDrag();
+
         return;
+
       }
 
       isDown = false;
@@ -467,6 +447,8 @@ export function bindDrag(){
 
       }
 
+      cleanupDrag();
+
     }
 
     /* =========================
@@ -486,12 +468,17 @@ export function bindDrag(){
       }
     );
 
-    window.addEventListener(
+    wrap.addEventListener(
       "pointerup",
       endDrag
     );
 
-    window.addEventListener(
+    wrap.addEventListener(
+      "pointerleave",
+      endDrag
+    );
+
+    wrap.addEventListener(
       "pointercancel",
       cleanupDrag
     );
