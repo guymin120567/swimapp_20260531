@@ -42,7 +42,8 @@ export function renderCoverflow(
 
   bindDeleteEvents();
 
-  bindSimpleSelect();
+  /* SIMPLE SELECT 제거
+     drag.js 에서 통합 처리 */
 
   bindSpinEvents();
 
@@ -80,6 +81,9 @@ function renderType(type){
   );
 
   target._isProgrammatic =
+    false;
+
+  target._initialized =
     false;
 
   target.classList.remove(
@@ -142,6 +146,10 @@ function renderType(type){
     target.dataset.signature =
       "";
 
+    target.classList.remove(
+      "is-simple"
+    );
+
     return;
 
   }
@@ -167,9 +175,12 @@ function renderType(type){
   target.dataset.signature =
     signature;
 
+  const isSimple =
+    items.length <= 2;
+
   target.classList.toggle(
     "is-simple",
-    items.length <= 2
+    isSimple
   );
 
   /* =========================
@@ -181,16 +192,10 @@ function renderType(type){
     target.innerHTML =
       items.map((item,index) => {
 
-        const isActive =
-          item.id === selectedId;
-
         return `
 
           <div
-            class="
-              cover-card
-              ${isActive ? "active" : ""}
-            "
+            class="cover-card"
             data-id="${item.id}"
             data-type="${type}"
           >
@@ -265,6 +270,10 @@ function renderType(type){
         )
       ];
 
+      if(!cards.length){
+        return;
+      }
+
       /* =========================
          INDEX FIX
       ========================= */
@@ -296,9 +305,9 @@ function renderType(type){
          SIMPLE MODE
       ========================= */
 
-      if(
-        items.length <= 2
-      ){
+      if(isSimple){
+
+        target.scrollLeft = 0;
 
         cards.forEach(card => {
 
@@ -310,14 +319,6 @@ function renderType(type){
           );
 
         });
-
-        if(selectedCard){
-
-          selectedCard.classList.add(
-            "active"
-          );
-
-        }
 
         updateDepth(
           target
@@ -359,100 +360,6 @@ function renderType(type){
     });
 
   });
-
-}
-
-/* =========================
-   SIMPLE SELECT
-========================= */
-
-function bindSimpleSelect(){
-
-  if(
-    window.__coverflowSimpleBound
-  ){
-    return;
-  }
-
-  document.addEventListener(
-    "click",
-    e => {
-
-      const card =
-        e.target.closest(
-          ".cover-card"
-        );
-
-      if(!card){
-        return;
-      }
-
-      const wrap =
-        card.closest(
-          ".coverflow"
-        );
-
-      if(!wrap){
-        return;
-      }
-
-      if(
-        !wrap.classList.contains(
-          "is-simple"
-        )
-      ){
-        return;
-      }
-
-      if(
-        e.target.closest(
-          ".delete-btn"
-        )
-      ){
-        return;
-      }
-
-      const type =
-        card.dataset.type;
-
-      const id =
-        card.dataset.id;
-
-      const changed =
-        setSelected(
-          type,
-          id
-        );
-
-      if(!changed){
-        return;
-      }
-
-      wrap
-        .querySelectorAll(
-          ".cover-card"
-        )
-        .forEach(el => {
-
-          el.classList.remove(
-            "active"
-          );
-
-        });
-
-      card.classList.add(
-        "active"
-      );
-
-      updateDepth(
-        wrap
-      );
-
-    }
-  );
-
-  window.__coverflowSimpleBound =
-    true;
 
 }
 
@@ -886,16 +793,23 @@ function bindResize(){
             wrap
           );
 
-          if(
+          const cards =
             wrap.querySelectorAll(
               ".cover-card"
-            ).length > 2
+            );
+
+          if(
+            cards.length > 2
           ){
 
             snapToNearestCard(
               wrap,
               false
             );
+
+          }else{
+
+            wrap.scrollLeft = 0;
 
           }
 
