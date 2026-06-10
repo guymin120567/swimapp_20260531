@@ -338,75 +338,100 @@ export function bindDrag(){
       }catch(err){}
 
     }
+// drag.js 수정사항
 
-    /* =========================
-       MOVE
-    ========================= */
+/* =========================
+   MOVE
+========================= */
 
-    function onMove(e){
+function onMove(e){
 
-      if(!isDown){
-        return;
-      }
+  if(!isDown){
+    return;
+  }
 
-      const delta =
-        Math.abs(
-          e.pageX - startX
-        );
+  const delta =
+    Math.abs(
+      e.pageX - startX
+    );
 
-      if(
-        delta > MOVE_THRESHOLD
-      ){
+  if(
+    delta > MOVE_THRESHOLD
+  ){
 
-        moved = true;
+    moved = true;
 
-        wrap.dataset.dragMoved =
-          "true";
+    wrap.dataset.dragMoved =
+      "true";
 
-        e.preventDefault();
+    e.preventDefault();
 
-      }
+  }
 
-      const walk =
-        (e.pageX - startX) * 1.02;
+  const walk =
+    (e.pageX - startX) * 1.02;
 
-      if(hasMoved){
+  if(hasMoved){
 
-        velocity =
-          e.pageX - lastX;
+    velocity =
+      e.pageX - lastX;
 
-      }else{
+  }else{
 
-        velocity = 0;
+    velocity = 0;
 
-        hasMoved = true;
+    hasMoved = true;
 
-      }
+  }
 
-      lastX =
-        e.pageX;
+  lastX =
+    e.pageX;
 
-      const next =
-        scrollLeft - walk;
+  const next =
+    scrollLeft - walk;
 
-      const max =
-        wrap.scrollWidth -
-        wrap.clientWidth;
+  const max =
+    wrap.scrollWidth -
+    wrap.clientWidth;
 
-      wrap.scrollLeft =
-        Math.max(
-          0,
-          Math.min(
-            next,
-            max
-          )
-        );
+  wrap.scrollLeft =
+    Math.max(
+      0,
+      Math.min(
+        next,
+        max
+      )
+    );
 
-      requestDepthUpdate(
-        wrap
-      );
+  /* =========================
+     CENTER SYNC
+  ========================= */
 
-    }
+  const centerCard =
+    findCenterCard(
+      wrap
+    );
+
+  if(centerCard){
+
+    const type =
+      centerCard.dataset.type;
+
+    const id =
+      centerCard.dataset.id;
+
+    setSelected(
+      type,
+      id
+    );
+
+  }
+
+  requestDepthUpdate(
+    wrap
+  );
+
+}
 
     /* =========================
        END
