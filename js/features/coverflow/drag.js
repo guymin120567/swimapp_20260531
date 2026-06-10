@@ -338,100 +338,99 @@ export function bindDrag(){
       }catch(err){}
 
     }
-// drag.js 수정사항
 
-/* =========================
-   MOVE
-========================= */
+    /* =========================
+       MOVE
+    ========================= */
 
-function onMove(e){
+    function onMove(e){
 
-  if(!isDown){
-    return;
-  }
+      if(!isDown){
+        return;
+      }
 
-  const delta =
-    Math.abs(
-      e.pageX - startX
-    );
+      const delta =
+        Math.abs(
+          e.pageX - startX
+        );
 
-  if(
-    delta > MOVE_THRESHOLD
-  ){
+      if(
+        delta > MOVE_THRESHOLD
+      ){
 
-    moved = true;
+        moved = true;
 
-    wrap.dataset.dragMoved =
-      "true";
+        wrap.dataset.dragMoved =
+          "true";
 
-    e.preventDefault();
+        e.preventDefault();
 
-  }
+      }
 
-  const walk =
-    (e.pageX - startX) * 1.02;
+      const walk =
+        (e.pageX - startX) * 1.02;
 
-  if(hasMoved){
+      if(hasMoved){
 
-    velocity =
-      e.pageX - lastX;
+        velocity =
+          e.pageX - lastX;
 
-  }else{
+      }else{
 
-    velocity = 0;
+        velocity = 0;
 
-    hasMoved = true;
+        hasMoved = true;
 
-  }
+      }
 
-  lastX =
-    e.pageX;
+      lastX =
+        e.pageX;
 
-  const next =
-    scrollLeft - walk;
+      const next =
+        scrollLeft - walk;
 
-  const max =
-    wrap.scrollWidth -
-    wrap.clientWidth;
+      const max =
+        wrap.scrollWidth -
+        wrap.clientWidth;
 
-  wrap.scrollLeft =
-    Math.max(
-      0,
-      Math.min(
-        next,
-        max
-      )
-    );
+      wrap.scrollLeft =
+        Math.max(
+          0,
+          Math.min(
+            next,
+            max
+          )
+        );
 
-  /* =========================
-     CENTER SYNC
-  ========================= */
+      /* =========================
+         CENTER SYNC
+      ========================= */
 
-  const centerCard =
-    findCenterCard(
-      wrap
-    );
+      const centerCard =
+        findCenterCard(
+          wrap
+        );
 
-  if(centerCard){
+      if(centerCard){
 
-    const type =
-      centerCard.dataset.type;
+        const type =
+          centerCard.dataset.type;
 
-    const id =
-      centerCard.dataset.id;
+        const id =
+          centerCard.dataset.id;
 
-    setSelected(
-      type,
-      id
-    );
+        setSelected(
+          type,
+          id
+        );
 
-  }
+      }
 
-  requestDepthUpdate(
-    wrap
-  );
+      requestDepthUpdate(
+        wrap
+      );
 
-}
+    }
 
     /* =========================
        END
@@ -516,6 +515,11 @@ function onMove(e){
           id
         );
 
+        scrollToCard(
+          wrap,
+          targetCard
+        );
+
         requestAnimationFrame(()=>{
 
           updateDepth(
@@ -523,11 +527,6 @@ function onMove(e){
           );
 
         });
-
-        scrollToCard(
-          wrap,
-          targetCard
-        );
 
         cleanupDrag();
 
@@ -633,6 +632,26 @@ function onMove(e){
           return;
         }
 
+        const centerCard =
+          findCenterCard(
+            wrap
+          );
+
+        if(centerCard){
+
+          const type =
+            centerCard.dataset.type;
+
+          const id =
+            centerCard.dataset.id;
+
+          setSelected(
+            type,
+            id
+          );
+
+        }
+
         requestDepthUpdate(
           wrap
         );
@@ -654,7 +673,7 @@ function onMove(e){
 export function scrollToCard(
   wrap,
   card,
-  smooth = true
+ smooth = true
 ){
 
   if(
@@ -699,7 +718,10 @@ export function scrollToCard(
     );
 
   const safeLeft =
-    Math.round(left);
+    Math.max(
+      0,
+      Math.round(left)
+    );
 
   wrap._isProgrammatic =
     true;
@@ -729,6 +751,26 @@ export function scrollToCard(
         Math.round(
           wrap.scrollLeft
         );
+
+      const centerCard =
+        findCenterCard(
+          wrap
+        );
+
+      if(centerCard){
+
+        const type =
+          centerCard.dataset.type;
+
+        const id =
+          centerCard.dataset.id;
+
+        setSelected(
+          type,
+          id
+        );
+
+      }
 
       requestAnimationFrame(()=>{
 
@@ -760,9 +802,14 @@ export function findCenterCard(
     return null;
   }
 
+  const wrapRect =
+    wrap.getBoundingClientRect();
+
   const wrapCenter =
-    wrap.scrollLeft +
-    wrap.clientWidth / 2;
+    wrapRect.left +
+    (
+      wrapRect.width / 2
+    );
 
   let targetCard = null;
 
@@ -770,9 +817,14 @@ export function findCenterCard(
 
   cards.forEach(card => {
 
+    const rect =
+      card.getBoundingClientRect();
+
     const center =
-      card.offsetLeft +
-      card.clientWidth / 2;
+      rect.left +
+      (
+        rect.width / 2
+      );
 
     const dist =
       Math.abs(
@@ -841,6 +893,12 @@ export function snapToNearestCard(
     id
   );
 
+  scrollToCard(
+    wrap,
+    targetCard,
+    smooth
+  );
+
   requestAnimationFrame(()=>{
 
     updateDepth(
@@ -848,12 +906,6 @@ export function snapToNearestCard(
     );
 
   });
-
-  scrollToCard(
-    wrap,
-    targetCard,
-    smooth
-  );
 
 }
 
@@ -947,6 +999,26 @@ function inertia(
           max
         )
       );
+
+      const centerCard =
+        findCenterCard(
+          wrap
+        );
+
+      if(centerCard){
+
+        const type =
+          centerCard.dataset.type;
+
+        const id =
+          centerCard.dataset.id;
+
+        setSelected(
+          type,
+          id
+        );
+
+      }
 
     requestDepthUpdate(
       wrap
@@ -1051,17 +1123,17 @@ export function updateDepth(
   }else{
 
     activeCard =
-      findCenterCard(
-        wrap
+      cards.find(
+        card =>
+          card.dataset.id ===
+          selectedId
       );
 
     if(!activeCard){
 
       activeCard =
-        cards.find(
-          card =>
-            card.dataset.id ===
-            selectedId
+        findCenterCard(
+          wrap
         );
 
     }
