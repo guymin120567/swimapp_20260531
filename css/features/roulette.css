@@ -2,14 +2,20 @@
 
 :root{
 
-  --roulette-card-width:172px;
+  /* =========================
+     SIZE SYNC
+  ========================= */
 
-  --roulette-card-radius:24px;
+  --roulette-card-width:148px;
 
-  --roulette-title-size:13px;
+  --roulette-card-radius:20px;
+
+  --roulette-title-size:11px;
+
+  --roulette-label-size:11px;
 
   --roulette-overlay-padding:
-    8px 10px 10px;
+    4px 6px;
 
 }
 
@@ -41,10 +47,10 @@
 
   flex-direction:column;
 
-  gap:18px;
+  gap:14px;
 
   padding:
-    10px
+    6px
     18px
     110px;
 
@@ -59,9 +65,8 @@
   position:relative;
 
   width:
-    min(
-      100%,
-      var(--roulette-card-width)
+    var(
+      --roulette-card-width
     );
 
   margin:0 auto;
@@ -78,7 +83,7 @@
 
   width:100%;
 
-  aspect-ratio:3/4;
+  aspect-ratio:1/1;
 
   overflow:hidden;
 
@@ -99,8 +104,8 @@
     rgba(255,255,255,.92);
 
   box-shadow:
-    0 22px 42px
-    rgba(90,140,180,.18);
+    0 8px 18px
+    rgba(120,170,210,.12);
 
   backdrop-filter:
     blur(10px);
@@ -418,7 +423,7 @@
   background:
     linear-gradient(
       transparent,
-      rgba(18,38,64,.88)
+      rgba(20,50,80,.82)
     );
 
 }
@@ -436,11 +441,7 @@
       --roulette-title-size
     );
 
-  font-weight:800;
-
-  line-height:1.35;
-
-  letter-spacing:-0.02em;
+  font-weight:700;
 
   text-align:center;
 
@@ -449,6 +450,10 @@
   overflow:hidden;
 
   text-overflow:ellipsis;
+
+  line-height:1.2;
+
+  letter-spacing:-0.02em;
 
   text-shadow:
     0 2px 12px
@@ -472,7 +477,7 @@
 
   justify-content:center;
 
-  font-size:34px;
+  font-size:26px;
 
   background:
     linear-gradient(
@@ -493,9 +498,9 @@
 
   flex-direction:column;
 
-  gap:16px;
+  gap:14px;
 
-  margin-bottom:20px;
+  margin-bottom:18px;
 
 }
 
@@ -624,13 +629,16 @@
 
   text-align:center;
 
-  font-size:15px;
+  font-size:
+    var(
+      --roulette-label-size
+    );
 
-  font-weight:800;
+  font-weight:700;
 
   color:var(--text);
 
-  margin-bottom:12px;
+  margin-bottom:8px;
 
   letter-spacing:-0.02em;
 
@@ -644,9 +652,11 @@
 
   :root{
 
-    --roulette-card-width:152px;
+    --roulette-card-width:132px;
 
-    --roulette-title-size:12px;
+    --roulette-title-size:11px;
+
+    --roulette-label-size:11px;
 
   }
 
