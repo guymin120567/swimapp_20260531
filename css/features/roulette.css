@@ -1,5 +1,18 @@
 /* css/features/roulette.css */
 
+:root{
+
+  --roulette-card-width:172px;
+
+  --roulette-card-radius:24px;
+
+  --roulette-title-size:13px;
+
+  --roulette-overlay-padding:
+    8px 10px 10px;
+
+}
+
 /* =========================
    PAGE
 ========================= */
@@ -28,10 +41,10 @@
 
   flex-direction:column;
 
-  gap:14px;
+  gap:18px;
 
   padding:
-    6px
+    10px
     18px
     110px;
 
@@ -45,7 +58,11 @@
 
   position:relative;
 
-  width:min(100%, 220px);
+  width:
+    min(
+      100%,
+      var(--roulette-card-width)
+    );
 
   margin:0 auto;
 
@@ -61,11 +78,14 @@
 
   width:100%;
 
-  aspect-ratio:1/1;
+  aspect-ratio:3/4;
 
   overflow:hidden;
 
-  border-radius:34px;
+  border-radius:
+    var(
+      --roulette-card-radius
+    );
 
   background:
     linear-gradient(
@@ -76,10 +96,10 @@
 
   border:
     1px solid
-    rgba(255,255,255,.9);
+    rgba(255,255,255,.92);
 
   box-shadow:
-    0 20px 40px
+    0 22px 42px
     rgba(90,140,180,.18);
 
   backdrop-filter:
@@ -97,6 +117,7 @@
 .roulette-image{
 
   position:absolute;
+
   inset:0;
 
   width:100%;
@@ -107,7 +128,10 @@
   object-fit:cover;
 
   user-select:none;
+
   -webkit-user-drag:none;
+
+  pointer-events:none;
 
 }
 
@@ -118,6 +142,7 @@
 .spin-image-wrap{
 
   position:absolute;
+
   inset:0;
 
   overflow:hidden;
@@ -155,39 +180,51 @@
 @keyframes rouletteShake{
 
   0%{
+
     transform:
       translate(0px,0px)
       scale(1.01);
+
   }
 
   20%{
+
     transform:
       translate(-1px,1px)
       scale(1.02);
+
   }
 
   40%{
+
     transform:
       translate(1px,-1px)
       scale(1.025);
+
   }
 
   60%{
+
     transform:
       translate(-1px,-1px)
       scale(1.02);
+
   }
 
   80%{
+
     transform:
       translate(1px,1px)
       scale(1.025);
+
   }
 
   100%{
+
     transform:
       translate(0px,0px)
       scale(1.01);
+
   }
 
 }
@@ -199,21 +236,27 @@
 @keyframes rouletteImageSpin{
 
   0%{
+
     transform:
       scale(1.03)
       rotate(-2deg);
+
   }
 
   50%{
+
     transform:
       scale(1.08)
       rotate(2deg);
+
   }
 
   100%{
+
     transform:
       scale(1.03)
       rotate(-2deg);
+
   }
 
 }
@@ -225,6 +268,7 @@
 .spin-glow{
 
   position:absolute;
+
   inset:-14%;
 
   border-radius:inherit;
@@ -247,24 +291,33 @@
 @keyframes spinGlow{
 
   0%{
+
     transform:
       rotate(0deg)
       scale(1);
+
     opacity:.5;
+
   }
 
   50%{
+
     transform:
       rotate(180deg)
       scale(1.08);
+
     opacity:.95;
+
   }
 
   100%{
+
     transform:
       rotate(360deg)
       scale(1);
+
     opacity:.5;
+
   }
 
 }
@@ -299,6 +352,7 @@
 .winner-glow{
 
   position:absolute;
+
   inset:-12%;
 
   border-radius:inherit;
@@ -319,18 +373,27 @@
 @keyframes winnerGlow{
 
   0%{
+
     opacity:.4;
+
     transform:scale(1);
+
   }
 
   50%{
+
     opacity:1;
+
     transform:scale(1.08);
+
   }
 
   100%{
+
     opacity:.4;
+
     transform:scale(1);
+
   }
 
 }
@@ -347,12 +410,15 @@
   right:0;
   bottom:0;
 
-  padding:18px;
+  padding:
+    var(
+      --roulette-overlay-padding
+    );
 
   background:
     linear-gradient(
       transparent,
-      rgba(20,50,80,.82)
+      rgba(18,38,64,.88)
     );
 
 }
@@ -365,13 +431,24 @@
 
   color:white;
 
-  font-size:19px;
+  font-size:
+    var(
+      --roulette-title-size
+    );
 
   font-weight:800;
 
-  text-align:center;
+  line-height:1.35;
 
   letter-spacing:-0.02em;
+
+  text-align:center;
+
+  white-space:nowrap;
+
+  overflow:hidden;
+
+  text-overflow:ellipsis;
 
   text-shadow:
     0 2px 12px
@@ -386,13 +463,16 @@
 .roulette-placeholder{
 
   position:absolute;
+
   inset:0;
 
   display:flex;
+
   align-items:center;
+
   justify-content:center;
 
-  font-size:60px;
+  font-size:34px;
 
   background:
     linear-gradient(
@@ -410,27 +490,27 @@
 .roulette-wrap{
 
   display:flex;
+
   flex-direction:column;
 
-  gap:14px;
+  gap:16px;
 
-  margin-bottom:18px;
+  margin-bottom:20px;
 
 }
+
 .roulette-page .spin-btn{
 
-   width:100%;
+  width:100%;
 
   max-width:280px;
+
+  height:60px;
 
   margin:14px auto 0;
 
   display:block;
 
-  height:60px;
-
-  margin:14px auto 0;
-   
   border:none;
 
   border-radius:22px;
@@ -536,6 +616,9 @@
 
 }
 
+/* =========================
+   LABEL
+========================= */
 
 .roulette-label{
 
@@ -547,8 +630,24 @@
 
   color:var(--text);
 
-  margin-bottom:10px;
+  margin-bottom:12px;
 
   letter-spacing:-0.02em;
+
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width:640px){
+
+  :root{
+
+    --roulette-card-width:152px;
+
+    --roulette-title-size:12px;
+
+  }
 
 }
