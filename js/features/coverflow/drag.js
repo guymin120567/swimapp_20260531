@@ -40,6 +40,9 @@ export function bindDrag(){
       wrap._isProgrammatic =
         false;
 
+      wrap._isInertia =
+        false;
+
       wrap._depthTicking =
         false;
 
@@ -49,14 +52,27 @@ export function bindDrag(){
 
       requestAnimationFrame(()=>{
 
-        snapToNearestCard(
-          wrap,
-          false
-        );
+        const cards =
+          wrap.querySelectorAll(
+            ".cover-card"
+          );
 
-        updateDepth(
-          wrap
-        );
+        if(
+          cards.length > 2
+        ){
+
+          snapToNearestCard(
+            wrap,
+            false
+          );
+
+        }else{
+
+          updateDepth(
+            wrap
+          );
+
+        }
 
       });
 
@@ -97,6 +113,9 @@ export function bindDrag(){
       isMobile ? 12 : 6;
 
     wrap._isProgrammatic =
+      false;
+
+    wrap._isInertia =
       false;
 
     wrap._inertiaRAF =
@@ -220,6 +239,12 @@ export function bindDrag(){
       }
 
       if(
+        wrap._isInertia
+      ){
+        return;
+      }
+
+      if(
         getState().ui?.isSpinning
       ){
         return;
@@ -274,6 +299,9 @@ export function bindDrag(){
       );
 
       wrap._isProgrammatic =
+        false;
+
+      wrap._isInertia =
         false;
 
       isDown = true;
@@ -449,6 +477,9 @@ export function bindDrag(){
         wrap._isProgrammatic =
           false;
 
+        wrap._isInertia =
+          false;
+
         const type =
           targetCard.dataset.type;
 
@@ -460,9 +491,13 @@ export function bindDrag(){
           id
         );
 
-        updateDepth(
-          wrap
-        );
+        requestAnimationFrame(()=>{
+
+          updateDepth(
+            wrap
+          );
+
+        });
 
         scrollToCard(
           wrap,
@@ -527,6 +562,26 @@ export function bindDrag(){
       cleanupDrag
     );
 
+    window.addEventListener(
+      "pointerup",
+      endDrag
+    );
+
+    window.addEventListener(
+      "mouseup",
+      endDrag
+    );
+
+    window.addEventListener(
+      "blur",
+      cleanupDrag
+    );
+
+    window.addEventListener(
+      "pagehide",
+      cleanupDrag
+    );
+
     /* =========================
        SCROLL
     ========================= */
@@ -543,6 +598,12 @@ export function bindDrag(){
 
         if(
           isSimpleMode()
+        ){
+          return;
+        }
+
+        if(
+          !wrap._initialized
         ){
           return;
         }
@@ -591,9 +652,13 @@ export function scrollToCard(
     cards.length <= 2
   ){
 
-    updateDepth(
-      wrap
-    );
+    requestAnimationFrame(()=>{
+
+      updateDepth(
+        wrap
+      );
+
+    });
 
     return;
 
@@ -640,9 +705,13 @@ export function scrollToCard(
           wrap.scrollLeft
         );
 
-      updateDepth(
-        wrap
-      );
+      requestAnimationFrame(()=>{
+
+        updateDepth(
+          wrap
+        );
+
+      });
 
     }, smooth ? 320 : 0);
 
@@ -708,6 +777,27 @@ export function snapToNearestCard(
   smooth = true
 ){
 
+  const cards =
+    wrap.querySelectorAll(
+      ".cover-card"
+    );
+
+  if(
+    cards.length <= 2
+  ){
+
+    requestAnimationFrame(()=>{
+
+      updateDepth(
+        wrap
+      );
+
+    });
+
+    return;
+
+  }
+
   const targetCard =
     findCenterCard(wrap);
 
@@ -721,18 +811,18 @@ export function snapToNearestCard(
   const id =
     targetCard.dataset.id;
 
-  /* =========================
-     STATE FIRST
-  ========================= */
-
   setSelected(
     type,
     id
   );
 
-  updateDepth(
-    wrap
-  );
+  requestAnimationFrame(()=>{
+
+    updateDepth(
+      wrap
+    );
+
+  });
 
   scrollToCard(
     wrap,
@@ -760,6 +850,19 @@ function requestDepthUpdate(
     true;
 
   requestAnimationFrame(()=>{
+
+    if(
+      !document.contains(
+        wrap
+      )
+    ){
+
+      wrap._depthTicking =
+        false;
+
+      return;
+
+    }
 
     updateDepth(wrap);
 
@@ -792,6 +895,9 @@ function inertia(
     return;
 
   }
+
+  wrap._isInertia =
+    true;
 
   let current =
     velocity * 1.08;
@@ -838,6 +944,9 @@ function inertia(
 
       wrap._inertiaRAF =
         null;
+
+      wrap._isInertia =
+        false;
 
       wrap.scrollLeft =
         Math.round(
@@ -915,10 +1024,6 @@ export function updateDepth(
     }
 
   }else{
-
-    /* =========================
-       CENTER PRIORITY
-    ========================= */
 
     activeCard =
       findCenterCard(
