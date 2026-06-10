@@ -1,3 +1,5 @@
+// js/features/coverflow/drag.js
+
 import {
   getState
 } from "../../state/state.js";
@@ -92,7 +94,7 @@ export function bindDrag(){
       ).matches;
 
     const MOVE_THRESHOLD =
-      isMobile ? 16 : 8;
+      isMobile ? 12 : 6;
 
     wrap._isProgrammatic =
       false;
@@ -145,6 +147,20 @@ export function bindDrag(){
     }
 
     /* =========================
+       SIMPLE MODE
+    ========================= */
+
+    function isSimpleMode(){
+
+      return (
+        wrap.querySelectorAll(
+          ".cover-card"
+        ).length <= 2
+      );
+
+    }
+
+    /* =========================
        SIMPLE MODE CLICK
     ========================= */
 
@@ -170,9 +186,13 @@ export function bindDrag(){
 
       if(changed){
 
-        updateDepth(
-          wrap
-        );
+        requestAnimationFrame(()=>{
+
+          updateDepth(
+            wrap
+          );
+
+        });
 
       }
 
@@ -213,19 +233,29 @@ export function bindDrag(){
         return;
       }
 
-      const cards =
-        wrap.querySelectorAll(
+      downCard =
+        e.target.closest(
           ".cover-card"
         );
 
-      if(cards.length <= 2){
+      if(!downCard){
+        return;
+      }
 
-        downCard =
-          e.target.closest(
-            ".cover-card"
-          );
+      /* =========================
+         SIMPLE MODE
+      ========================= */
+
+      if(
+        isSimpleMode()
+      ){
+
+        moved = false;
+
+        velocity = 0;
 
         return;
+
       }
 
       if(
@@ -254,11 +284,6 @@ export function bindDrag(){
 
       wrap.dataset.dragMoved =
         "false";
-
-      downCard =
-        e.target.closest(
-          ".cover-card"
-        );
 
       wrap.classList.add(
         "dragging"
@@ -349,15 +374,9 @@ export function bindDrag(){
           )
         );
 
-      if(
-        wrap._initialized
-      ){
-
-        requestDepthUpdate(
-          wrap
-        );
-
-      }
+      requestDepthUpdate(
+        wrap
+      );
 
     }
 
@@ -367,16 +386,18 @@ export function bindDrag(){
 
     function endDrag(){
 
-      const cards =
-        wrap.querySelectorAll(
-          ".cover-card"
-        );
+      /* =========================
+         SIMPLE MODE
+      ========================= */
 
       if(
-        cards.length <= 2
+        isSimpleMode()
       ){
 
-        if(downCard){
+        if(
+          downCard &&
+          !moved
+        ){
 
           handleSimpleModeClick(
             downCard
@@ -407,9 +428,13 @@ export function bindDrag(){
       const targetCard =
         downCard;
 
+      /* =========================
+         CLICK SELECT
+      ========================= */
+
       if(
         !moved &&
-        Math.abs(velocity) < 1 &&
+        Math.abs(velocity) < 4 &&
         targetCard
       ){
 
@@ -435,6 +460,10 @@ export function bindDrag(){
           id
         );
 
+        updateDepth(
+          wrap
+        );
+
         scrollToCard(
           wrap,
           targetCard
@@ -446,8 +475,12 @@ export function bindDrag(){
 
       }
 
+      /* =========================
+         INERTIA
+      ========================= */
+
       if(
-        Math.abs(velocity) > 0.5
+        Math.abs(velocity) > 0.45
       ){
 
         inertia(
@@ -509,7 +542,7 @@ export function bindDrag(){
         }
 
         if(
-          !wrap._initialized
+          isSimpleMode()
         ){
           return;
         }
@@ -543,6 +576,27 @@ export function scrollToCard(
     !card
   ){
     return;
+  }
+
+  const cards =
+    wrap.querySelectorAll(
+      ".cover-card"
+    );
+
+  /* =========================
+     SIMPLE MODE
+  ========================= */
+
+  if(
+    cards.length <= 2
+  ){
+
+    updateDepth(
+      wrap
+    );
+
+    return;
+
   }
 
   const left =
@@ -590,7 +644,7 @@ export function scrollToCard(
         wrap
       );
 
-    }, smooth ? 420 : 0);
+    }, smooth ? 320 : 0);
 
 }
 
@@ -661,30 +715,30 @@ export function snapToNearestCard(
     return;
   }
 
-  scrollToCard(
-    wrap,
-    targetCard,
-    smooth
-  );
-
   const type =
     targetCard.dataset.type;
 
   const id =
     targetCard.dataset.id;
 
+  /* =========================
+     STATE FIRST
+  ========================= */
+
   setSelected(
     type,
     id
   );
 
-  requestAnimationFrame(()=>{
+  updateDepth(
+    wrap
+  );
 
-    updateDepth(
-      wrap
-    );
-
-  });
+  scrollToCard(
+    wrap,
+    targetCard,
+    smooth
+  );
 
 }
 
@@ -740,7 +794,7 @@ function inertia(
   }
 
   let current =
-    velocity * 1.1;
+    velocity * 1.08;
 
   function frame(){
 
@@ -768,7 +822,7 @@ function inertia(
     );
 
     if(
-      Math.abs(current) > 0.35
+      Math.abs(current) > 0.3
     ){
 
       wrap._inertiaRAF =
@@ -823,6 +877,9 @@ export function updateDepth(
     return;
   }
 
+  const total =
+    cards.length;
+
   const state =
     getState();
 
@@ -834,19 +891,50 @@ export function updateDepth(
       ? state.selection?.capId
       : state.selection?.swimId;
 
-  let activeCard =
-    cards.find(
-      card =>
-        card.dataset.id ===
-        selectedId
-    );
+  let activeCard = null;
 
-  if(!activeCard){
+  /* =========================
+     SIMPLE MODE
+  ========================= */
+
+  if(
+    total <= 2
+  ){
+
+    activeCard =
+      cards.find(
+        card =>
+          card.dataset.id ===
+          selectedId
+      );
+
+    if(!activeCard){
+
+      activeCard =
+        cards[0];
+    }
+
+  }else{
+
+    /* =========================
+       CENTER PRIORITY
+    ========================= */
 
     activeCard =
       findCenterCard(
         wrap
       );
+
+    if(!activeCard){
+
+      activeCard =
+        cards.find(
+          card =>
+            card.dataset.id ===
+            selectedId
+        );
+
+    }
 
   }
 
@@ -858,9 +946,6 @@ export function updateDepth(
     cards.indexOf(
       activeCard
     );
-
-  const total =
-    cards.length;
 
   cards.forEach((card,index)=>{
 
@@ -888,6 +973,10 @@ export function updateDepth(
 
     }
 
+    /* =========================
+       SIMPLE MODE
+    ========================= */
+
     if(
       total <= 2
     ){
@@ -896,10 +985,7 @@ export function updateDepth(
         "hidden"
       );
 
-      if(
-        card.dataset.id ===
-        selectedId
-      ){
+      if(card === activeCard){
 
         card.classList.add(
           "active"
