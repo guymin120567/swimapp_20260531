@@ -1,4 +1,8 @@
-import { getState } from "../../state/state.js";
+// js/features/roulette/renderRoulette.js
+
+import {
+  getState
+} from "../../state/state.js";
 
 export function renderRoulette(){
 
@@ -46,9 +50,13 @@ export function renderRoulette(){
     ) || null;
 
   target.innerHTML = `
-    <div class="block">
+    <div class="block roulette-block">
 
       <div class="roulette-wrap">
+
+        <!-- =========================
+             CAP
+        ========================== -->
 
         <div
           class="roulette-slot"
@@ -67,6 +75,7 @@ export function renderRoulette(){
                   <img
                     class="roulette-image"
                     src="${cap.image || ""}"
+                    alt="${cap.name}"
                     draggable="false"
                   />
 
@@ -79,7 +88,7 @@ export function renderRoulette(){
                   </div>
                 `
                 : `
-                  <div class="card-placeholder">
+                  <div class="roulette-placeholder">
                     🧢
                   </div>
                 `
@@ -88,6 +97,10 @@ export function renderRoulette(){
           </div>
 
         </div>
+
+        <!-- =========================
+             SWIM
+        ========================== -->
 
         <div
           class="roulette-slot"
@@ -106,6 +119,7 @@ export function renderRoulette(){
                   <img
                     class="roulette-image"
                     src="${swim.image || ""}"
+                    alt="${swim.name}"
                     draggable="false"
                   />
 
@@ -118,7 +132,7 @@ export function renderRoulette(){
                   </div>
                 `
                 : `
-                  <div class="card-placeholder">
+                  <div class="roulette-placeholder">
                     🏊
                   </div>
                 `
@@ -130,13 +144,121 @@ export function renderRoulette(){
 
       </div>
 
+      <!-- =========================
+           BUTTON
+      ========================== -->
+
       <button
         class="spin-btn"
         data-action="spin"
+        type="button"
       >
         오늘 뭐 입지 ?
       </button>
 
     </div>
   `;
+
+  requestAnimationFrame(()=>{
+
+    syncRouletteCardSize();
+
+  });
+
+}
+
+/* =========================
+   SIZE SYNC
+========================= */
+
+function syncRouletteCardSize(){
+
+  const coverCard =
+    document.querySelector(
+      ".cover-card .card-inner"
+    );
+
+  const rouletteCards =
+    document.querySelectorAll(
+      ".roulette-card"
+    );
+
+  if(
+    !coverCard ||
+    !rouletteCards.length
+  ){
+    return;
+  }
+
+  const size =
+    Math.round(
+      coverCard.getBoundingClientRect()
+        .width
+    );
+
+  rouletteCards.forEach(card => {
+
+    card.style.width =
+      `${size}px`;
+
+    card.style.height =
+      `${size}px`;
+
+    card.style.borderRadius =
+      "20px";
+
+  });
+
+  const labels =
+    document.querySelectorAll(
+      ".roulette-label"
+    );
+
+  labels.forEach(label => {
+
+    label.style.fontSize =
+      "11px";
+
+    label.style.fontWeight =
+      "700";
+
+  });
+
+  const names =
+    document.querySelectorAll(
+      ".roulette-name"
+    );
+
+  names.forEach(name => {
+
+    name.style.fontSize =
+      "11px";
+
+    name.style.fontWeight =
+      "700";
+
+  });
+
+}
+
+/* =========================
+   RESIZE
+========================= */
+
+if(
+  !window.__rouletteResizeBound
+){
+
+  window.addEventListener(
+    "resize",
+    ()=>{
+
+      syncRouletteCardSize();
+
+    }
+  );
+
+  window.__rouletteResizeBound =
+    true;
+
 }
