@@ -42,9 +42,6 @@ export function renderCoverflow(
 
   bindDeleteEvents();
 
-  /* SIMPLE SELECT 제거
-     drag.js 에서 통합 처리 */
-
   bindSpinEvents();
 
   bindResize();
@@ -81,6 +78,12 @@ function renderType(type){
   );
 
   target._isProgrammatic =
+    false;
+
+  target._isInertia =
+    false;
+
+  target._depthTicking =
     false;
 
   target._initialized =
@@ -274,10 +277,6 @@ function renderType(type){
         return;
       }
 
-      /* =========================
-         INDEX FIX
-      ========================= */
-
       cards.forEach((card,index)=>{
 
         const badge =
@@ -320,9 +319,13 @@ function renderType(type){
 
         });
 
-        updateDepth(
-          target
-        );
+        requestAnimationFrame(()=>{
+
+          updateDepth(
+            target
+          );
+
+        });
 
         return;
 
@@ -407,6 +410,46 @@ function bindDeleteEvents(){
             return;
           }
 
+          const cards = [
+            ...wrap.querySelectorAll(
+              ".cover-card"
+            )
+          ];
+
+          const deletedCard =
+            deleteBtn.closest(
+              ".cover-card"
+            );
+
+          const deletedIndex =
+            cards.indexOf(
+              deletedCard
+            );
+
+          const remainCards =
+            cards.filter(
+              card =>
+                card !== deletedCard
+            );
+
+          const fallback =
+            remainCards[
+              Math.max(
+                0,
+                deletedIndex - 1
+              )
+            ] ||
+            remainCards[0];
+
+          if(fallback){
+
+            setSelected(
+              wrap.dataset.type,
+              fallback.dataset.id
+            );
+
+          }
+
           removeItem(
             deleteBtn.dataset.id
           );
@@ -451,9 +494,6 @@ function applyEdgeSpacing(
 
     card.style.marginRight =
       "0px";
-
-    card.style.display =
-      "";
 
   });
 
@@ -643,6 +683,9 @@ function startSpin(){
       flow._isSpinning =
         true;
 
+      flow._isInertia =
+        false;
+
       let velocity = 0;
 
       let raf;
@@ -665,6 +708,18 @@ function startSpin(){
 
         flow.scrollLeft +=
           velocity;
+
+        const max =
+          flow.scrollWidth -
+          flow.clientWidth;
+
+        if(
+          flow.scrollLeft >= max
+        ){
+
+          flow.scrollLeft = 0;
+
+        }
 
         raf =
           requestAnimationFrame(
@@ -733,6 +788,12 @@ function stopSpin(){
     i.flow._isSpinning =
       false;
 
+    i.flow._isInertia =
+      false;
+
+    i.flow._depthTicking =
+      false;
+
     if(
       i.flow.querySelectorAll(
         ".cover-card"
@@ -745,9 +806,13 @@ function stopSpin(){
 
     }else{
 
-      updateDepth(
-        i.flow
-      );
+      requestAnimationFrame(()=>{
+
+        updateDepth(
+          i.flow
+        );
+
+      });
 
     }
 
@@ -783,41 +848,54 @@ function bindResize(){
     "resize",
     ()=>{
 
-      document
-        .querySelectorAll(
-          ".coverflow"
-        )
-        .forEach(wrap => {
+      clearTimeout(
+        window.__coverResizeTimer
+      );
 
-          applyEdgeSpacing(
-            wrap
-          );
+      window.__coverResizeTimer =
+        setTimeout(()=>{
 
-          const cards =
-            wrap.querySelectorAll(
-              ".cover-card"
-            );
+          document
+            .querySelectorAll(
+              ".coverflow"
+            )
+            .forEach(wrap => {
 
-          if(
-            cards.length > 2
-          ){
+              applyEdgeSpacing(
+                wrap
+              );
 
-            snapToNearestCard(
-              wrap,
-              false
-            );
+              const cards =
+                wrap.querySelectorAll(
+                  ".cover-card"
+                );
 
-          }else{
+              if(
+                cards.length > 2
+              ){
 
-            wrap.scrollLeft = 0;
+                snapToNearestCard(
+                  wrap,
+                  false
+                );
 
-          }
+              }else{
 
-          updateDepth(
-            wrap
-          );
+                wrap.scrollLeft = 0;
 
-        });
+              }
+
+              requestAnimationFrame(()=>{
+
+                updateDepth(
+                  wrap
+                );
+
+              });
+
+            });
+
+        },120);
 
     }
   );
