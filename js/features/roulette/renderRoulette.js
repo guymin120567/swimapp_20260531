@@ -79,7 +79,7 @@ export function renderRoulette(){
                     draggable="false"
                   />
 
-                  <div class="card-overlay">
+                  <div class="roulette-overlay">
 
                     <div class="roulette-name">
                       ${cap.name}
@@ -123,7 +123,7 @@ export function renderRoulette(){
                     draggable="false"
                   />
 
-                  <div class="card-overlay">
+                  <div class="roulette-overlay">
 
                     <div class="roulette-name">
                       ${swim.name}
@@ -178,6 +178,11 @@ function syncRouletteCardSize(){
       ".cover-card .card-inner"
     );
 
+  const rouletteSlots =
+    document.querySelectorAll(
+      ".roulette-slot"
+    );
+
   const rouletteCards =
     document.querySelectorAll(
       ".roulette-card"
@@ -190,22 +195,66 @@ function syncRouletteCardSize(){
     return;
   }
 
-  const size =
-    Math.round(
-      coverCard.getBoundingClientRect()
-        .width
-    );
+  const rect =
+    coverCard.getBoundingClientRect();
+
+  const width =
+    Math.round(rect.width);
+
+  const radius =
+    getComputedStyle(
+      coverCard
+    ).borderRadius;
+
+  rouletteSlots.forEach(slot => {
+
+    slot.style.width =
+      `${width}px`;
+
+  });
 
   rouletteCards.forEach(card => {
 
     card.style.width =
-      `${size}px`;
+      `${width}px`;
 
     card.style.height =
-      `${size}px`;
+      `${width}px`;
 
     card.style.borderRadius =
-      "20px";
+      radius;
+
+  });
+
+  const overlays =
+    document.querySelectorAll(
+      ".roulette-overlay"
+    );
+
+  overlays.forEach(overlay => {
+
+    overlay.style.position =
+      "absolute";
+
+    overlay.style.left =
+      "0";
+
+    overlay.style.right =
+      "0";
+
+    overlay.style.bottom =
+      "0";
+
+    overlay.style.padding =
+      "4px 6px";
+
+    overlay.style.background =
+      `
+        linear-gradient(
+          transparent,
+          rgba(20,50,80,.82)
+        )
+      `;
 
   });
 
@@ -222,6 +271,12 @@ function syncRouletteCardSize(){
     label.style.fontWeight =
       "700";
 
+    label.style.marginBottom =
+      "8px";
+
+    label.style.letterSpacing =
+      "-0.02em";
+
   });
 
   const names =
@@ -236,6 +291,21 @@ function syncRouletteCardSize(){
 
     name.style.fontWeight =
       "700";
+
+    name.style.lineHeight =
+      "1.3";
+
+    name.style.whiteSpace =
+      "nowrap";
+
+    name.style.overflow =
+      "hidden";
+
+    name.style.textOverflow =
+      "ellipsis";
+
+    name.style.textAlign =
+      "center";
 
   });
 
