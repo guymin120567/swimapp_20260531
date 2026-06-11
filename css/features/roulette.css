@@ -6,8 +6,8 @@
     coverflow.css 의 공통 변수 사용
   */
 
-  --roulette-title-size:
-    var(--cover-card-title-size);
+--roulette-title-size:
+  var(--card-title-size);
 
   --roulette-label-size:11px;
 
