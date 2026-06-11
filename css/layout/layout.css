@@ -236,3 +236,147 @@ body{
   }
 
 }
+
+/* =========================
+   ADD MODAL
+========================= */
+
+.add-modal{
+
+  position:fixed;
+
+  inset:0;
+
+  z-index:5000;
+
+}
+
+.add-modal[hidden]{
+
+  display:none!important;
+
+}
+
+.add-modal-backdrop{
+
+  position:absolute;
+
+  inset:0;
+
+  background:
+    rgba(0,0,0,.45);
+
+  backdrop-filter:
+    blur(2px);
+
+}
+
+.add-modal-sheet{
+
+  position:absolute;
+
+  left:50%;
+
+  bottom:120px;
+
+  width:min(520px,90vw);
+
+  max-width:520px;
+
+  transform:
+    translateX(-50%);
+
+  border-radius:24px;
+
+  margin:0 auto;
+
+  padding:20px;
+
+  background:white;
+
+  box-shadow:
+    0 20px 40px
+    rgba(0,0,0,.16);
+
+  animation:
+    sheetUp .18s ease;
+
+  box-sizing:border-box;
+
+}
+
+/* =========================
+   MODAL HEADER
+========================= */
+
+.add-modal-header{
+
+  display:flex;
+
+  justify-content:space-between;
+
+  align-items:center;
+
+  gap:12px;
+
+  margin-bottom:12px;
+
+}
+
+.modal-close-btn{
+
+  border:none;
+
+  background:none;
+
+  font-size:24px;
+
+  cursor:pointer;
+
+  padding:0;
+
+  line-height:1;
+
+}
+
+/* =========================
+   MODAL INPUT
+========================= */
+
+.add-modal-sheet input{
+
+  width:100%;
+
+  margin-bottom:12px;
+
+  box-sizing:border-box;
+
+}
+
+/* =========================
+   ANIMATION
+========================= */
+
+@keyframes sheetUp{
+
+  from{
+
+    transform:
+      translateX(-50%)
+      translateY(24px);
+
+    opacity:.7;
+
+  }
+
+  to{
+
+    transform:
+      translateX(-50%)
+      translateY(0);
+
+    opacity:1;
+
+  }
+
+}
