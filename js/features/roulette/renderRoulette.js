@@ -96,6 +96,8 @@ export function renderRoulette(){
                           src="${cap.image}"
                           alt="${cap.name}"
                           draggable="false"
+                          loading="lazy"
+                          decoding="async"
                         />
                       `
                       : `
@@ -160,6 +162,8 @@ export function renderRoulette(){
                           src="${swim.image}"
                           alt="${swim.name}"
                           draggable="false"
+                          loading="lazy"
+                          decoding="async"
                         />
                       `
                       : `
@@ -221,18 +225,10 @@ export function renderRoulette(){
 
 function syncRouletteCardSize(){
 
-  /*
-    active 카드 우선
-  */
-
   const activeCard =
     document.querySelector(
       ".cover-card.active .card-frame"
     );
-
-  /*
-    fallback
-  */
 
   const fallbackCard =
     document.querySelector(
@@ -260,10 +256,6 @@ function syncRouletteCardSize(){
     return;
   }
 
-  /*
-    transform 영향 제거
-  */
-
   const width =
     Math.round(
       coverCard.offsetWidth
@@ -283,6 +275,9 @@ function syncRouletteCardSize(){
     slot.style.width =
       `${width}px`;
 
+    slot.style.flexShrink =
+      "0";
+
   });
 
   rouletteCards.forEach(card => {
@@ -291,11 +286,17 @@ function syncRouletteCardSize(){
       `${width}px`;
 
     /*
-      공통 aspect-ratio 사용
+      정사각형 유지
     */
+
+    card.style.aspectRatio =
+      "1 / 1";
 
     card.style.height =
       "auto";
+
+    card.style.minHeight =
+      `${width}px`;
 
     card.style.borderRadius =
       radius;
@@ -331,8 +332,22 @@ function syncRouletteCardSize(){
     media.style.height =
       "100%";
 
+    /*
+      리스트와 동일하게
+      정사각형 contain
+    */
+
     media.style.objectFit =
-      "cover";
+      "contain";
+
+    media.style.objectPosition =
+      "center";
+
+    media.style.padding =
+      "10px";
+
+    media.style.background =
+      "linear-gradient(180deg,#f8fbff,#edf7ff)";
 
     media.style.display =
       "block";
@@ -344,6 +359,9 @@ function syncRouletteCardSize(){
       "none";
 
     media.style.webkitUserDrag =
+      "none";
+
+    media.style.pointerEvents =
       "none";
 
   });
@@ -362,11 +380,16 @@ if(
     "resize",
     ()=>{
 
-      requestAnimationFrame(()=>{
+      cancelAnimationFrame(
+        window.__rouletteResizeRAF
+      );
 
-        syncRouletteCardSize();
+      window.__rouletteResizeRAF =
+        requestAnimationFrame(()=>{
 
-      });
+          syncRouletteCardSize();
+
+        });
 
     }
   );
