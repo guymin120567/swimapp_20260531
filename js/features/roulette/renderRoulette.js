@@ -4,6 +4,10 @@ import {
   getState
 } from "../../state/state.js";
 
+/* =========================
+   RENDER
+========================= */
+
 export function renderRoulette(){
 
   const target =
@@ -19,8 +23,7 @@ export function renderRoulette(){
     getState();
 
   /*
-    룰렛 돌리는 중에는
-    DOM 재생성 금지
+    룰렛 회전 중 DOM 재생성 방지
   */
 
   if(
@@ -72,12 +75,22 @@ export function renderRoulette(){
             ${
               cap
                 ? `
-                  <img
-                    class="roulette-image"
-                    src="${cap.image || ""}"
-                    alt="${cap.name}"
-                    draggable="false"
-                  />
+                  ${
+                    cap.image
+                      ? `
+                        <img
+                          class="roulette-image"
+                          src="${cap.image}"
+                          alt="${cap.name}"
+                          draggable="false"
+                        />
+                      `
+                      : `
+                        <div class="roulette-placeholder">
+                          🧢
+                        </div>
+                      `
+                  }
 
                   <div class="roulette-overlay">
 
@@ -116,12 +129,22 @@ export function renderRoulette(){
             ${
               swim
                 ? `
-                  <img
-                    class="roulette-image"
-                    src="${swim.image || ""}"
-                    alt="${swim.name}"
-                    draggable="false"
-                  />
+                  ${
+                    swim.image
+                      ? `
+                        <img
+                          class="roulette-image"
+                          src="${swim.image}"
+                          alt="${swim.name}"
+                          draggable="false"
+                        />
+                      `
+                      : `
+                        <div class="roulette-placeholder">
+                          🏊
+                        </div>
+                      `
+                  }
 
                   <div class="roulette-overlay">
 
@@ -198,6 +221,16 @@ function syncRouletteCardSize(){
   const rect =
     coverCard.getBoundingClientRect();
 
+  /*
+    hidden 상태 방어
+  */
+
+  if(
+    rect.width <= 0
+  ){
+    return;
+  }
+
   const width =
     Math.round(rect.width);
 
@@ -224,6 +257,12 @@ function syncRouletteCardSize(){
     card.style.borderRadius =
       radius;
 
+    card.style.position =
+      "relative";
+
+    card.style.overflow =
+      "hidden";
+
   });
 
   const overlays =
@@ -246,15 +285,19 @@ function syncRouletteCardSize(){
       "0";
 
     overlay.style.padding =
-      "4px 6px";
+      "6px 8px";
 
     overlay.style.background =
       `
         linear-gradient(
-          transparent,
-          rgba(20,50,80,.82)
+          to top,
+          rgba(20,50,80,.88),
+          rgba(20,50,80,.0)
         )
       `;
+
+    overlay.style.pointerEvents =
+      "none";
 
   });
 
@@ -276,6 +319,9 @@ function syncRouletteCardSize(){
 
     label.style.letterSpacing =
       "-0.02em";
+
+    label.style.textAlign =
+      "center";
 
   });
 
@@ -307,6 +353,9 @@ function syncRouletteCardSize(){
     name.style.textAlign =
       "center";
 
+    name.style.color =
+      "#fff";
+
   });
 
 }
@@ -323,7 +372,11 @@ if(
     "resize",
     ()=>{
 
-      syncRouletteCardSize();
+      requestAnimationFrame(()=>{
+
+        syncRouletteCardSize();
+
+      });
 
     }
   );
