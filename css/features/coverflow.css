@@ -153,7 +153,7 @@
 
   width:100%;
 
-  aspect-ratio:3/4;
+  aspect-ratio:1/1;
 
   border-radius:
     var(
@@ -719,6 +719,6 @@
 
 .roulette-card.card-frame{
 
-  aspect-ratio:3/4;
+  aspect-ratio:1/1;
 
 }
