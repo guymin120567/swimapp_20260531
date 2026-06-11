@@ -6,8 +6,8 @@
 
   --cover-card-radius:24px;
 
---cover-card-title-size:
-  var(--card-title-size);
+  --cover-card-title-size:
+    var(--card-title-size);
 
   --cover-card-overlay-padding:
     8px 10px 10px;
@@ -51,7 +51,9 @@
 }
 
 .coverflow::-webkit-scrollbar{
+
   display:none;
+
 }
 
 /* =========================
@@ -143,7 +145,6 @@
 
 /* =========================
    공통 카드 프레임
-   roulette 와 coverflow 공용
 ========================= */
 
 .card-frame{
@@ -221,10 +222,6 @@
 }
 
 .card-inner{
-
-  /*
-    공통 프레임 상속
-  */
 
   position:relative;
 
@@ -352,7 +349,8 @@
 }
 
 /* =========================
-   공통 이미지
+   리스트탭 이미지
+   (크롭 개선)
 ========================= */
 
 .card-media,
@@ -365,13 +363,29 @@
   width:100%;
   height:100%;
 
+  /*
+    핵심 수정
+  */
+
   object-fit:contain;
+
+  object-position:center;
+
+  /*
+    여백 추가
+  */
+
+  padding:10px;
+
+  /*
+    빈 공간 자연스럽게
+  */
 
   background:
     linear-gradient(
       180deg,
       #f8fbff,
-      #dcefff
+      #edf7ff
     );
 
   user-select:none;
@@ -387,7 +401,7 @@
 }
 
 /* =========================
-   룰렛은 cover 유지
+   룰렛 이미지는 기존 유지
 ========================= */
 
 .roulette-image{
@@ -400,6 +414,8 @@
   height:100%;
 
   object-fit:cover;
+
+  object-position:center;
 
   user-select:none;
 
@@ -617,6 +633,13 @@
     --cover-card-width:152px;
 
     --cover-card-title-size:12px;
+
+  }
+
+  .card-media,
+  .card-image{
+
+    padding:8px;
 
   }
 
