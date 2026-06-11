@@ -101,8 +101,6 @@ export function bindDrag(){
 
     function cleanupDrag(){
 
-      isDown = false;
-
       moved = false;
 
       hasMoved = false;
@@ -205,12 +203,6 @@ export function bindDrag(){
 
       if(
         wrap._isProgrammatic
-      ){
-        return;
-      }
-
-      if(
-        wrap._isInertia
       ){
         return;
       }
@@ -405,10 +397,6 @@ export function bindDrag(){
 
     function endDrag(){
 
-      /* =========================
-         SIMPLE MODE
-      ========================= */
-
       if(
         isSimpleMode()
       ){
@@ -502,25 +490,32 @@ export function bindDrag(){
       }
 
       /* =========================
-         INERTIA
+         SNAP FIX
       ========================= */
 
-      if(
-        Math.abs(velocity) > 0.45
-      ){
-
-        inertia(
-          wrap,
-          velocity
-        );
-
-      }else{
-
-        snapToNearestCard(
+      const centerCard =
+        findCenterCard(
           wrap
         );
 
+      if(centerCard){
+
+        const type =
+          centerCard.dataset.type;
+
+        const id =
+          centerCard.dataset.id;
+
+        setSelected(
+          type,
+          id
+        );
+
       }
+
+      snapToNearestCard(
+        wrap
+      );
 
       cleanupDrag();
 
