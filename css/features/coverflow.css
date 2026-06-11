@@ -141,6 +141,50 @@
 }
 
 /* =========================
+   공통 카드 프레임
+   roulette 와 coverflow 공용
+========================= */
+
+.card-frame{
+
+  position:relative;
+
+  width:100%;
+
+  aspect-ratio:3/4;
+
+  border-radius:
+    var(
+      --cover-card-radius
+    );
+
+  overflow:hidden;
+
+  background:white;
+
+  border:
+    1px solid
+    rgba(255,255,255,.92);
+
+  box-shadow:
+    0 10px 24px
+    rgba(120,170,210,.14);
+
+  transition:
+    transform .28s cubic-bezier(.22,1,.36,1),
+    opacity .28s ease,
+    filter .28s ease,
+    box-shadow .28s ease;
+
+  will-change:
+    transform,
+    opacity;
+
+  box-sizing:border-box;
+
+}
+
+/* =========================
    CARD
 ========================= */
 
@@ -177,38 +221,15 @@
 
 .card-inner{
 
+  /*
+    공통 프레임 상속
+  */
+
   position:relative;
 
   width:100%;
 
-  aspect-ratio:3/4;
-
-  border-radius:
-    var(
-      --cover-card-radius
-    );
-
-  overflow:hidden;
-
-  background:white;
-
-  border:
-    1px solid
-    rgba(255,255,255,.92);
-
-  box-shadow:
-    0 10px 24px
-    rgba(120,170,210,.14);
-
-  transition:
-    transform .28s cubic-bezier(.22,1,.36,1),
-    opacity .28s ease,
-    filter .28s ease,
-    box-shadow .28s ease;
-
-  will-change:
-    transform,
-    opacity;
+  height:100%;
 
 }
 
@@ -229,7 +250,7 @@
 
 }
 
-.cover-card.active .card-inner{
+.cover-card.active .card-frame{
 
   opacity:1;
 
@@ -261,7 +282,7 @@
 
 }
 
-.cover-card.depth-1 .card-inner{
+.cover-card.depth-1 .card-frame{
 
   opacity:.84;
 
@@ -290,7 +311,7 @@
 
 }
 
-.cover-card.depth-2 .card-inner{
+.cover-card.depth-2 .card-frame{
 
   opacity:.58;
 
@@ -317,7 +338,7 @@
 
 }
 
-.cover-card.hidden .card-inner{
+.cover-card.hidden .card-frame{
 
   opacity:0;
 
@@ -330,10 +351,12 @@
 }
 
 /* =========================
-   IMAGE
+   공통 이미지
 ========================= */
 
-.card-image{
+.card-media,
+.card-image,
+.roulette-image{
 
   position:absolute;
 
@@ -349,6 +372,10 @@
   -webkit-user-drag:none;
 
   pointer-events:none;
+
+  display:block;
+
+  box-sizing:border-box;
 
 }
 
@@ -376,6 +403,8 @@
     );
 
   pointer-events:none;
+
+  box-sizing:border-box;
 
 }
 
@@ -531,7 +560,7 @@
 
 }
 
-.coverflow.dragging .card-inner{
+.coverflow.dragging .card-frame{
 
   transition:none;
 
@@ -614,5 +643,25 @@
 .coverflow.is-simple .cover-card{
 
   transform:none !important;
+
+}
+
+/* =========================
+   ROULETTE 공통 카드 연동
+========================= */
+
+.roulette-card{
+
+  width:var(
+    --cover-card-width
+  );
+
+  flex:0 0 auto;
+
+}
+
+.roulette-card.card-frame{
+
+  aspect-ratio:3/4;
 
 }
