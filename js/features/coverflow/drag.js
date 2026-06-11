@@ -1110,5 +1110,3 @@ function inertia(
   tick();
 
 }
-
-이제 괜찮나 ?
