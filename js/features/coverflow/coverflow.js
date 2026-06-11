@@ -46,11 +46,16 @@ export function renderCoverflow(
 
   bindResize();
 
-  requestAnimationFrame(()=>{
+  cancelAnimationFrame(
+    window.__bindDragRAF
+  );
 
-    bindDrag();
+  window.__bindDragRAF =
+    requestAnimationFrame(()=>{
 
-  });
+      bindDrag();
+
+    });
 
 }
 
@@ -163,8 +168,8 @@ function renderType(type){
       ids:
         items.map(i => ({
           id:i.id,
-          image:i.image,
-          name:i.name
+          name:i.name,
+          image:!!i.image
         })),
 
       selectedId
@@ -209,6 +214,7 @@ function renderType(type){
                 class="delete-btn"
                 data-action="delete"
                 data-id="${item.id}"
+                type="button"
               >
                 ×
               </button>
@@ -377,13 +383,13 @@ function bindDeleteEvents(){
     .forEach(wrap => {
 
       if(
-        wrap.dataset.deleteBound
+        wrap._deleteBound
       ){
         return;
       }
 
-      wrap.dataset.deleteBound =
-        "true";
+      wrap._deleteBound =
+        true;
 
       wrap.addEventListener(
         "pointerup",
@@ -441,18 +447,22 @@ function bindDeleteEvents(){
             ] ||
             remainCards[0];
 
-          if(fallback){
-
-            setSelected(
-              wrap.dataset.type,
-              fallback.dataset.id
-            );
-
-          }
-
           removeItem(
             deleteBtn.dataset.id
           );
+
+          if(fallback){
+
+            requestAnimationFrame(()=>{
+
+              setSelected(
+                wrap.dataset.type,
+                fallback.dataset.id
+              );
+
+            });
+
+          }
 
           requestAnimationFrame(()=>{
 
@@ -476,6 +486,12 @@ function bindDeleteEvents(){
 function applyEdgeSpacing(
   wrap
 ){
+
+  if(
+    wrap.clientWidth <= 0
+  ){
+    return;
+  }
 
   const cards = [
     ...wrap.querySelectorAll(
@@ -637,9 +653,7 @@ function bindSpinEvents(){
       if(
         document.hidden
       ){
-
         forceCleanup();
-
       }
 
     }
@@ -717,7 +731,7 @@ function startSpin(){
           flow.scrollLeft >= max
         ){
 
-          flow.scrollLeft = 0;
+          flow.scrollLeft = 2;
 
         }
 
@@ -828,7 +842,23 @@ function stopSpin(){
 
 function forceCleanup(){
 
-  stopSpin();
+  if(
+    window.__forceCleaning
+  ){
+    return;
+  }
+
+  window.__forceCleaning =
+    true;
+
+  requestAnimationFrame(()=>{
+
+    stopSpin();
+
+    window.__forceCleaning =
+      false;
+
+  });
 
 }
 
@@ -848,12 +878,12 @@ function bindResize(){
     "resize",
     ()=>{
 
-      clearTimeout(
-        window.__coverResizeTimer
+      cancelAnimationFrame(
+        window.__coverResizeRAF
       );
 
-      window.__coverResizeTimer =
-        setTimeout(()=>{
+      window.__coverResizeRAF =
+        requestAnimationFrame(()=>{
 
           document
             .querySelectorAll(
@@ -895,7 +925,7 @@ function bindResize(){
 
             });
 
-        },120);
+        });
 
     }
   );
