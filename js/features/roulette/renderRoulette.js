@@ -70,7 +70,11 @@ export function renderRoulette(){
             🧢 수모
           </div>
 
-          <div class="roulette-card">
+          <!-- =========================
+               공통 카드 프레임 사용
+          ========================== -->
+
+          <div class="card-frame roulette-card">
 
             ${
               cap
@@ -79,29 +83,29 @@ export function renderRoulette(){
                     cap.image
                       ? `
                         <img
-                          class="roulette-image"
+                          class="card-media roulette-image"
                           src="${cap.image}"
                           alt="${cap.name}"
                           draggable="false"
                         />
                       `
                       : `
-                        <div class="roulette-placeholder">
+                        <div class="card-placeholder">
                           🧢
                         </div>
                       `
                   }
 
-                  <div class="roulette-overlay">
+                  <div class="card-overlay roulette-overlay">
 
-                    <div class="roulette-name">
+                    <div class="card-title roulette-name">
                       ${cap.name}
                     </div>
 
                   </div>
                 `
                 : `
-                  <div class="roulette-placeholder">
+                  <div class="card-placeholder">
                     🧢
                   </div>
                 `
@@ -124,7 +128,11 @@ export function renderRoulette(){
             🩳 수영복
           </div>
 
-          <div class="roulette-card">
+          <!-- =========================
+               공통 카드 프레임 사용
+          ========================== -->
+
+          <div class="card-frame roulette-card">
 
             ${
               swim
@@ -133,29 +141,29 @@ export function renderRoulette(){
                     swim.image
                       ? `
                         <img
-                          class="roulette-image"
+                          class="card-media roulette-image"
                           src="${swim.image}"
                           alt="${swim.name}"
                           draggable="false"
                         />
                       `
                       : `
-                        <div class="roulette-placeholder">
+                        <div class="card-placeholder">
                           🏊
                         </div>
                       `
                   }
 
-                  <div class="roulette-overlay">
+                  <div class="card-overlay roulette-overlay">
 
-                    <div class="roulette-name">
+                    <div class="card-title roulette-name">
                       ${swim.name}
                     </div>
 
                   </div>
                 `
                 : `
-                  <div class="roulette-placeholder">
+                  <div class="card-placeholder">
                     🏊
                   </div>
                 `
@@ -196,10 +204,27 @@ export function renderRoulette(){
 
 function syncRouletteCardSize(){
 
-  const coverCard =
+  /*
+    active 카드 우선 사용
+  */
+
+  const activeCard =
+    document.querySelector(
+      ".cover-card.active .card-inner"
+    );
+
+  /*
+    fallback
+  */
+
+  const fallbackCard =
     document.querySelector(
       ".cover-card .card-inner"
     );
+
+  const coverCard =
+    activeCard ||
+    fallbackCard;
 
   const rouletteSlots =
     document.querySelectorAll(
@@ -218,21 +243,18 @@ function syncRouletteCardSize(){
     return;
   }
 
-  const rect =
-    coverCard.getBoundingClientRect();
-
   /*
-    hidden 상태 방어
+    transform 영향 제거
   */
 
-  if(
-    rect.width <= 0
-  ){
+  const width =
+    Math.round(
+      coverCard.offsetWidth
+    );
+
+  if(width <= 0){
     return;
   }
-
-  const width =
-    Math.round(rect.width);
 
   const radius =
     getComputedStyle(
@@ -263,7 +285,51 @@ function syncRouletteCardSize(){
     card.style.overflow =
       "hidden";
 
+    card.style.boxSizing =
+      "border-box";
+
+    card.style.flexShrink =
+      "0";
+
   });
+
+  /*
+    공통 media 처리
+  */
+
+  const medias =
+    document.querySelectorAll(
+      ".roulette-image"
+    );
+
+  medias.forEach(media => {
+
+    media.style.width =
+      "100%";
+
+    media.style.height =
+      "100%";
+
+    media.style.objectFit =
+      "cover";
+
+    media.style.display =
+      "block";
+
+    media.style.boxSizing =
+      "border-box";
+
+    media.style.userSelect =
+      "none";
+
+    media.style.webkitUserDrag =
+      "none";
+
+  });
+
+  /*
+    overlay
+  */
 
   const overlays =
     document.querySelectorAll(
@@ -299,7 +365,14 @@ function syncRouletteCardSize(){
     overlay.style.pointerEvents =
       "none";
 
+    overlay.style.boxSizing =
+      "border-box";
+
   });
+
+  /*
+    label
+  */
 
   const labels =
     document.querySelectorAll(
@@ -324,6 +397,10 @@ function syncRouletteCardSize(){
       "center";
 
   });
+
+  /*
+    names
+  */
 
   const names =
     document.querySelectorAll(
