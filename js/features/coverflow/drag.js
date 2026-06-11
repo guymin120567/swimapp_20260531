@@ -809,4 +809,306 @@ export function scrollToCard(
 
 }
 
-/* 이하 나머지 함수 동일 */
+/* =========================
+   SNAP
+========================= */
+
+export function snapToNearestCard(
+  wrap,
+  smooth = true
+){
+
+  if(!wrap){
+    return;
+  }
+
+  const cards = [
+    ...wrap.querySelectorAll(
+      ".cover-card"
+    )
+  ];
+
+  if(
+    cards.length <= 2
+  ){
+
+    requestAnimationFrame(()=>{
+
+      updateDepth(
+        wrap
+      );
+
+    });
+
+    return;
+
+  }
+
+  const center =
+    wrap.scrollLeft +
+    (wrap.clientWidth / 2);
+
+  let closest = null;
+
+  let min = Infinity;
+
+  cards.forEach(card => {
+
+    const cardCenter =
+      card.offsetLeft +
+      (card.offsetWidth / 2);
+
+    const dist =
+      Math.abs(
+        center - cardCenter
+      );
+
+    if(dist < min){
+
+      min = dist;
+
+      closest = card;
+
+    }
+
+  });
+
+  if(!closest){
+    return;
+  }
+
+  const type =
+    closest.dataset.type;
+
+  const id =
+    closest.dataset.id;
+
+  setSelected(
+    type,
+    id
+  );
+
+  scrollToCard(
+    wrap,
+    closest,
+    smooth
+  );
+
+}
+
+/* =========================
+   FIND CENTER
+========================= */
+
+function findCenterCard(
+  wrap
+){
+
+  const cards = [
+    ...wrap.querySelectorAll(
+      ".cover-card"
+    )
+  ];
+
+  if(!cards.length){
+    return null;
+  }
+
+  const center =
+    wrap.scrollLeft +
+    (wrap.clientWidth / 2);
+
+  let closest = null;
+
+  let min = Infinity;
+
+  cards.forEach(card => {
+
+    const cardCenter =
+      card.offsetLeft +
+      (card.offsetWidth / 2);
+
+    const dist =
+      Math.abs(
+        center - cardCenter
+      );
+
+    if(dist < min){
+
+      min = dist;
+
+      closest = card;
+
+    }
+
+  });
+
+  return closest;
+
+}
+
+/* =========================
+   DEPTH
+========================= */
+
+export function updateDepth(
+  wrap
+){
+
+  if(
+    wrap._depthTicking
+  ){
+    return;
+  }
+
+  wrap._depthTicking =
+    true;
+
+  requestAnimationFrame(()=>{
+
+    const cards = [
+      ...wrap.querySelectorAll(
+        ".cover-card"
+      )
+    ];
+
+    const centerCard =
+      findCenterCard(
+        wrap
+      );
+
+    cards.forEach(card => {
+
+      card.classList.remove(
+        "active",
+        "depth-1",
+        "depth-2",
+        "hidden"
+      );
+
+    });
+
+    if(!centerCard){
+
+      wrap._depthTicking =
+        false;
+
+      return;
+
+    }
+
+    const centerIndex =
+      cards.indexOf(
+        centerCard
+      );
+
+    cards.forEach((card,index)=>{
+
+      const diff =
+        Math.abs(
+          index - centerIndex
+        );
+
+      if(diff === 0){
+
+        card.classList.add(
+          "active"
+        );
+
+      }else if(diff === 1){
+
+        card.classList.add(
+          "depth-1"
+        );
+
+      }else if(diff === 2){
+
+        card.classList.add(
+          "depth-2"
+        );
+
+      }else{
+
+        card.classList.add(
+          "hidden"
+        );
+
+      }
+
+    });
+
+    wrap._depthTicking =
+      false;
+
+  });
+
+}
+
+/* =========================
+   DEPTH RAF
+========================= */
+
+function requestDepthUpdate(
+  wrap
+){
+
+  requestAnimationFrame(()=>{
+
+    updateDepth(
+      wrap
+    );
+
+  });
+
+}
+
+/* =========================
+   INERTIA
+========================= */
+
+function inertia(
+  wrap,
+  velocity
+){
+
+  wrap._isInertia =
+    true;
+
+  function tick(){
+
+    velocity *= 0.94;
+
+    wrap.scrollLeft -=
+      velocity;
+
+    requestDepthUpdate(
+      wrap
+    );
+
+    if(
+      Math.abs(velocity) < 0.35
+    ){
+
+      wrap._isInertia =
+        false;
+
+      snapToNearestCard(
+        wrap
+      );
+
+      return;
+
+    }
+
+    wrap._inertiaRAF =
+      requestAnimationFrame(
+        tick
+      );
+
+  }
+
+  tick();
+
+}
+
+이제 괜찮나 ?
