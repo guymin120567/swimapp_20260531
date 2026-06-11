@@ -98,7 +98,7 @@ export function renderRoulette(){
 
                   <div class="card-overlay roulette-overlay">
 
-                    <div class="card-title roulette-name">
+                    <div class="card-title">
                       ${cap.name}
                     </div>
 
