@@ -3,13 +3,24 @@
 :root{
 
   /*
-    coverflow.css 의 공통 변수 사용
+    coverflow.css 공통 변수 사용
   */
 
---roulette-title-size:
-  var(--card-title-size);
+  --roulette-title-size:
+    var(--card-title-size);
 
   --roulette-label-size:11px;
+
+  /*
+    효과 컬러
+    기존 노란색 제거
+  */
+
+  --roulette-effect:
+    rgba(125,211,252,.34);
+
+  --roulette-effect-strong:
+    rgba(125,211,252,.52);
 
 }
 
@@ -89,10 +100,6 @@
 
 .roulette-card{
 
-  /*
-    공통 프레임 사용
-  */
-
   width:100%;
 
   position:relative;
@@ -128,7 +135,7 @@
 .roulette-card.spinning{
 
   animation:
-    rouletteShake .12s linear infinite;
+    rouletteShake .11s linear infinite;
 
 }
 
@@ -138,8 +145,8 @@
     rouletteImageSpin .42s linear infinite;
 
   filter:
-    brightness(1.08)
-    saturate(1.08);
+    brightness(1.04)
+    saturate(1.04);
 
 }
 
@@ -153,7 +160,7 @@
 
     transform:
       translate(0px,0px)
-      scale(1.01);
+      scale(1.006);
 
   }
 
@@ -161,7 +168,7 @@
 
     transform:
       translate(-1px,1px)
-      scale(1.02);
+      scale(1.012);
 
   }
 
@@ -169,7 +176,7 @@
 
     transform:
       translate(1px,-1px)
-      scale(1.025);
+      scale(1.016);
 
   }
 
@@ -177,7 +184,7 @@
 
     transform:
       translate(-1px,-1px)
-      scale(1.02);
+      scale(1.012);
 
   }
 
@@ -185,7 +192,7 @@
 
     transform:
       translate(1px,1px)
-      scale(1.025);
+      scale(1.016);
 
   }
 
@@ -193,7 +200,7 @@
 
     transform:
       translate(0px,0px)
-      scale(1.01);
+      scale(1.006);
 
   }
 
@@ -208,24 +215,24 @@
   0%{
 
     transform:
-      scale(1.03)
-      rotate(-2deg);
+      scale(1.01)
+      rotate(-1deg);
 
   }
 
   50%{
 
     transform:
-      scale(1.08)
-      rotate(2deg);
+      scale(1.03)
+      rotate(1deg);
 
   }
 
   100%{
 
     transform:
-      scale(1.03)
-      rotate(-2deg);
+      scale(1.01)
+      rotate(-1deg);
 
   }
 
@@ -239,22 +246,24 @@
 
   position:absolute;
 
-  inset:-14%;
+  inset:-8%;
 
   border-radius:inherit;
 
   background:
     radial-gradient(
       circle,
-      rgba(255,255,255,.28),
-      rgba(125,211,252,.16),
+      rgba(255,255,255,.12),
+      var(--roulette-effect),
       transparent 72%
     );
 
   mix-blend-mode:screen;
 
   animation:
-    spinGlow 1s linear infinite;
+    spinGlow 1.1s linear infinite;
+
+  pointer-events:none;
 
 }
 
@@ -266,7 +275,7 @@
       rotate(0deg)
       scale(1);
 
-    opacity:.5;
+    opacity:.28;
 
   }
 
@@ -274,9 +283,9 @@
 
     transform:
       rotate(180deg)
-      scale(1.08);
+      scale(1.03);
 
-    opacity:.95;
+    opacity:.48;
 
   }
 
@@ -286,7 +295,7 @@
       rotate(360deg)
       scale(1);
 
-    opacity:.5;
+    opacity:.28;
 
   }
 
@@ -299,22 +308,43 @@
 .roulette-card.winner{
 
   animation:
-    winnerPulse 1.6s ease-in-out infinite;
+    winnerPulse 1.4s ease-in-out;
 
 }
 
 @keyframes winnerPulse{
 
   0%{
-    transform:scale(1);
+
+    transform:
+      scale(1);
+
+    box-shadow:
+      0 10px 24px
+      rgba(120,170,210,.14);
+
   }
 
   50%{
-    transform:scale(1.015);
+
+    transform:
+      scale(1.03);
+
+    box-shadow:
+      0 18px 40px
+      var(--roulette-effect-strong);
+
   }
 
   100%{
-    transform:scale(1);
+
+    transform:
+      scale(1);
+
+    box-shadow:
+      0 10px 24px
+      rgba(120,170,210,.14);
+
   }
 
 }
@@ -323,20 +353,22 @@
 
   position:absolute;
 
-  inset:-12%;
+  inset:-6%;
 
   border-radius:inherit;
 
   background:
     radial-gradient(
       circle,
-      rgba(255,255,255,.4),
-      rgba(255,215,0,.2),
+      rgba(255,255,255,.18),
+      var(--roulette-effect),
       transparent 72%
     );
 
   animation:
-    winnerGlow 1.6s ease-in-out;
+    winnerGlow 1.2s ease-out forwards;
+
+  pointer-events:none;
 
 }
 
@@ -344,25 +376,28 @@
 
   0%{
 
-    opacity:.4;
+    opacity:0;
 
-    transform:scale(1);
+    transform:
+      scale(.96);
 
   }
 
-  50%{
+  40%{
 
-    opacity:1;
+    opacity:.65;
 
-    transform:scale(1.08);
+    transform:
+      scale(1.04);
 
   }
 
   100%{
 
-    opacity:.4;
+    opacity:0;
 
-    transform:scale(1);
+    transform:
+      scale(1.08);
 
   }
 
@@ -396,10 +431,6 @@
 ========================= */
 
 .roulette-placeholder{
-
-  /*
-    coverflow 공통 placeholder 와 통일
-  */
 
   position:absolute;
 
@@ -494,8 +525,26 @@
 
   pointer-events:none;
 
+  width:8px;
+
+  height:14px;
+
+  border-radius:999px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff,
+      #8fdcff
+    );
+
+  opacity:.92;
+
   animation:
-    confettiBurst 2.6s ease-out forwards;
+    confettiBurst 1.9s ease-out forwards;
+
+  filter:
+    blur(.2px);
 
 }
 
@@ -504,23 +553,15 @@
   0%{
 
     transform:
-      translate(0,0)
-      rotate(0deg);
+      translate3d(0,0,0)
+      rotate(0deg)
+      scale(1);
 
-    opacity:1;
+    opacity:0;
 
   }
 
-  15%{
-
-    transform:
-      translate(
-        calc(var(--dx) * .18),
-        calc(var(--lift) * -1)
-      )
-      rotate(
-        calc(var(--rot) * .2)
-      );
+  10%{
 
     opacity:1;
 
@@ -529,13 +570,15 @@
   100%{
 
     transform:
-      translate(
+      translate3d(
         var(--dx),
-        var(--dy)
+        var(--dy),
+        0
       )
       rotate(
         var(--rot)
-      );
+      )
+      scale(.7);
 
     opacity:0;
 
@@ -550,10 +593,6 @@
 @media (max-width:640px){
 
   :root{
-
-    /*
-      coverflow width 자동 공유
-    */
 
     --roulette-title-size:11px;
 
