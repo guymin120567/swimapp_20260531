@@ -25,9 +25,11 @@ export function bindDrag(){
        RE-BIND SAFE RESET
     ========================= */
 
-    if(
-      wrap.dataset.dragBound
-    ){
+if(
+  wrap._dragCleanup
+){
+  wrap._dragCleanup();
+}{
 
       cancelAnimationFrame(
         wrap._inertiaRAF
@@ -163,6 +165,26 @@ export function bindDrag(){
         "dragging"
       );
 
+      const cleanup = () => {
+
+  wrap.removeEventListener(
+    "pointerdown",
+    onDown
+  );
+
+  wrap.removeEventListener(
+    "pointermove",
+    onMove
+  );
+
+  wrap.removeEventListener(
+    "pointerup",
+    endDrag
+  );
+
+};
+
+wrap._dragCleanup = cleanup;
     }
 
     /* =========================
