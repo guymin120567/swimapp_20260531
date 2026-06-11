@@ -10,6 +10,12 @@ body{
 
 }
 
+body{
+
+  margin:0;
+
+}
+
 #app{
 
   width:100%;
@@ -21,11 +27,20 @@ body{
 }
 
 .main-content{
+
   position:relative;
-  z-index:1;  
+
+  z-index:1;
+
   height:100%;
+
   overflow:hidden;
+
 }
+
+/* =========================
+   SECTION
+========================= */
 
 .section{
 
@@ -33,20 +48,36 @@ body{
 
   min-height:0;
 
-  padding-top:
-    calc(env(safe-area-inset-top) + 20px);
+  box-sizing:border-box;
+
+  padding:
+    calc(env(safe-area-inset-top) + 20px)
+    18px
+    120px;
+
+  -webkit-overflow-scrolling:
+    touch;
 
 }
 
+/* =========================
+   BLOCK
+========================= */
+
 .block{
+
   margin-bottom:34px;
+
 }
 
 .section-title{
+
   margin-bottom:16px;
 
   font-size:22px;
+
   font-weight:800;
+
 }
 
 /* =========================
@@ -61,6 +92,8 @@ body{
 
   justify-content:space-between;
 
+  gap:12px;
+
 }
 
 /* =========================
@@ -70,6 +103,7 @@ body{
 .add-mini-btn{
 
   width:34px;
+
   height:34px;
 
   border:none;
@@ -87,6 +121,18 @@ body{
 
   cursor:pointer;
 
+  flex-shrink:0;
+
+  transition:
+    transform .14s ease,
+    opacity .14s ease;
+
+}
+
+.add-mini-btn:active{
+
+  transform:scale(.94);
+
 }
 
 /* =========================
@@ -99,7 +145,13 @@ body{
 
   inset:0;
 
-  z-index:999;
+  z-index:5000;
+
+}
+
+.add-modal[hidden]{
+
+  display:none!important;
 
 }
 
@@ -112,6 +164,9 @@ body{
   background:
     rgba(0,0,0,.45);
 
+  backdrop-filter:
+    blur(2px);
+
 }
 
 .add-modal-sheet{
@@ -119,13 +174,57 @@ body{
   position:absolute;
 
   left:50%;
+
   bottom:120px;
 
   width:min(520px,90vw);
 
-  transform:translateX(-50%);
+  max-width:520px;
+
+  transform:
+    translateX(-50%);
 
   border-radius:24px;
+
+  margin:0 auto;
+
+  animation:
+    sheetUp .18s ease;
+
+}
+
+/* =========================
+   MODAL HEADER
+========================= */
+
+.add-modal-header{
+
+  display:flex;
+
+  justify-content:space-between;
+
+  align-items:center;
+
+  gap:12px;
+
+  margin-bottom:12px;
+
+}
+
+.modal-close-btn{
+
+  border:none;
+
+  background:none;
+
+  font-size:24px;
+
+  cursor:pointer;
+
+  padding:0;
+
+  line-height:1;
+
 }
 
 /* =========================
@@ -138,27 +237,36 @@ body{
 
   margin-bottom:12px;
 
+  box-sizing:border-box;
+
 }
 
+/* =========================
+   MODAL ANIMATION
+========================= */
 
-.add-modal[hidden]{display:none!important;}
-
-.add-modal-sheet{
-  max-width:520px;
-  margin:0 auto;
-  animation:sheetUp .18s ease;
-}
-
-.add-modal-header{
- display:flex;justify-content:space-between;align-items:center;
- margin-bottom:12px;
-}
-.modal-close-btn{
- border:none;background:none;font-size:24px;cursor:pointer;
-}
 @keyframes sheetUp{
- from{transform:translateY(24px);opacity:.7;}
- to{transform:translateY(0);opacity:1;}
+
+  from{
+
+    transform:
+      translateX(-50%)
+      translateY(24px);
+
+    opacity:.7;
+
+  }
+
+  to{
+
+    transform:
+      translateX(-50%)
+      translateY(0);
+
+    opacity:1;
+
+  }
+
 }
 
 /* =========================
@@ -206,6 +314,8 @@ body{
   font-weight:700;
 
   margin:4px 0;
+
+  line-height:1.45;
 
 }
 
