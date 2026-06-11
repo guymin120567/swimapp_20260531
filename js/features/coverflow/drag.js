@@ -95,46 +95,174 @@ export function bindDrag(){
     wrap._depthTicking =
       false;
 
-    /* =========================
-       CLEANUP
-    ========================= */
+// drag.js 내부 수정
 
-    function cleanupDrag(){
+/* =========================
+   CLEANUP
+========================= */
 
-      isDown = false;
+function cleanupDrag(){
 
-      moved = false;
+  isDown = false;
 
-      hasMoved = false;
+  moved = false;
 
-      velocity = 0;
+  hasMoved = false;
 
-      downCard = null;
+  velocity = 0;
 
-      wrap.dataset.dragMoved =
-        "false";
+  downCard = null;
 
-      if(
-        activePointerId !== null
-      ){
+  wrap.dataset.dragMoved =
+    "false";
 
-        try{
+  if(
+    activePointerId !== null
+  ){
 
-          wrap.releasePointerCapture(
-            activePointerId
-          );
+    try{
 
-        }catch(err){}
-
-      }
-
-      activePointerId = null;
-
-      wrap.classList.remove(
-        "dragging"
+      wrap.releasePointerCapture(
+        activePointerId
       );
 
-    }
+    }catch(err){}
+
+  }
+
+  activePointerId = null;
+
+  wrap.classList.remove(
+    "dragging"
+  );
+
+}
+
+/* =========================
+   POINTER LEAVE FIX
+========================= */
+
+function forceEndDrag(){
+
+  if(!isDown){
+    return;
+  }
+
+  endDrag();
+
+}
+
+/* =========================
+   POINTER EVENTS
+========================= */
+
+wrap.addEventListener(
+  "pointerdown",
+  onDown
+);
+
+wrap.addEventListener(
+  "pointermove",
+  onMove,
+  {
+    passive:false
+  }
+);
+
+wrap.addEventListener(
+  "pointerup",
+  endDrag
+);
+
+wrap.addEventListener(
+  "pointercancel",
+  forceEndDrag
+);
+
+/*
+  핵심 수정
+  영역 벗어나도 drag 유지
+*/
+
+wrap.addEventListener(
+  "lostpointercapture",
+  forceEndDrag
+);
+
+window.addEventListener(
+  "pointerup",
+  endDrag
+);
+
+window.addEventListener(
+  "mouseup",
+  endDrag
+);
+
+/*
+  모바일 브라우저
+  스와이프 이탈 대응
+*/
+
+window.addEventListener(
+  "touchend",
+  endDrag,
+  {
+    passive:true
+  }
+);
+
+window.addEventListener(
+  "touchcancel",
+  forceEndDrag,
+  {
+    passive:true
+  }
+);
+
+window.addEventListener(
+  "blur",
+  forceEndDrag
+);
+
+window.addEventListener(
+  "pagehide",
+  forceEndDrag
+);
+
+/* =========================
+   REMOVE EVENTS
+========================= */
+
+wrap._dragCleanup =
+  () => {
+
+    wrap.removeEventListener(
+      "pointerdown",
+      onDown
+    );
+
+    wrap.removeEventListener(
+      "pointermove",
+      onMove
+    );
+
+    wrap.removeEventListener(
+      "pointerup",
+      endDrag
+    );
+
+    wrap.removeEventListener(
+      "pointercancel",
+      forceEndDrag
+    );
+
+    wrap.removeEventListener(
+      "lostpointercapture",
+      forceEndDrag
+    );
+
+  };
 
     /* =========================
        SIMPLE MODE
