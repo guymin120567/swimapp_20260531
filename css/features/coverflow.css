@@ -21,7 +21,8 @@
 .coverflow{
 
   justify-content:flex-start;
-
+  scroll-padding-left:50%;
+  scroll-padding-right:50%;
   display:flex;
 
   align-items:center;
