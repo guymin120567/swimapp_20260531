@@ -6,7 +6,8 @@
 
   --cover-card-radius:24px;
 
-  --cover-card-title-size:13px;
+--cover-card-title-size:
+  var(--card-title-size);
 
   --cover-card-overlay-padding:
     8px 10px 10px;
