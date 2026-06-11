@@ -23,7 +23,8 @@ export function renderRoulette(){
     getState();
 
   /*
-    룰렛 회전 중 DOM 재생성 방지
+    룰렛 회전 중
+    DOM 재생성 방지
   */
 
   if(
@@ -34,7 +35,9 @@ export function renderRoulette(){
   }
 
   const items =
-    Array.isArray(state.items)
+    Array.isArray(
+      state.items
+    )
       ? state.items
       : [];
 
@@ -53,6 +56,7 @@ export function renderRoulette(){
     ) || null;
 
   target.innerHTML = `
+
     <div class="block roulette-block">
 
       <div class="roulette-wrap">
@@ -70,20 +74,25 @@ export function renderRoulette(){
             🧢 수모
           </div>
 
-          <!-- =========================
-               공통 카드 프레임 사용
-          ========================== -->
-
-          <div class="card-frame roulette-card">
+          <div
+            class="
+              roulette-card
+              card-frame
+            "
+          >
 
             ${
               cap
                 ? `
+
                   ${
                     cap.image
                       ? `
                         <img
-                          class="card-media roulette-image"
+                          class="
+                            card-media
+                            roulette-image
+                          "
                           src="${cap.image}"
                           alt="${cap.name}"
                           draggable="false"
@@ -96,13 +105,14 @@ export function renderRoulette(){
                       `
                   }
 
-                  <div class="card-overlay roulette-overlay">
+                  <div class="card-overlay">
 
                     <div class="card-title">
                       ${cap.name}
                     </div>
 
                   </div>
+
                 `
                 : `
                   <div class="card-placeholder">
@@ -128,20 +138,25 @@ export function renderRoulette(){
             🩳 수영복
           </div>
 
-          <!-- =========================
-               공통 카드 프레임 사용
-          ========================== -->
-
-          <div class="card-frame roulette-card">
+          <div
+            class="
+              roulette-card
+              card-frame
+            "
+          >
 
             ${
               swim
                 ? `
+
                   ${
                     swim.image
                       ? `
                         <img
-                          class="card-media roulette-image"
+                          class="
+                            card-media
+                            roulette-image
+                          "
                           src="${swim.image}"
                           alt="${swim.name}"
                           draggable="false"
@@ -154,13 +169,14 @@ export function renderRoulette(){
                       `
                   }
 
-                  <div class="card-overlay roulette-overlay">
+                  <div class="card-overlay">
 
-                    <div class="card-title roulette-name">
+                    <div class="card-title">
                       ${swim.name}
                     </div>
 
                   </div>
+
                 `
                 : `
                   <div class="card-placeholder">
@@ -188,6 +204,7 @@ export function renderRoulette(){
       </button>
 
     </div>
+
   `;
 
   requestAnimationFrame(()=>{
@@ -205,12 +222,12 @@ export function renderRoulette(){
 function syncRouletteCardSize(){
 
   /*
-    active 카드 우선 사용
+    active 카드 우선
   */
 
   const activeCard =
     document.querySelector(
-      ".cover-card.active .card-inner"
+      ".cover-card.active .card-frame"
     );
 
   /*
@@ -219,7 +236,7 @@ function syncRouletteCardSize(){
 
   const fallbackCard =
     document.querySelector(
-      ".cover-card .card-inner"
+      ".cover-card .card-frame"
     );
 
   const coverCard =
@@ -273,8 +290,12 @@ function syncRouletteCardSize(){
     card.style.width =
       `${width}px`;
 
+    /*
+      공통 aspect-ratio 사용
+    */
+
     card.style.height =
-      `${width}px`;
+      "auto";
 
     card.style.borderRadius =
       radius;
@@ -294,7 +315,7 @@ function syncRouletteCardSize(){
   });
 
   /*
-    공통 media 처리
+    media sync
   */
 
   const medias =
@@ -324,114 +345,6 @@ function syncRouletteCardSize(){
 
     media.style.webkitUserDrag =
       "none";
-
-  });
-
-  /*
-    overlay
-  */
-
-  const overlays =
-    document.querySelectorAll(
-      ".roulette-overlay"
-    );
-
-  overlays.forEach(overlay => {
-
-    overlay.style.position =
-      "absolute";
-
-    overlay.style.left =
-      "0";
-
-    overlay.style.right =
-      "0";
-
-    overlay.style.bottom =
-      "0";
-
-    overlay.style.padding =
-      "6px 8px";
-
-    overlay.style.background =
-      `
-        linear-gradient(
-          to top,
-          rgba(20,50,80,.88),
-          rgba(20,50,80,.0)
-        )
-      `;
-
-    overlay.style.pointerEvents =
-      "none";
-
-    overlay.style.boxSizing =
-      "border-box";
-
-  });
-
-  /*
-    label
-  */
-
-  const labels =
-    document.querySelectorAll(
-      ".roulette-label"
-    );
-
-  labels.forEach(label => {
-
-    label.style.fontSize =
-      "11px";
-
-    label.style.fontWeight =
-      "700";
-
-    label.style.marginBottom =
-      "8px";
-
-    label.style.letterSpacing =
-      "-0.02em";
-
-    label.style.textAlign =
-      "center";
-
-  });
-
-  /*
-    names
-  */
-
-  const names =
-    document.querySelectorAll(
-      ".roulette-name"
-    );
-
-  names.forEach(name => {
-
-    name.style.fontSize =
-      "11px";
-
-    name.style.fontWeight =
-      "700";
-
-    name.style.lineHeight =
-      "1.3";
-
-    name.style.whiteSpace =
-      "nowrap";
-
-    name.style.overflow =
-      "hidden";
-
-    name.style.textOverflow =
-      "ellipsis";
-
-    name.style.textAlign =
-      "center";
-
-    name.style.color =
-      "#fff";
 
   });
 
