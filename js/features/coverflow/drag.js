@@ -101,6 +101,8 @@ export function bindDrag(){
 
     function cleanupDrag(){
 
+      isDown = false;
+
       moved = false;
 
       hasMoved = false;
@@ -490,7 +492,7 @@ export function bindDrag(){
       }
 
       /* =========================
-         SNAP FIX
+         DRAG SNAP FIX
       ========================= */
 
       const centerCard =
