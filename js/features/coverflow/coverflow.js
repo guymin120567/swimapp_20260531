@@ -208,42 +208,46 @@ function renderType(type){
             data-type="${type}"
           >
 
-            <div class="card-inner">
+            <div class="card-frame">
 
-              <button
-                class="delete-btn"
-                data-action="delete"
-                data-id="${item.id}"
-                type="button"
-              >
-                ×
-              </button>
+              <div class="card-inner">
 
-              <div class="card-index">
-                ${index + 1} / ${items.length}
-              </div>
+                <button
+                  class="delete-btn"
+                  data-action="delete"
+                  data-id="${item.id}"
+                  type="button"
+                >
+                  ×
+                </button>
 
-              ${
-                item.image
-                  ? `
-                    <img
-                      class="card-image"
-                      src="${item.image}"
-                      alt="${item.name}"
-                      draggable="false"
-                    />
-                  `
-                  : `
-                    <div class="card-placeholder">
-                      🏊
-                    </div>
-                  `
-              }
+                <div class="card-index">
+                  ${index + 1} / ${items.length}
+                </div>
 
-              <div class="card-overlay">
+                ${
+                  item.image
+                    ? `
+                      <img
+                        class="card-image"
+                        src="${item.image}"
+                        alt="${item.name}"
+                        draggable="false"
+                      />
+                    `
+                    : `
+                      <div class="card-placeholder">
+                        🏊
+                      </div>
+                    `
+                }
 
-                <div class="card-title">
-                  ${item.name}
+                <div class="card-overlay">
+
+                  <div class="card-title">
+                    ${item.name}
+                  </div>
+
                 </div>
 
               </div>
