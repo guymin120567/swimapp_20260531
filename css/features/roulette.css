@@ -7,20 +7,24 @@
   */
 
   --roulette-title-size:
-    var(--card-title-size);
+    var(--cover-card-title-size);
 
-  --roulette-label-size:11px;
+  /*
+    리스트탭 section-title 과
+    최대한 비슷하게 맞춤
+  */
+
+  --roulette-label-size:22px;
 
   /*
     효과 컬러
-    기존 노란색 제거
   */
 
   --roulette-effect:
-    rgba(125,211,252,.34);
+    rgba(125,211,252,.26);
 
   --roulette-effect-strong:
-    rgba(125,211,252,.52);
+    rgba(125,211,252,.42);
 
 }
 
@@ -71,7 +75,7 @@
 
   flex-direction:column;
 
-  gap:18px;
+  gap:24px;
 
   align-items:center;
 
@@ -95,6 +99,29 @@
 }
 
 /* =========================
+   LABEL
+========================= */
+
+.roulette-label{
+
+  text-align:center;
+
+  font-size:
+    var(--roulette-label-size);
+
+  font-weight:800;
+
+  color:var(--text);
+
+  margin-bottom:14px;
+
+  letter-spacing:-0.03em;
+
+  line-height:1.2;
+
+}
+
+/* =========================
    CARD
 ========================= */
 
@@ -109,6 +136,30 @@
 
   backdrop-filter:
     blur(10px);
+
+}
+
+/* =========================
+   IMAGE
+========================= */
+
+.roulette-image{
+
+  /*
+    리스트탭과 동일한
+    이미지 표시 방식
+  */
+
+  object-fit:contain !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      #f8fbff,
+      #edf7ff
+    );
+
+  padding:8px;
 
 }
 
@@ -145,8 +196,8 @@
     rouletteImageSpin .42s linear infinite;
 
   filter:
-    brightness(1.04)
-    saturate(1.04);
+    brightness(1.03)
+    saturate(1.03);
 
 }
 
@@ -160,39 +211,31 @@
 
     transform:
       translate(0px,0px)
-      scale(1.006);
+      scale(1.004);
 
   }
 
-  20%{
+  25%{
 
     transform:
       translate(-1px,1px)
-      scale(1.012);
+      scale(1.01);
 
   }
 
-  40%{
+  50%{
 
     transform:
       translate(1px,-1px)
-      scale(1.016);
+      scale(1.014);
 
   }
 
-  60%{
+  75%{
 
     transform:
       translate(-1px,-1px)
-      scale(1.012);
-
-  }
-
-  80%{
-
-    transform:
-      translate(1px,1px)
-      scale(1.016);
+      scale(1.01);
 
   }
 
@@ -200,7 +243,7 @@
 
     transform:
       translate(0px,0px)
-      scale(1.006);
+      scale(1.004);
 
   }
 
@@ -223,7 +266,7 @@
   50%{
 
     transform:
-      scale(1.03)
+      scale(1.025)
       rotate(1deg);
 
   }
@@ -246,16 +289,16 @@
 
   position:absolute;
 
-  inset:-8%;
+  inset:-6%;
 
   border-radius:inherit;
 
   background:
     radial-gradient(
       circle,
-      rgba(255,255,255,.12),
+      rgba(255,255,255,.10),
       var(--roulette-effect),
-      transparent 72%
+      transparent 74%
     );
 
   mix-blend-mode:screen;
@@ -275,7 +318,7 @@
       rotate(0deg)
       scale(1);
 
-    opacity:.28;
+    opacity:.22;
 
   }
 
@@ -283,9 +326,9 @@
 
     transform:
       rotate(180deg)
-      scale(1.03);
+      scale(1.02);
 
-    opacity:.48;
+    opacity:.4;
 
   }
 
@@ -295,7 +338,7 @@
       rotate(360deg)
       scale(1);
 
-    opacity:.28;
+    opacity:.22;
 
   }
 
@@ -308,7 +351,7 @@
 .roulette-card.winner{
 
   animation:
-    winnerPulse 1.4s ease-in-out;
+    winnerPulse 1.2s ease-out;
 
 }
 
@@ -319,20 +362,12 @@
     transform:
       scale(1);
 
-    box-shadow:
-      0 10px 24px
-      rgba(120,170,210,.14);
-
   }
 
-  50%{
+  45%{
 
     transform:
-      scale(1.03);
-
-    box-shadow:
-      0 18px 40px
-      var(--roulette-effect-strong);
+      scale(1.028);
 
   }
 
@@ -340,10 +375,6 @@
 
     transform:
       scale(1);
-
-    box-shadow:
-      0 10px 24px
-      rgba(120,170,210,.14);
 
   }
 
@@ -353,20 +384,20 @@
 
   position:absolute;
 
-  inset:-6%;
+  inset:-4%;
 
   border-radius:inherit;
 
   background:
     radial-gradient(
       circle,
-      rgba(255,255,255,.18),
+      rgba(255,255,255,.12),
       var(--roulette-effect),
       transparent 72%
     );
 
   animation:
-    winnerGlow 1.2s ease-out forwards;
+    winnerGlow 1s ease-out forwards;
 
   pointer-events:none;
 
@@ -379,16 +410,16 @@
     opacity:0;
 
     transform:
-      scale(.96);
+      scale(.98);
 
   }
 
-  40%{
+  45%{
 
-    opacity:.65;
+    opacity:.52;
 
     transform:
-      scale(1.04);
+      scale(1.03);
 
   }
 
@@ -397,32 +428,9 @@
     opacity:0;
 
     transform:
-      scale(1.08);
+      scale(1.06);
 
   }
-
-}
-
-/* =========================
-   LABEL
-========================= */
-
-.roulette-label{
-
-  text-align:center;
-
-  font-size:
-    var(
-      --roulette-label-size
-    );
-
-  font-weight:700;
-
-  color:var(--text);
-
-  margin-bottom:8px;
-
-  letter-spacing:-0.02em;
 
 }
 
@@ -525,9 +533,9 @@
 
   pointer-events:none;
 
-  width:8px;
+  width:7px;
 
-  height:14px;
+  height:12px;
 
   border-radius:999px;
 
@@ -538,13 +546,10 @@
       #8fdcff
     );
 
-  opacity:.92;
+  opacity:.88;
 
   animation:
-    confettiBurst 1.9s ease-out forwards;
-
-  filter:
-    blur(.2px);
+    confettiBurst 1.8s ease-out forwards;
 
 }
 
@@ -561,7 +566,7 @@
 
   }
 
-  10%{
+  12%{
 
     opacity:1;
 
@@ -578,7 +583,7 @@
       rotate(
         var(--rot)
       )
-      scale(.7);
+      scale(.72);
 
     opacity:0;
 
@@ -594,9 +599,14 @@
 
   :root{
 
-    --roulette-title-size:11px;
+    /*
+      리스트탭 느낌 유지
+    */
 
-    --roulette-label-size:11px;
+    --roulette-label-size:20px;
+
+    --roulette-title-size:
+      var(--cover-card-title-size);
 
   }
 
