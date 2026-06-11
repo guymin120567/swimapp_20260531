@@ -661,3 +661,58 @@
   }
 
 }
+
+/* =========================
+   ROULETTE OVERLAY
+========================= */
+
+.roulette-overlay{
+
+  position:absolute;
+
+  left:0;
+  right:0;
+  bottom:0;
+
+  padding:
+    var(--roulette-overlay-padding);
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(0,0,0,.72),
+      rgba(0,0,0,.0)
+    );
+
+}
+
+.roulette-name{
+
+  color:white;
+
+  font-size:
+    var(--roulette-title-size);
+
+  font-weight:800;
+
+  text-align:center;
+
+  line-height:1.3;
+
+  word-break:keep-all;
+}
+
+/* =========================
+   WRAP
+========================= */
+
+.roulette-wrap{
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:18px;
+
+  align-items:center;
+}
