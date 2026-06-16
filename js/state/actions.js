@@ -1,17 +1,73 @@
 // js/state/actions.js
 
 import {
+
   getState,
+
   setState
+
 } from "./state.js";
+
+/* =========================
+   HELPERS
+========================= */
+
+function getItemsByType(type){
+
+  const state =
+    getState();
+
+  return state.items.filter(
+    item => item.type === type
+  );
+
+}
+
+function findFallbackItem(
+  type,
+  removedId,
+  nextItems
+){
+
+  const currentItems =
+    getItemsByType(type);
+
+  const nextTypeItems =
+    nextItems.filter(
+      item => item.type === type
+    );
+
+  const removedIndex =
+    currentItems.findIndex(
+      item => item.id === removedId
+    );
+
+  return (
+
+    nextTypeItems[
+      Math.max(
+        0,
+        removedIndex - 1
+      )
+    ]
+
+    ||
+
+    nextTypeItems[0]
+
+    ||
+
+    null
+
+  );
+
+}
 
 /* =========================
    ADD ITEM
 ========================= */
 
-export function addItem(
-  item
-){
+export function addItem(item){
 
   const state =
     getState();
@@ -19,8 +75,11 @@ export function addItem(
   setState({
 
     items: [
+
       ...state.items,
+
       item
+
     ]
 
   });
@@ -31,59 +90,51 @@ export function addItem(
    REMOVE ITEM
 ========================= */
 
-export function removeItem(
-  id
-){
+export function removeItem(id){
 
   const state =
     getState();
 
   const target =
     state.items.find(
-      i => i.id === id
+      item => item.id === id
     );
 
   if(!target){
-    return;
+    return false;
   }
 
   const nextItems =
     state.items.filter(
-      i => i.id !== id
+      item => item.id !== id
     );
 
   const nextSelection = {
+
     ...state.selection
+
   };
 
   /* =========================
-     FALLBACK SELECT
+     CAP
   ========================= */
 
   if(
-    target.type === "cap" &&
+
+    target.type === "cap"
+
+    &&
+
     state.selection.capId === id
+
   ){
 
-    const caps =
-      nextItems.filter(
-        i => i.type === "cap"
-      );
-
-    const removedIndex =
-      state.items
-        .filter(i => i.type === "cap")
-        .findIndex(
-          i => i.id === id
-        );
-
     const fallback =
-      caps[
-        Math.max(
-          0,
-          removedIndex - 1
-        )
-      ] || caps[0];
+      findFallbackItem(
+        "cap",
+        id,
+        nextItems
+      );
 
     nextSelection.capId =
       fallback
@@ -92,35 +143,59 @@ export function removeItem(
 
   }
 
+  /* =========================
+     SWIM
+  ========================= */
+
   if(
-    target.type === "swim" &&
+
+    target.type === "swim"
+
+    &&
+
     state.selection.swimId === id
+
   ){
 
-    const swims =
-      nextItems.filter(
-        i => i.type === "swim"
-      );
-
-    const removedIndex =
-      state.items
-        .filter(i => i.type === "swim")
-        .findIndex(
-          i => i.id === id
-        );
-
     const fallback =
-      swims[
-        Math.max(
-          0,
-          removedIndex - 1
-        )
-      ] || swims[0];
+      findFallbackItem(
+        "swim",
+        id,
+        nextItems
+      );
 
     nextSelection.swimId =
       fallback
         ? fallback.id
         : null;
+
+  }
+
+  /* =========================
+     ROULETTE RESULT CLEANUP
+  ========================= */
+
+  const nextRouletteResult = {
+
+    ...state.rouletteResult
+
+  };
+
+  if(
+    nextRouletteResult.capId === id
+  ){
+
+    nextRouletteResult.capId =
+      null;
+
+  }
+
+  if(
+    nextRouletteResult.swimId === id
+  ){
+
+    nextRouletteResult.swimId =
+      null;
 
   }
 
@@ -130,9 +205,14 @@ export function removeItem(
       nextItems,
 
     selection:
-      nextSelection
+      nextSelection,
+
+    rouletteResult:
+      nextRouletteResult
 
   });
+
+  return true;
 
 }
 
@@ -150,9 +230,15 @@ export function setSelected(
 
   const exists =
     state.items.some(
-      i =>
-        i.id === id &&
-        i.type === type
+
+      item =>
+
+        item.id === id
+
+        &&
+
+        item.type === type
+
     );
 
   if(!exists){
@@ -173,9 +259,8 @@ export function setSelected(
 
     setState({
 
-      selection:{
+      selection: {
 
-        ...state.selection,
         capId:id
 
       }
@@ -200,9 +285,8 @@ export function setSelected(
 
     setState({
 
-      selection:{
+      selection: {
 
-        ...state.selection,
         swimId:id
 
       }
@@ -226,16 +310,12 @@ export function setRouletteResult(
   swimId
 ){
 
-  const state =
-    getState();
-
   setState({
 
     rouletteResult: {
 
-      ...state.rouletteResult,
-
       capId,
+
       swimId
 
     }
@@ -252,16 +332,31 @@ export function setSpinning(
   value
 ){
 
-  const state =
-    getState();
+  setState({
+
+    runtime: {
+
+      isSpinning:value
+
+    }
+
+  });
+
+}
+
+/* =========================
+   DRAGGING
+========================= */
+
+export function setDragging(
+  value
+){
 
   setState({
 
-    ui: {
+    runtime: {
 
-      ...state.ui,
-
-      isSpinning:value
+      isDragging:value
 
     }
 
@@ -277,16 +372,31 @@ export function setActiveTab(
   tab
 ){
 
-  const state =
-    getState();
+  setState({
+
+    ui: {
+
+      activeTab:tab
+
+    }
+
+  });
+
+}
+
+/* =========================
+   ACTIVE ITEM
+========================= */
+
+export function setActiveItem(
+  id
+){
 
   setState({
 
     ui: {
 
-      ...state.ui,
-
-      activeTab:tab
+      activeItemId:id
 
     }
 
@@ -323,8 +433,11 @@ export function addRecord(
   setState({
 
     records: [
+
       record,
+
       ...state.records
+
     ]
 
   });
