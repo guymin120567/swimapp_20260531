@@ -118,8 +118,15 @@ function renderType(type){
     return;
   }
 
+  target.dataset.type =
+    type;
+
   cancelAnimationFrame(
     target._inertiaRAF
+  );
+
+  cancelAnimationFrame(
+    target._spinRAF
   );
 
   clearTimeout(
@@ -269,11 +276,17 @@ function renderType(type){
                         src="${item.image}"
                         alt="${item.name}"
                         draggable="false"
+                        loading="lazy"
+                        decoding="async"
                       />
                     `
                     : `
                       <div class="card-placeholder">
-                        🏊
+                        ${
+                          type === "cap"
+                            ? "🧢"
+                            : "🏊"
+                        }
                       </div>
                     `
                 }
@@ -339,6 +352,10 @@ function renderType(type){
             selectedId
         );
 
+      /*
+        SIMPLE MODE
+      */
+
       if(isSimple){
 
         target.scrollLeft = 0;
@@ -354,6 +371,14 @@ function renderType(type){
 
         });
 
+        if(selectedCard){
+
+          selectedCard.classList.add(
+            "active"
+          );
+
+        }
+
         requestAnimationFrame(()=>{
 
           updateDepth(
@@ -365,6 +390,10 @@ function renderType(type){
         return;
 
       }
+
+      /*
+        NORMAL MODE
+      */
 
       if(selectedCard){
 
@@ -403,60 +432,70 @@ function renderType(type){
 
 function bindDeleteEvents(){
 
-  document
-    .querySelectorAll(".coverflow")
-    .forEach(wrap => {
+  if(
+    window.__coverDeleteBound
+  ){
+    return;
+  }
 
-      if(
-        wrap._deleteBound
-      ){
+  document.addEventListener(
+    "pointerup",
+    e => {
+
+      const deleteBtn =
+        e.target.closest(
+          ".delete-btn"
+        );
+
+      if(!deleteBtn){
         return;
       }
 
-      wrap._deleteBound =
-        true;
+      e.preventDefault();
 
-      wrap.addEventListener(
-        "pointerup",
-        e => {
+      e.stopPropagation();
 
-          const deleteBtn =
-            e.target.closest(
-              ".delete-btn"
-            );
+      const wrap =
+        deleteBtn.closest(
+          ".coverflow"
+        );
 
-          if(!deleteBtn){
-            return;
-          }
+      const ok =
+        confirm(
+          "삭제하시겠습니까?"
+        );
 
-          e.preventDefault();
+      if(!ok){
+        return;
+      }
 
-          e.stopPropagation();
-
-          if(
-            !confirm(
-              "삭제하시겠습니까?"
-            )
-          ){
-            return;
-          }
-
-          removeItem(
-            deleteBtn.dataset.id
-          );
-
-          requestAnimationFrame(()=>{
-
-            renderCoverflow(
-              wrap.dataset.type
-            );
-
-          });
-
-        }
+      removeItem(
+        deleteBtn.dataset.id
       );
 
-    });
+      requestAnimationFrame(()=>{
+
+        if(
+          wrap?.dataset.type
+        ){
+
+          renderCoverflow(
+            wrap.dataset.type
+          );
+
+        }else{
+
+          renderCoverflow();
+
+        }
+
+      });
+
+    }
+  );
+
+  window.__coverDeleteBound =
+    true;
 
 }
 
@@ -491,6 +530,10 @@ function applyEdgeSpacing(
 
   });
 
+  /*
+    1개
+  */
+
   if(cards.length === 1){
 
     const card =
@@ -515,6 +558,10 @@ function applyEdgeSpacing(
 
   }
 
+  /*
+    2개
+  */
+
   if(cards.length === 2){
 
     const first =
@@ -523,7 +570,7 @@ function applyEdgeSpacing(
     const last =
       cards[1];
 
-    const gap = 12;
+    const gap = 14;
 
     const totalWidth =
       first.offsetWidth +
@@ -551,6 +598,10 @@ function applyEdgeSpacing(
     return;
 
   }
+
+  /*
+    3개 이상
+  */
 
   const first =
     cards[0];
@@ -619,7 +670,9 @@ function bindSpinEvents(){
       if(
         document.hidden
       ){
+
         forceCleanup();
+
       }
 
     }
@@ -643,6 +696,9 @@ function startSpin(){
   document.body.dataset.lockTab =
     "true";
 
+  document.body.dataset.spinning =
+    "true";
+
   document
     .querySelectorAll(".coverflow")
     .forEach(flow => {
@@ -656,6 +712,14 @@ function startSpin(){
         return;
       }
 
+      cancelAnimationFrame(
+        flow._inertiaRAF
+      );
+
+      clearTimeout(
+        flow._programmaticTimer
+      );
+
       flow.classList.add(
         "spinning-lock"
       );
@@ -664,6 +728,9 @@ function startSpin(){
         true;
 
       flow._isInertia =
+        false;
+
+      flow._isProgrammatic =
         false;
 
       let velocity = 0;
@@ -701,6 +768,14 @@ function startSpin(){
 
         }
 
+        requestAnimationFrame(()=>{
+
+          updateDepth(
+            flow
+          );
+
+        });
+
         raf =
           requestAnimationFrame(
             tick
@@ -737,6 +812,9 @@ function startSpin(){
 function stopSpin(){
 
   document.body.dataset.lockTab =
+    "false";
+
+  document.body.dataset.spinning =
     "false";
 
   spinRAF.forEach(i => {
