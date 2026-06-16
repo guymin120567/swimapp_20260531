@@ -17,6 +17,15 @@ import {
   snapToNearestCard
 } from "./drag.js";
 
+import {
+  queueRender
+} from "../../render/renderQueue.js";
+
+import {
+  getCoverflow,
+  getCoverCards
+} from "../../shared/domCache.js";
+
 let spinRAF = [];
 
 /* =========================
@@ -40,14 +49,32 @@ export function renderCoverflow(
     !changedType ||
     changedType === "cap"
   ){
-    renderType("cap");
+
+    queueRender(
+      "coverflow-cap",
+      ()=>{
+
+        renderType("cap");
+
+      }
+    );
+
   }
 
   if(
     !changedType ||
     changedType === "swim"
   ){
-    renderType("swim");
+
+    queueRender(
+      "coverflow-swim",
+      ()=>{
+
+        renderType("swim");
+
+      }
+    );
+
   }
 
   bindDeleteEvents();
@@ -85,9 +112,7 @@ export function renderCoverflow(
 function renderType(type){
 
   const target =
-    document.querySelector(
-      `.coverflow[data-type="${type}"]`
-    );
+    getCoverflow(type);
 
   if(!target){
     return;
@@ -132,10 +157,6 @@ function renderType(type){
       ? state.selection?.capId
       : state.selection?.swimId;
 
-  /* =========================
-     INVALID SELECT FIX
-  ========================= */
-
   const selectedExists =
     items.some(
       i => i.id === selectedId
@@ -159,10 +180,6 @@ function renderType(type){
     });
 
   }
-
-  /* =========================
-     EMPTY
-  ========================= */
 
   if(!items.length){
 
@@ -213,10 +230,6 @@ function renderType(type){
     "is-simple",
     isSimple
   );
-
-  /* =========================
-     FULL RENDER
-  ========================= */
 
   if(!sameSignature){
 
@@ -285,10 +298,6 @@ function renderType(type){
 
   }
 
-  /* =========================
-     LAYOUT
-  ========================= */
-
   requestAnimationFrame(()=>{
 
     applyEdgeSpacing(
@@ -300,11 +309,8 @@ function renderType(type){
       target._initialized =
         true;
 
-      const cards = [
-        ...target.querySelectorAll(
-          ".cover-card"
-        )
-      ];
+      const cards =
+        getCoverCards(target);
 
       if(!cards.length){
         return;
@@ -333,10 +339,6 @@ function renderType(type){
             selectedId
         );
 
-      /* =========================
-         SIMPLE MODE
-      ========================= */
-
       if(isSimple){
 
         target.scrollLeft = 0;
@@ -363,10 +365,6 @@ function renderType(type){
         return;
 
       }
-
-      /* =========================
-         NORMAL MODE
-      ========================= */
 
       if(selectedCard){
 
@@ -476,11 +474,8 @@ function applyEdgeSpacing(
     return;
   }
 
-  const cards = [
-    ...wrap.querySelectorAll(
-      ".cover-card"
-    )
-  ];
+  const cards =
+    getCoverCards(wrap);
 
   if(!cards.length){
     return;
@@ -495,10 +490,6 @@ function applyEdgeSpacing(
       "0px";
 
   });
-
-  /* =========================
-     SINGLE
-  ========================= */
 
   if(cards.length === 1){
 
@@ -523,10 +514,6 @@ function applyEdgeSpacing(
     return;
 
   }
-
-  /* =========================
-     DOUBLE
-  ========================= */
 
   if(cards.length === 2){
 
@@ -564,10 +551,6 @@ function applyEdgeSpacing(
     return;
 
   }
-
-  /* =========================
-     NORMAL
-  ========================= */
 
   const first =
     cards[0];
@@ -665,9 +648,7 @@ function startSpin(){
     .forEach(flow => {
 
       const cards =
-        flow.querySelectorAll(
-          ".cover-card"
-        );
+        getCoverCards(flow);
 
       if(
         cards.length <= 2
@@ -794,9 +775,7 @@ function stopSpin(){
       false;
 
     if(
-      i.flow.querySelectorAll(
-        ".cover-card"
-      ).length > 2
+      getCoverCards(i.flow).length > 2
     ){
 
       snapToNearestCard(
@@ -892,9 +871,7 @@ function bindResize(){
               );
 
               const cards =
-                wrap.querySelectorAll(
-                  ".cover-card"
-                );
+                getCoverCards(wrap);
 
               if(
                 cards.length > 2
