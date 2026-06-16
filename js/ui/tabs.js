@@ -1,7 +1,13 @@
 // js/ui/tabs.js
+
+import {
+  getState
+} from "../state/state.js";
+
 import {
   renderRecords
 } from "../features/records/renderRecords.js";
+
 import {
   renderRoulette
 } from "../features/roulette/renderRoulette.js";
@@ -10,9 +16,9 @@ import {
   renderCoverflow
 } from "../features/coverflow/coverflow.js";
 
-// =========================
-// INIT
-// =========================
+/* =========================
+   INIT
+========================= */
 
 export function initTabs(){
 
@@ -30,15 +36,42 @@ export function initTabs(){
     handleTabClick
   );
 
+  /* =========================
+     IOS SAFARI RECOVERY
+  ========================= */
+
+  window.addEventListener(
+    "pageshow",
+    cleanupSpinState
+  );
+
+  window.addEventListener(
+    "focus",
+    cleanupSpinState
+  );
+
+  document.addEventListener(
+    "visibilitychange",
+    ()=>{
+
+      if(!document.hidden){
+
+        cleanupSpinState();
+
+      }
+
+    }
+  );
+
   activateTab(
     "roulette"
   );
 
 }
 
-// =========================
-// CLICK
-// =========================
+/* =========================
+   CLICK
+========================= */
 
 function handleTabClick(e){
 
@@ -51,15 +84,78 @@ function handleTabClick(e){
     return;
   }
 
+  const state =
+    getState();
+
+  const hasSpinningDOM =
+    document.querySelector(
+      ".coverflow.spinning-lock"
+    );
+
+  const actuallySpinning =
+    state.ui?.isSpinning === true &&
+    hasSpinningDOM;
+
+  if(actuallySpinning){
+
+    alert(
+      "룰렛 진행 중입니다 🎲"
+    );
+
+    return;
+
+  }
+
   activateTab(
     button.dataset.tab
   );
 
 }
 
-// =========================
-// ACTIVATE
-// =========================
+/* =========================
+   CLEANUP SPIN
+========================= */
+
+function cleanupSpinState(){
+
+  const spinning =
+    document.querySelector(
+      ".coverflow.spinning-lock"
+    );
+
+  if(!spinning){
+
+    document
+      .querySelectorAll(
+        ".coverflow"
+      )
+      .forEach(flow => {
+
+        flow.classList.remove(
+          "spinning-lock",
+          "dragging"
+        );
+
+        cancelAnimationFrame(
+          flow._spinRAF
+        );
+
+        cancelAnimationFrame(
+          flow._inertiaRAF
+        );
+
+        flow._isSpinning =
+          false;
+
+      });
+
+  }
+
+}
+
+/* =========================
+   ACTIVATE
+========================= */
 
 function activateTab(type){
 
@@ -68,7 +164,7 @@ function activateTab(type){
       ".bottom-tab"
     );
 
-  tabs.forEach(tab=>{
+  tabs.forEach(tab => {
 
     tab.classList.toggle(
 
@@ -102,7 +198,7 @@ function activateTab(type){
   Object.entries(
     sections
   ).forEach(
-    ([key,section])=>{
+    ([key, section]) => {
 
       if(!section){
         return;
@@ -114,9 +210,9 @@ function activateTab(type){
     }
   );
 
-  // =========================
-  // RENDER
-  // =========================
+  /* =========================
+     RENDER
+  ========================= */
 
   if(type === "roulette"){
 
@@ -126,7 +222,13 @@ function activateTab(type){
 
   if(type === "inventory"){
 
-     renderRecords();
+    renderCoverflow();
+
+  }
+
+  if(type === "records"){
+
+    renderRecords();
 
   }
 

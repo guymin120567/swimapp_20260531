@@ -1,18 +1,27 @@
 // js/features/roulette/roulette.js
 
 import {
+  renderCoverflow
+} from "../coverflow/coverflow.js";
+
+import {
   getState
 } from "../../state/state.js";
 
 import {
   setRouletteResult,
   setSpinning,
-  addRecord
+  addRecord,
+  setSelected
 } from "../../state/actions.js";
 
-// =========================
-// SPIN
-// =========================
+let spinTimeout = null;
+
+let unlockTimeout = null;
+
+/* =========================
+   SPIN
+========================= */
 
 export async function spinAll(){
 
@@ -25,6 +34,18 @@ export async function spinAll(){
     return;
   }
 
+  clearTimeout(
+    spinTimeout
+  );
+
+  clearTimeout(
+    unlockTimeout
+  );
+
+  spinTimeout = null;
+
+  unlockTimeout = null;
+
   const caps =
     state.items.filter(
       i => i.type === "cap"
@@ -35,29 +56,29 @@ export async function spinAll(){
       i => i.type === "swim"
     );
 
- if(
-  caps.length < 2
-){
+  if(
+    caps.length < 2
+  ){
 
-  alert(
-    "수모를 최소 2개 이상 등록해주세요."
-  );
+    alert(
+      "수모를 최소 2개 이상 등록해주세요."
+    );
 
-  return;
+    return;
 
-}
+  }
 
-if(
-  swims.length < 2
-){
+  if(
+    swims.length < 2
+  ){
 
-  alert(
-    "수영복을 최소 2개 이상 등록해주세요."
-  );
+    alert(
+      "수영복을 최소 2개 이상 등록해주세요."
+    );
 
-  return;
+    return;
 
-}
+  }
 
   const capSlot =
     document.querySelector(
@@ -76,17 +97,58 @@ if(
     return;
   }
 
+  /* =========================
+     PREPARE SLOT
+  ========================= */
+
+  prepareSpinSlot(
+    capSlot
+  );
+
+  prepareSpinSlot(
+    swimSlot
+  );
+
+  /* =========================
+     CLEAR INERTIA
+  ========================= */
+
+  document
+    .querySelectorAll(".coverflow")
+    .forEach(wrap => {
+
+      cancelAnimationFrame(
+        wrap._inertiaRAF
+      );
+
+      clearTimeout(
+        wrap._programmaticTimer
+      );
+
+      wrap._isProgrammatic =
+        false;
+
+      wrap.classList.remove(
+        "dragging"
+      );
+
+    });
+
   window.__isSpinning = true;
 
   setSpinning(true);
-  
+
   const spinBtn =
     document.querySelector(
       "#rouletteSection .spin-btn"
     );
 
   if(spinBtn){
+
     spinBtn.disabled = true;
+
+    spinBtn.blur();
+
   }
 
   capSlot.classList.remove(
@@ -115,7 +177,7 @@ if(
 
   const maxTicks = 30;
 
-  let speed = 38;
+  let speed = 22;
 
   let finalCap =
     caps[0];
@@ -123,21 +185,53 @@ if(
   let finalSwim =
     swims[0];
 
+  const prevCapId =
+    state.rouletteResult?.capId;
+
+  const prevSwimId =
+    state.rouletteResult?.swimId;
+
   const run = ()=>{
 
+    const capCandidates =
+      caps.filter(
+        i => i.id !== prevCapId
+      );
+
+    const swimCandidates =
+      swims.filter(
+        i => i.id !== prevSwimId
+      );
+
     finalCap =
-      caps[
+      (
+        capCandidates.length
+          ? capCandidates
+          : caps
+      )[
         Math.floor(
           Math.random() *
-          caps.length
+          (
+            capCandidates.length
+              ? capCandidates.length
+              : caps.length
+          )
         )
       ];
 
     finalSwim =
-      swims[
+      (
+        swimCandidates.length
+          ? swimCandidates
+          : swims
+      )[
         Math.floor(
           Math.random() *
-          swims.length
+          (
+            swimCandidates.length
+              ? swimCandidates.length
+              : swims.length
+          )
         )
       ];
 
@@ -173,12 +267,15 @@ if(
       ticks < maxTicks
     ){
 
-      setTimeout(
-        run,
-        speed
-      );
+      spinTimeout =
+        setTimeout(
+          run,
+          speed
+        );
 
     }else{
+
+      spinTimeout = null;
 
       finish(
         finalCap,
@@ -191,87 +288,188 @@ if(
 
   run();
 
+  /* =========================
+     FINISH
+  ========================= */
+
   function finish(
-  finalCap,
-  finalSwim
-){
-
-  renderFinal(
-    capSlot,
-    finalCap
-  );
-
-  renderFinal(
-    swimSlot,
+    finalCap,
     finalSwim
-  );
+  ){
 
-  capSlot.classList.remove(
-    "spinning"
-  );
+    renderFinal(
+      capSlot,
+      finalCap
+    );
 
-  swimSlot.classList.remove(
-    "spinning"
-  );
+    renderFinal(
+      swimSlot,
+      finalSwim
+    );
 
-  capSlot.classList.add(
-    "winner"
-  );
+    capSlot.classList.remove(
+      "spinning"
+    );
 
-  swimSlot.classList.add(
-    "winner"
-  );
+    swimSlot.classList.remove(
+      "spinning"
+    );
 
-  burst("cap");
+    capSlot.classList.add(
+      "winner"
+    );
 
-  burst("swim");
+    swimSlot.classList.add(
+      "winner"
+    );
 
+    burst("cap");
+
+    burst("swim");
+
+    /* =========================
+       RESULT
+    ========================= */
 
     setRouletteResult(
       finalCap.id,
       finalSwim.id
     );
-    
+
+    /* =========================
+       SYNC SELECTED
+    ========================= */
+
+    const changedCap =
+      setSelected(
+        "cap",
+        finalCap.id
+      );
+
+    const changedSwim =
+      setSelected(
+        "swim",
+        finalSwim.id
+      );
+
+    if(changedCap){
+
+      renderCoverflow(
+        "cap"
+      );
+
+    }
+
+    if(changedSwim){
+
+      renderCoverflow(
+        "swim"
+      );
+
+    }
+
     addRecord(
       finalCap.id,
       finalSwim.id
     );
 
+    /* =========================
+       UNLOCK
+    ========================= */
 
-  setTimeout(()=>{
+    unlockTimeout =
+      setTimeout(()=>{
 
-    capSlot.classList.remove(
-      "winner"
-    );
+        unlockTimeout =
+          null;
 
-    swimSlot.classList.remove(
-      "winner"
-    );
+        capSlot.classList.remove(
+          "winner"
+        );
 
-    setSpinning(false);
+        swimSlot.classList.remove(
+          "winner"
+        );
 
-    window.__isSpinning = false;
+        setSpinning(false);
 
+        window.__isSpinning =
+          false;
 
-    if(spinBtn){
-      spinBtn.disabled = false;
-    }
+        document
+          .querySelectorAll(
+            ".coverflow"
+          )
+          .forEach(wrap => {
 
-    
-    window.dispatchEvent(
-      new CustomEvent(
-        "spin-stop"
-      )
-    );
+            wrap.classList.remove(
+              "dragging",
+              "spinning-lock"
+            );
 
-  },1800);
+            wrap._isProgrammatic =
+              false;
+
+            cancelAnimationFrame(
+              wrap._inertiaRAF
+            );
+
+            clearTimeout(
+              wrap._programmaticTimer
+            );
+
+          });
+
+        if(spinBtn){
+
+          spinBtn.disabled =
+            false;
+
+        }
+
+        window.dispatchEvent(
+          new CustomEvent(
+            "spin-stop"
+          )
+        );
+
+      },1800);
+
+  }
 
 }
-  
+
+/* =========================
+   PREPARE SPIN SLOT
+========================= */
+
+function prepareSpinSlot(
+  slot
+){
+
+  slot.innerHTML = `
+
+    <div class="spin-image-wrap">
+
+      <img
+        class="
+          roulette-image
+          spinning-image
+        "
+        draggable="false"
+      />
+
+      <div class="spin-glow"></div>
+
+    </div>
+
+  `;
+
 }
-// =========================
-// UPDATE SLOT
-// =========================
+
+/* =========================
+   UPDATE SLOT
+========================= */
 
 function updateSlot(
   slot,
@@ -282,41 +480,97 @@ function updateSlot(
     item.image &&
     item.image.trim() !== "";
 
-  slot.innerHTML = `
+  let img =
+    slot.querySelector(
+      ".roulette-image"
+    );
 
-    <div class="spin-image-wrap">
+  let placeholder =
+    slot.querySelector(
+      ".roulette-placeholder"
+    );
 
-      ${
-        hasImage
-          ? `
-            <img
-              class="
-                roulette-image
-                spinning-image
-              "
-              src="${item.image}"
-              alt="${item.name}"
-              draggable="false"
-            />
-          `
-          : `
-            <div class="roulette-placeholder">
-              🏊
-            </div>
-          `
-      }
+  /* =========================
+     IMAGE MODE
+  ========================= */
 
-      <div class="spin-glow"></div>
+  if(hasImage){
 
-    </div>
+    if(!img){
 
-  `;
+      slot.innerHTML = `
+
+        <div class="spin-image-wrap">
+
+          <img
+            class="
+              roulette-image
+              spinning-image
+            "
+            draggable="false"
+          />
+
+          <div class="spin-glow"></div>
+
+        </div>
+
+      `;
+
+      img =
+        slot.querySelector(
+          ".roulette-image"
+        );
+
+    }
+
+    const currentSrc =
+      img.getAttribute("src");
+
+    if(
+      currentSrc !== item.image
+    ){
+
+      img.src =
+        item.image;
+
+    }
+
+    img.alt =
+      item.name;
+
+  }
+
+  /* =========================
+     PLACEHOLDER MODE
+  ========================= */
+
+  else{
+
+    if(!placeholder){
+
+      slot.innerHTML = `
+
+        <div class="spin-image-wrap">
+
+          <div class="roulette-placeholder">
+            🏊
+          </div>
+
+          <div class="spin-glow"></div>
+
+        </div>
+
+      `;
+
+    }
+
+  }
 
 }
 
-// =========================
-// FINAL
-// =========================
+/* =========================
+   FINAL
+========================= */
 
 function renderFinal(
   slot,
@@ -360,9 +614,9 @@ function renderFinal(
 
 }
 
-// =========================
-// CONFETTI
-// =========================
+/* =========================
+   CONFETTI
+========================= */
 
 function burst(type){
 
@@ -495,3 +749,89 @@ function burst(type){
   }
 
 }
+
+/* =========================
+   PAGE CLEANUP
+========================= */
+
+function cleanupRoulette(){
+
+  clearTimeout(
+    spinTimeout
+  );
+
+  clearTimeout(
+    unlockTimeout
+  );
+
+  spinTimeout = null;
+
+  unlockTimeout = null;
+
+  setSpinning(false);
+
+  window.__isSpinning =
+    false;
+
+  document
+    .querySelectorAll(
+      ".coverflow"
+    )
+    .forEach(wrap => {
+
+      wrap.classList.remove(
+        "dragging",
+        "spinning-lock"
+      );
+
+      wrap._isProgrammatic =
+        false;
+
+      cancelAnimationFrame(
+        wrap._inertiaRAF
+      );
+
+      clearTimeout(
+        wrap._programmaticTimer
+      );
+
+    });
+
+  const spinBtn =
+    document.querySelector(
+      "#rouletteSection .spin-btn"
+    );
+
+  if(spinBtn){
+
+    spinBtn.disabled =
+      false;
+
+  }
+
+}
+
+window.addEventListener(
+  "pagehide",
+  cleanupRoulette
+);
+
+window.addEventListener(
+  "blur",
+  cleanupRoulette
+);
+
+document.addEventListener(
+  "visibilitychange",
+  ()=>{
+
+    if(
+      document.hidden
+    ){
+
+      cleanupRoulette();
+
+    }
+
+  }
+);

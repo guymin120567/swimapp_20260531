@@ -1,27 +1,112 @@
-.main-content{
-  position:relative;
-  z-index:1;
+/* css/layout.css */
+
+:root{
+
+  /* =========================
+     APP TYPOGRAPHY
+  ========================= */
+
+  --section-title-size:22px;
+
+  --card-title-size:13px;
+
+  --record-title-size:15px;
+
+  --record-date-size:12px;
+
 }
 
-.section{
+/* =========================
+   HTML
+========================= */
+
+html,
+body{
+
   width:100%;
-  position:relative;
-  z-index:1;
+  height:100%;
+
+  overflow:hidden;
+
+  overscroll-behavior:none;
+
 }
+
+body{
+  margin:0;
+}
+
+#app{
+
+  width:100%;
+  height:100dvh;
+
+  overflow:hidden;
+
+}
+
+.main-content{
+
+  position:relative;
+
+  z-index:1;
+
+  height:100%;
+
+  overflow:hidden;
+
+}
+
+/* =========================
+   SECTION
+========================= */
+
+.section{
+
+  overflow-y:auto;
+
+  min-height:0;
+
+  box-sizing:border-box;
+
+  padding:
+    calc(env(safe-area-inset-top) + 20px)
+    18px
+    120px;
+
+  -webkit-overflow-scrolling:touch;
+
+}
+
+/* =========================
+   BLOCK
+========================= */
 
 .block{
   margin-bottom:34px;
 }
 
+/* =========================
+   TITLE
+========================= */
+
 .section-title{
+
   margin-bottom:16px;
 
-  font-size:22px;
+  font-size:
+    var(--section-title-size);
+
   font-weight:800;
+
+  line-height:1.2;
+
+  letter-spacing:-0.03em;
+
 }
 
 /* =========================
-   SECTION HEADER
+   HEADER
 ========================= */
 
 .section-header{
@@ -31,6 +116,8 @@
   align-items:center;
 
   justify-content:space-between;
+
+  gap:12px;
 
 }
 
@@ -58,78 +145,16 @@
 
   cursor:pointer;
 
-}
+  flex-shrink:0;
 
-/* =========================
-   ADD MODAL
-========================= */
-
-.add-modal{
-
-  position:fixed;
-
-  inset:0;
-
-  z-index:999;
+  transition:
+    transform .14s ease,
+    opacity .14s ease;
 
 }
 
-.add-modal-backdrop{
-
-  position:absolute;
-
-  inset:0;
-
-  background:
-    rgba(0,0,0,.45);
-
-}
-
-.add-modal-sheet{
-
-  position:absolute;
-
-  left:50%;
-  bottom:120px;
-
-  width:min(520px,90vw);
-
-  transform:translateX(-50%);
-
-  border-radius:24px;
-}
-
-/* =========================
-   MODAL INPUTS
-========================= */
-
-.add-modal-sheet input{
-
-  width:100%;
-
-  margin-bottom:12px;
-
-}
-
-
-.add-modal[hidden]{display:none!important;}
-
-.add-modal-sheet{
-  max-width:520px;
-  margin:0 auto;
-  animation:sheetUp .18s ease;
-}
-
-.add-modal-header{
- display:flex;justify-content:space-between;align-items:center;
- margin-bottom:12px;
-}
-.modal-close-btn{
- border:none;background:none;font-size:24px;cursor:pointer;
-}
-@keyframes sheetUp{
- from{transform:translateY(24px);opacity:.7;}
- to{transform:translateY(0);opacity:1;}
+.add-mini-btn:active{
+  transform:scale(.94);
 }
 
 /* =========================
@@ -162,7 +187,8 @@
 
 .record-date{
 
-  font-size:12px;
+  font-size:
+    var(--record-date-size);
 
   color:#7c98ae;
 
@@ -172,11 +198,14 @@
 
 .record-row{
 
-  font-size:15px;
+  font-size:
+    var(--record-title-size);
 
   font-weight:700;
 
   margin:4px 0;
+
+  line-height:1.45;
 
 }
 
@@ -187,5 +216,167 @@
   text-align:center;
 
   color:#7c98ae;
+
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width:640px){
+
+  :root{
+
+    --section-title-size:20px;
+
+    --card-title-size:12px;
+
+    --record-title-size:14px;
+
+  }
+
+}
+
+/* =========================
+   ADD MODAL
+========================= */
+
+.add-modal{
+
+  position:fixed;
+
+  inset:0;
+
+  z-index:5000;
+
+}
+
+.add-modal[hidden]{
+
+  display:none!important;
+
+}
+
+.add-modal-backdrop{
+
+  position:absolute;
+
+  inset:0;
+
+  background:
+    rgba(0,0,0,.45);
+
+  backdrop-filter:
+    blur(2px);
+
+}
+
+.add-modal-sheet{
+
+  position:absolute;
+
+  left:50%;
+
+  bottom:120px;
+
+  width:min(520px,90vw);
+
+  max-width:520px;
+
+  transform:
+    translateX(-50%);
+
+  border-radius:24px;
+
+  margin:0 auto;
+
+  padding:20px;
+
+  background:white;
+
+  box-shadow:
+    0 20px 40px
+    rgba(0,0,0,.16);
+
+  animation:
+    sheetUp .18s ease;
+
+  box-sizing:border-box;
+
+}
+
+/* =========================
+   MODAL HEADER
+========================= */
+
+.add-modal-header{
+
+  display:flex;
+
+  justify-content:space-between;
+
+  align-items:center;
+
+  gap:12px;
+
+  margin-bottom:12px;
+
+}
+
+.modal-close-btn{
+
+  border:none;
+
+  background:none;
+
+  font-size:24px;
+
+  cursor:pointer;
+
+  padding:0;
+
+  line-height:1;
+
+}
+
+/* =========================
+   MODAL INPUT
+========================= */
+
+.add-modal-sheet input{
+
+  width:100%;
+
+  margin-bottom:12px;
+
+  box-sizing:border-box;
+
+}
+
+/* =========================
+   ANIMATION
+========================= */
+
+@keyframes sheetUp{
+
+  from{
+
+    transform:
+      translateX(-50%)
+      translateY(24px);
+
+    opacity:.7;
+
+  }
+
+  to{
+
+    transform:
+      translateX(-50%)
+      translateY(0);
+
+    opacity:1;
+
+  }
 
 }

@@ -5,19 +5,21 @@ import {
   setState
 } from "./state.js";
 
-// =========================
-// ITEMS
-// =========================
+/* =========================
+   ADD ITEM
+========================= */
 
-export function addItem(item){
+export function addItem(
+  item
+){
 
   const state =
     getState();
 
   setState({
 
-    items:[
-      ...(state.items || []),
+    items: [
+      ...state.items,
       item
     ]
 
@@ -25,129 +27,199 @@ export function addItem(item){
 
 }
 
-export function removeItem(id){
+/* =========================
+   REMOVE ITEM
+========================= */
+
+export function removeItem(
+  id
+){
 
   const state =
     getState();
 
+  const target =
+    state.items.find(
+      i => i.id === id
+    );
+
+  if(!target){
+    return;
+  }
+
   const nextItems =
-    (state.items || [])
-      .filter(
-        i => i.id !== id
-      );
+    state.items.filter(
+      i => i.id !== id
+    );
 
   const nextSelection = {
-
-    ...(state.selection || {})
-
+    ...state.selection
   };
 
-  const nextRouletteResult = {
-
-    ...(state.rouletteResult || {})
-
-  };
-
-  // =========================
-  // selection 정리
-  // =========================
+  /* =========================
+     FALLBACK SELECT
+  ========================= */
 
   if(
-    nextSelection.capId === id
+    target.type === "cap" &&
+    state.selection.capId === id
   ){
 
-    const firstCap =
-      nextItems.find(
+    const caps =
+      nextItems.filter(
         i => i.type === "cap"
       );
 
+    const removedIndex =
+      state.items
+        .filter(i => i.type === "cap")
+        .findIndex(
+          i => i.id === id
+        );
+
+    const fallback =
+      caps[
+        Math.max(
+          0,
+          removedIndex - 1
+        )
+      ] || caps[0];
+
     nextSelection.capId =
-      firstCap?.id || null;
+      fallback
+        ? fallback.id
+        : null;
 
   }
 
   if(
-    nextSelection.swimId === id
+    target.type === "swim" &&
+    state.selection.swimId === id
   ){
 
-    const firstSwim =
-      nextItems.find(
+    const swims =
+      nextItems.filter(
         i => i.type === "swim"
       );
 
+    const removedIndex =
+      state.items
+        .filter(i => i.type === "swim")
+        .findIndex(
+          i => i.id === id
+        );
+
+    const fallback =
+      swims[
+        Math.max(
+          0,
+          removedIndex - 1
+        )
+      ] || swims[0];
+
     nextSelection.swimId =
-      firstSwim?.id || null;
-
-  }
-
-  // =========================
-  // rouletteResult 정리
-  // =========================
-
-  if(
-    nextRouletteResult.capId === id
-  ){
-
-    nextRouletteResult.capId =
-      null;
-
-  }
-
-  if(
-    nextRouletteResult.swimId === id
-  ){
-
-    nextRouletteResult.swimId =
-      null;
+      fallback
+        ? fallback.id
+        : null;
 
   }
 
   setState({
 
-    items:nextItems,
+    items:
+      nextItems,
 
     selection:
-      nextSelection,
-
-    rouletteResult:
-      nextRouletteResult
+      nextSelection
 
   });
 
 }
 
-// =========================
-// SELECTION
-// =========================
+/* =========================
+   SELECT
+========================= */
 
-export function setSelected(type,id){
+export function setSelected(
+  type,
+  id
+){
 
   const state =
     getState();
 
-  setState({
+  const exists =
+    state.items.some(
+      i =>
+        i.id === id &&
+        i.type === type
+    );
 
-    selection:{
+  if(!exists){
+    return false;
+  }
 
-      ...(state.selection || {}),
+  /* =========================
+     CAP
+  ========================= */
 
-      ...(type === "cap"
-        ? { capId:id }
-        : {}),
+  if(type === "cap"){
 
-      ...(type === "swim"
-        ? { swimId:id }
-        : {})
-
+    if(
+      state.selection.capId === id
+    ){
+      return false;
     }
 
-  });
+    setState({
+
+      selection:{
+
+        ...state.selection,
+        capId:id
+
+      }
+
+    });
+
+    return true;
+
+  }
+
+  /* =========================
+     SWIM
+  ========================= */
+
+  if(type === "swim"){
+
+    if(
+      state.selection.swimId === id
+    ){
+      return false;
+    }
+
+    setState({
+
+      selection:{
+
+        ...state.selection,
+        swimId:id
+
+      }
+
+    });
+
+    return true;
+
+  }
+
+  return false;
 
 }
 
-// =========================
-// ROULETTE RESULT
-// =========================
+/* =========================
+   ROULETTE RESULT
+========================= */
 
 export function setRouletteResult(
   capId,
@@ -159,12 +231,11 @@ export function setRouletteResult(
 
   setState({
 
-    rouletteResult:{
+    rouletteResult: {
 
-      ...(state.rouletteResult || {}),
+      ...state.rouletteResult,
 
       capId,
-
       swimId
 
     }
@@ -173,20 +244,22 @@ export function setRouletteResult(
 
 }
 
-// =========================
-// SPINNING
-// =========================
+/* =========================
+   SPINNING
+========================= */
 
-export function setSpinning(value){
+export function setSpinning(
+  value
+){
 
   const state =
     getState();
 
   setState({
 
-    ui:{
+    ui: {
 
-      ...(state.ui || {}),
+      ...state.ui,
 
       isSpinning:value
 
@@ -196,9 +269,34 @@ export function setSpinning(value){
 
 }
 
-// =========================
-// RECORDS
-// =========================
+/* =========================
+   ACTIVE TAB
+========================= */
+
+export function setActiveTab(
+  tab
+){
+
+  const state =
+    getState();
+
+  setState({
+
+    ui: {
+
+      ...state.ui,
+
+      activeTab:tab
+
+    }
+
+  });
+
+}
+
+/* =========================
+   RECORD
+========================= */
 
 export function addRecord(
   capId,
@@ -208,46 +306,26 @@ export function addRecord(
   const state =
     getState();
 
-  const now =
-    Date.now();
+  const record = {
 
-  const sevenDays =
-    7 *
-    24 *
-    60 *
-    60 *
-    1000;
+    id:
+      Date.now().toString(),
 
-  const nextRecords = [
+    capId,
 
-    {
+    swimId,
 
-      id:String(now),
+    createdAt:
+      Date.now()
 
-      capId,
-
-      swimId,
-
-      createdAt:now
-
-    },
-
-    ...(state.records || [])
-
-  ].filter(
-
-    record =>
-
-      now -
-      record.createdAt <
-      sevenDays
-
-  );
+  };
 
   setState({
 
-    records:
-      nextRecords
+    records: [
+      record,
+      ...state.records
+    ]
 
   });
 

@@ -29,8 +29,18 @@ export function renderLayout(){
   <div class="add-modal-sheet">
 
     <div class="add-modal-header">
-      <div class="section-title">아이템 추가</div>
-      <button class="modal-close-btn" data-action="close-add">×</button>
+
+      <div class="section-title">
+        아이템 추가
+      </div>
+
+      <button
+        class="modal-close-btn"
+        data-action="close-add"
+      >
+        ×
+      </button>
+
     </div>
 
     <input
@@ -55,6 +65,7 @@ export function renderLayout(){
   </div>
 
 </div>
+
       <main class="main-content">
 
         <!-- =====================
@@ -84,60 +95,58 @@ export function renderLayout(){
 
           <!-- CAP -->
 
-<div class="block">
+          <div class="block">
 
-  <div class="section-header">
+            <div class="section-header">
 
-    <div class="section-title">
-      수모 리스트
-    </div>
+              <div class="section-title">
+                🧢 수모
+              </div>
 
-    <button
-      class="add-mini-btn"
-      data-action="open-add"
-      data-type="cap"
-    >
-      +
-    </button>
+              <button
+                class="add-floating-btn"
+                data-action="open-add"
+                data-type="cap"
+              >
+                +
+              </button>
 
-  </div>
+            </div>
 
-  <div
-    class="coverflow"
-    data-type="cap"
-  ></div>
-
-</div>
-
-          <!-- SWIM -->
-<div class="block">
-
-
-  <div class="section-header">
-
-    <div class="section-title">
-      수영복 리스트
-    </div>
-
-    <button
-      class="add-mini-btn"
-      data-action="open-add"
-      data-type="swim"
-    >
-      +
-    </button>
-
-  </div>
-
-  <div
-    class="coverflow"
-    data-type="swim"
-  ></div>
-
-</div></div>
+            <div
+              class="coverflow"
+              data-type="cap"
+            ></div>
 
           </div>
-          
+
+          <!-- SWIM -->
+
+          <div class="block">
+
+            <div class="section-header">
+
+              <div class="section-title">
+                🩳 수영복
+              </div>
+
+              <button
+                class="add-floating-btn"
+                data-action="open-add"
+                data-type="swim"
+              >
+                +
+              </button>
+
+            </div>
+
+            <div
+              class="coverflow"
+              data-type="swim"
+            ></div>
+
+          </div>
+
         </section>
 
         <!-- =====================
