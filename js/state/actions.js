@@ -4,7 +4,7 @@ import {
 
   getState,
 
-  setState
+  dispatch
 
 } from "./state.js";
 
@@ -69,18 +69,13 @@ function findFallbackItem(
 
 export function addItem(item){
 
-  const state =
-    getState();
+  dispatch({
 
-  setState({
+    type:
+      "ADD_ITEM",
 
-    items: [
-
-      ...state.items,
-
+    payload:
       item
-
-    ]
 
   });
 
@@ -199,16 +194,23 @@ export function removeItem(id){
 
   }
 
-  setState({
+  dispatch({
 
-    items:
-      nextItems,
+    type:
+      "REMOVE_ITEM",
 
-    selection:
-      nextSelection,
+    payload: {
 
-    rouletteResult:
-      nextRouletteResult
+      items:
+        nextItems,
+
+      selection:
+        nextSelection,
+
+      rouletteResult:
+        nextRouletteResult
+
+    }
 
   });
 
@@ -257,9 +259,12 @@ export function setSelected(
       return false;
     }
 
-    setState({
+    dispatch({
 
-      selection: {
+      type:
+        "SET_SELECTION",
+
+      payload: {
 
         capId:id
 
@@ -283,9 +288,12 @@ export function setSelected(
       return false;
     }
 
-    setState({
+    dispatch({
 
-      selection: {
+      type:
+        "SET_SELECTION",
+
+      payload: {
 
         swimId:id
 
@@ -310,9 +318,12 @@ export function setRouletteResult(
   swimId
 ){
 
-  setState({
+  dispatch({
 
-    rouletteResult: {
+    type:
+      "SET_ROULETTE_RESULT",
+
+    payload: {
 
       capId,
 
@@ -332,9 +343,12 @@ export function setSpinning(
   value
 ){
 
-  setState({
+  dispatch({
 
-    runtime: {
+    type:
+      "SET_RUNTIME",
+
+    payload: {
 
       isSpinning:value
 
@@ -352,9 +366,12 @@ export function setDragging(
   value
 ){
 
-  setState({
+  dispatch({
 
-    runtime: {
+    type:
+      "SET_RUNTIME",
+
+    payload: {
 
       isDragging:value
 
@@ -372,9 +389,12 @@ export function setActiveTab(
   tab
 ){
 
-  setState({
+  dispatch({
 
-    ui: {
+    type:
+      "SET_UI",
+
+    payload: {
 
       activeTab:tab
 
@@ -392,9 +412,12 @@ export function setActiveItem(
   id
 ){
 
-  setState({
+  dispatch({
 
-    ui: {
+    type:
+      "SET_UI",
+
+    payload: {
 
       activeItemId:id
 
@@ -413,9 +436,6 @@ export function addRecord(
   swimId
 ){
 
-  const state =
-    getState();
-
   const record = {
 
     id:
@@ -430,15 +450,13 @@ export function addRecord(
 
   };
 
-  setState({
+  dispatch({
 
-    records: [
+    type:
+      "ADD_RECORD",
 
-      record,
-
-      ...state.records
-
-    ]
+    payload:
+      record
 
   });
 
