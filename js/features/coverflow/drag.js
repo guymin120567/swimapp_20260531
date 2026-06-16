@@ -351,7 +351,7 @@ export function scrollToCard(wrap, card, smooth = true) {
    SNAP
 ========================= */
 
-function snapToNearestCard(wrap) {
+export function snapToNearestCard(wrap) {
   const center = findCenterCard(wrap);
   if (!center) return;
 
