@@ -51,6 +51,9 @@
 
   scrollbar-width:none;
 
+  contain:
+    layout paint style;
+
 }
 
 .coverflow::-webkit-scrollbar{
@@ -147,7 +150,7 @@
 }
 
 /* =========================
-   공통 카드 프레임
+   CARD FRAME
 ========================= */
 
 .card-frame{
@@ -187,6 +190,14 @@
 
   box-sizing:border-box;
 
+  contain:
+    layout paint style;
+
+  transform:
+    translateZ(0);
+
+  backface-visibility:hidden;
+
 }
 
 /* =========================
@@ -221,6 +232,9 @@
     scale(.6);
 
   pointer-events:none;
+
+  contain:
+    layout paint style;
 
 }
 
@@ -359,8 +373,7 @@
 }
 
 /* =========================
-   리스트 / 룰렛 공통 이미지
-   정사각형 유지
+   MEDIA
 ========================= */
 
 .card-media,
@@ -395,19 +408,12 @@
       #edf7ff
     );
 
-}
-
-/* =========================
-   이미지 안정성
-========================= */
-
-.card-image,
-.roulette-image{
-
   transform:
     translateZ(0);
 
   backface-visibility:hidden;
+
+  image-rendering:auto;
 
 }
 
@@ -605,31 +611,6 @@
 }
 
 /* =========================
-   MOBILE
-========================= */
-
-@media (max-width:640px){
-
-  :root{
-
-    --cover-card-width:152px;
-
-    --cover-card-title-size:12px;
-
-  }
-
-  .coverflow{
-
-    gap:12px;
-
-    padding:
-      10px 0 24px;
-
-  }
-
-}
-
-/* =========================
    COUNTER
 ========================= */
 
@@ -667,6 +648,10 @@
 
 }
 
+/* =========================
+   TRACK
+========================= */
+
 .coverflow-track{
 
   -webkit-user-select:none;
@@ -674,6 +659,10 @@
   -webkit-touch-callout:none;
 
 }
+
+/* =========================
+   SIMPLE
+========================= */
 
 .coverflow.is-simple{
 
@@ -704,7 +693,7 @@
 }
 
 /* =========================
-   ROULETTE 공통 카드 연동
+   ROULETTE
 ========================= */
 
 .roulette-card{
@@ -724,13 +713,26 @@
 }
 
 /* =========================
-   성능 안정화
+   MOBILE
 ========================= */
 
-.coverflow,
-.cover-card,
-.card-frame{
+@media (max-width:640px){
 
-  contain:layout paint style;
+  :root{
+
+    --cover-card-width:152px;
+
+    --cover-card-title-size:12px;
+
+  }
+
+  .coverflow{
+
+    gap:12px;
+
+    padding:
+      10px 0 24px;
+
+  }
 
 }
