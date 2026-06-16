@@ -40,6 +40,9 @@
 
   overflow:hidden;
 
+  contain:
+    layout paint style;
+
 }
 
 /* =========================
@@ -62,6 +65,9 @@
     calc(env(safe-area-inset-top) + 26px)
     18px
     120px;
+
+  contain:
+    layout paint style;
 
 }
 
@@ -95,6 +101,8 @@
     var(--cover-card-width);
 
   margin:0 auto;
+
+  flex:0 0 auto;
 
 }
 
@@ -137,6 +145,19 @@
   backdrop-filter:
     blur(10px);
 
+  contain:
+    layout paint style;
+
+  will-change:
+    transform,
+    opacity;
+
+}
+
+.roulette-card.card-frame{
+
+  aspect-ratio:1/1;
+
 }
 
 /* =========================
@@ -152,6 +173,8 @@
 
   object-fit:contain !important;
 
+  object-position:center;
+
   background:
     linear-gradient(
       180deg,
@@ -160,6 +183,13 @@
     );
 
   padding:8px;
+
+  transform:
+    translateZ(0);
+
+  backface-visibility:hidden;
+
+  image-rendering:auto;
 
 }
 
@@ -504,6 +534,9 @@
     transform .18s ease,
     opacity .18s ease;
 
+  transform:
+    translateZ(0);
+
 }
 
 .roulette-page .spin-btn:active{
@@ -550,6 +583,10 @@
 
   animation:
     confettiBurst 1.8s ease-out forwards;
+
+  will-change:
+    transform,
+    opacity;
 
 }
 
