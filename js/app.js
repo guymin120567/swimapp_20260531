@@ -1,3 +1,5 @@
+// js/app.js
+
 import {
   initController
 } from "./core/controller.js";
@@ -34,43 +36,52 @@ window.addEventListener(
 
     if(app){
 
-      app.classList.add(
-        "show"
-      );
-
-    }
-
-    requestAnimationFrame(()=>{
-
       requestAnimationFrame(()=>{
 
-        if(
-          window.requestIdleCallback
-        ){
-
-          requestIdleCallback(
-            ()=>hideSplash()
-          );
-
-        }else{
-
-          setTimeout(
-            ()=>hideSplash(),
-            120
-          );
-
-        }
+        app.classList.add(
+          "show"
+        );
 
       });
 
-    });
+    }
+
+    if(
+      window.requestIdleCallback
+    ){
+
+      requestIdleCallback(
+        ()=>{
+
+          requestAnimationFrame(()=>{
+
+            hideSplash();
+
+          });
+
+        }
+      );
+
+    }else{
+
+      setTimeout(()=>{
+
+        requestAnimationFrame(()=>{
+
+          hideSplash();
+
+        });
+
+      },120);
+
+    }
 
   }
 );
 
-// =========================
-// SPLASH
-// =========================
+/* =========================
+   SPLASH
+========================= */
 
 function showSplash(){
 
@@ -79,18 +90,22 @@ function showSplash(){
       "splash"
     );
 
-  if(!el) return;
+  if(!el){
+    return;
+  }
 
   el.classList.remove(
     "hide"
   );
 
-  el.style.opacity = "1";
+  el.style.opacity =
+    "1";
+
 }
 
-// =========================
-// HIDE
-// =========================
+/* =========================
+   HIDE
+========================= */
 
 function hideSplash(){
 
@@ -99,15 +114,23 @@ function hideSplash(){
       "splash"
     );
 
-  if(!el) return;
+  if(!el){
+    return;
+  }
 
   el.classList.add(
     "hide"
   );
 
-  setTimeout(()=>{
+  clearTimeout(
+    window.__splashRemoveTimer
+  );
 
-    el.remove();
+  window.__splashRemoveTimer =
+    setTimeout(()=>{
 
-  },600);
+      el.remove();
+
+    },600);
+
 }
