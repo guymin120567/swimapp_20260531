@@ -1,13 +1,17 @@
-// =========================
-// STORAGE
-// =========================
+// js/state/state.js
 
-const STORAGE_KEY =
-  "swim-roulette-state";
+import {
+  reducer
+} from "./reducer.js";
 
-// =========================
-// DEFAULT
-// =========================
+import {
+  loadPersistState,
+  savePersistState
+} from "./persist.js";
+
+/* =========================
+   DEFAULT
+========================= */
 
 export const defaultState = {
 
@@ -52,7 +56,9 @@ export const defaultState = {
 
     activeTab: "roulette",
 
-    activeItemId: null
+    activeItemId: null,
+
+    isSpinning: false
 
   },
 
@@ -71,9 +77,9 @@ export const defaultState = {
 
 };
 
-// =========================
-// HELPERS
-// =========================
+/* =========================
+   CLONE
+========================= */
 
 function cloneDefault(){
 
@@ -83,96 +89,21 @@ function cloneDefault(){
 
 }
 
-// =========================
-// LOAD
-// =========================
-
-function loadState(){
-
-  try{
-
-    const saved =
-      localStorage.getItem(
-        STORAGE_KEY
-      );
-
-    if(!saved){
-
-      return cloneDefault();
-
-    }
-
-    const parsed =
-      JSON.parse(saved);
-
-    const base =
-      cloneDefault();
-
-    return {
-
-      ...base,
-
-      ...parsed,
-
-      selection: {
-
-        ...base.selection,
-
-        ...(parsed.selection || {})
-
-      },
-
-      rouletteResult: {
-
-        ...base.rouletteResult,
-
-        ...(parsed.rouletteResult || {})
-
-      },
-
-      ui: {
-
-        ...base.ui,
-
-        ...(parsed.ui || {})
-
-      },
-
-      // runtime은 저장값 무시
-      runtime: {
-
-        ...base.runtime
-
-      }
-
-    };
-
-  }catch(err){
-
-    console.error(
-      "state load fail",
-      err
-    );
-
-    return cloneDefault();
-
-  }
-
-}
-
-// =========================
-// STATE
-// =========================
+/* =========================
+   STATE
+========================= */
 
 let state =
-  loadState();
+  loadPersistState(
+    cloneDefault()
+  );
 
 const listeners =
   new Set();
 
-// =========================
-// GET
-// =========================
+/* =========================
+   GET
+========================= */
 
 export function getState(){
 
@@ -180,9 +111,9 @@ export function getState(){
 
 }
 
-// =========================
-// SUBSCRIBE
-// =========================
+/* =========================
+   SUBSCRIBE
+========================= */
 
 export function subscribe(fn){
 
@@ -196,112 +127,65 @@ export function subscribe(fn){
 
 }
 
-// =========================
-// SAVE
-// =========================
-
-function saveState(){
-
-  try{
-
-    // ====================
-    // runtime 제외 저장
-    // ====================
-
-    const {
-
-      runtime,
-
-      ...persistState
-
-    } = state;
-
-    localStorage.setItem(
-
-      STORAGE_KEY,
-
-      JSON.stringify(
-        persistState
-      )
-
-    );
-
-  }catch(err){
-
-    console.error(
-
-      "state save fail",
-
-      err
-
-    );
-
-  }
-
-}
-
-// =========================
-// EMIT
-// =========================
+/* =========================
+   EMIT
+========================= */
 
 function emit(){
 
   listeners.forEach(
-
     fn => fn(state)
-
   );
 
 }
 
-// =========================
-// SET
-// =========================
+/* =========================
+   DISPATCH
+========================= */
 
-export function setState(partial = {}){
+export function dispatch(
+  action
+){
 
-  state = {
+  const nextState =
+    reducer(
+      state,
+      action
+    );
 
-    ...state,
+  if(
+    nextState === state
+  ){
+    return;
+  }
 
-    ...partial,
+  state =
+    nextState;
 
-    selection: {
-
-      ...state.selection,
-
-      ...(partial.selection || {})
-
-    },
-
-    rouletteResult: {
-
-      ...state.rouletteResult,
-
-      ...(partial.rouletteResult || {})
-
-    },
-
-    ui: {
-
-      ...state.ui,
-
-      ...(partial.ui || {})
-
-    },
-
-    runtime: {
-
-      ...state.runtime,
-
-      ...(partial.runtime || {})
-
-    }
-
-  };
-
-  saveState();
+  savePersistState(
+    state
+  );
 
   emit();
+
+}
+
+/* =========================
+   LEGACY
+========================= */
+
+export function setState(
+  partial = {}
+){
+
+  dispatch({
+
+    type:
+      "SET_STATE",
+
+    payload:
+      partial
+
+  });
 
 }
