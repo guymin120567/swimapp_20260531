@@ -326,7 +326,7 @@ function findCenterCard(wrap) {
    SCROLL TO CARD
 ========================= */
 
-function scrollToCard(wrap, card, smooth = true) {
+export function scrollToCard(wrap, card, smooth = true) {
   const cards = getCoverflowCards(wrap);
   if (cards.length <= 2) return;
 
