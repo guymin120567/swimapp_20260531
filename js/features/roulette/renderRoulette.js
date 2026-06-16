@@ -28,7 +28,7 @@ export function renderRoulette(){
   */
 
   if(
-    state.ui?.isSpinning &&
+    state.runtime?.isSpinning &&
     target.innerHTML.trim()
   ){
     return;
@@ -54,6 +54,35 @@ export function renderRoulette(){
         i.id ===
         state.rouletteResult?.swimId
     ) || null;
+
+  const signature =
+    JSON.stringify({
+
+      capId:
+        cap?.id || null,
+
+      swimId:
+        swim?.id || null
+
+    });
+
+  if(
+    target.dataset.signature ===
+    signature
+  ){
+
+    requestAnimationFrame(()=>{
+
+      syncRouletteCardSize();
+
+    });
+
+    return;
+
+  }
+
+  target.dataset.signature =
+    signature;
 
   target.innerHTML = `
 
@@ -203,6 +232,11 @@ export function renderRoulette(){
         class="spin-btn"
         data-action="spin"
         type="button"
+        ${
+          state.runtime?.isSpinning
+            ? "disabled"
+            : ""
+        }
       >
         오늘 뭐 입지 ?
       </button>
@@ -285,10 +319,6 @@ function syncRouletteCardSize(){
     card.style.width =
       `${width}px`;
 
-    /*
-      정사각형 유지
-    */
-
     card.style.aspectRatio =
       "1 / 1";
 
@@ -331,11 +361,6 @@ function syncRouletteCardSize(){
 
     media.style.height =
       "100%";
-
-    /*
-      리스트와 동일하게
-      정사각형 contain
-    */
 
     media.style.objectFit =
       "contain";
