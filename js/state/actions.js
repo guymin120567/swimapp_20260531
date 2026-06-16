@@ -8,6 +8,10 @@ import {
 
 } from "./state.js";
 
+import {
+  enqueueRender
+} from "../render/renderQueue.js";
+
 /* =========================
    HELPERS
 ========================= */
@@ -78,6 +82,10 @@ export function addItem(item){
       item
 
   });
+
+  enqueueRender(
+    "coverflow"
+  );
 
 }
 
@@ -214,6 +222,14 @@ export function removeItem(id){
 
   });
 
+  enqueueRender(
+    "coverflow"
+  );
+
+  enqueueRender(
+    "roulette"
+  );
+
   return true;
 
 }
@@ -272,6 +288,10 @@ export function setSelected(
 
     });
 
+    enqueueRender(
+      "coverflow"
+    );
+
     return true;
 
   }
@@ -300,6 +320,10 @@ export function setSelected(
       }
 
     });
+
+    enqueueRender(
+      "coverflow"
+    );
 
     return true;
 
@@ -333,6 +357,10 @@ export function setRouletteResult(
 
   });
 
+  enqueueRender(
+    "roulette"
+  );
+
 }
 
 /* =========================
@@ -355,6 +383,14 @@ export function setSpinning(
     }
 
   });
+
+  enqueueRender(
+    "coverflow"
+  );
+
+  enqueueRender(
+    "roulette"
+  );
 
 }
 
