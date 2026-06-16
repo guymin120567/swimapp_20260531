@@ -11,9 +11,17 @@ const STORAGE_KEY =
 
 export const defaultState = {
 
+  // ======================
+  // DATA
+  // ======================
+
   items: [],
 
   records: [],
+
+  // ======================
+  // SELECTION
+  // ======================
 
   selection: {
 
@@ -23,6 +31,10 @@ export const defaultState = {
 
   },
 
+  // ======================
+  // RESULT
+  // ======================
+
   rouletteResult: {
 
     capId: null,
@@ -31,51 +43,121 @@ export const defaultState = {
 
   },
 
+  // ======================
+  // UI
+  // persist 대상
+  // ======================
+
   ui: {
 
     activeTab: "roulette",
 
-    activeItemId: null,
+    activeItemId: null
 
-    isSpinning: false
+  },
+
+  // ======================
+  // RUNTIME
+  // persist 제외 대상
+  // ======================
+
+  runtime: {
+
+    isSpinning: false,
+
+    isDragging: false
 
   }
 
 };
 
 // =========================
+// HELPERS
+// =========================
+
+function cloneDefault(){
+
+  return structuredClone(
+    defaultState
+  );
+
+}
+
+// =========================
 // LOAD
 // =========================
 
-function loadState() {
+function loadState(){
 
-  try {
+  try{
 
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved =
+      localStorage.getItem(
+        STORAGE_KEY
+      );
 
-    if (!saved) {
-      return structuredClone(defaultState);
+    if(!saved){
+
+      return cloneDefault();
+
     }
 
-    const parsed = JSON.parse(saved);
+    const parsed =
+      JSON.parse(saved);
+
+    const base =
+      cloneDefault();
 
     return {
-      ...structuredClone(defaultState),
+
+      ...base,
+
       ...parsed,
+
+      selection: {
+
+        ...base.selection,
+
+        ...(parsed.selection || {})
+
+      },
+
+      rouletteResult: {
+
+        ...base.rouletteResult,
+
+        ...(parsed.rouletteResult || {})
+
+      },
+
       ui: {
-        ...structuredClone(defaultState).ui,
-        ...(parsed.ui || {}),
-        isSpinning: false
+
+        ...base.ui,
+
+        ...(parsed.ui || {})
+
+      },
+
+      // runtime은 저장값 무시
+      runtime: {
+
+        ...base.runtime
+
       }
+
     };
 
-  } catch (err) {
+  }catch(err){
 
-    console.error("state load fail", err);
+    console.error(
+      "state load fail",
+      err
+    );
 
-    return structuredClone(defaultState);
+    return cloneDefault();
 
   }
+
 }
 
 // =========================
@@ -122,19 +204,36 @@ function saveState(){
 
   try{
 
+    // ====================
+    // runtime 제외 저장
+    // ====================
+
+    const {
+
+      runtime,
+
+      ...persistState
+
+    } = state;
+
     localStorage.setItem(
 
       STORAGE_KEY,
 
-      JSON.stringify(state)
+      JSON.stringify(
+        persistState
+      )
 
     );
 
   }catch(err){
 
     console.error(
+
       "state save fail",
+
       err
+
     );
 
   }
@@ -148,7 +247,9 @@ function saveState(){
 function emit(){
 
   listeners.forEach(
+
     fn => fn(state)
+
   );
 
 }
@@ -157,7 +258,7 @@ function emit(){
 // SET
 // =========================
 
-export function setState(partial){
+export function setState(partial = {}){
 
   state = {
 
@@ -186,6 +287,14 @@ export function setState(partial){
       ...state.ui,
 
       ...(partial.ui || {})
+
+    },
+
+    runtime: {
+
+      ...state.runtime,
+
+      ...(partial.runtime || {})
 
     }
 
