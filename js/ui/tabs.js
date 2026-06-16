@@ -1,8 +1,14 @@
 // js/ui/tabs.js
 
 import {
-  getState
+  getState,
+  subscribe
 } from "../state/state.js";
+
+import {
+  setActiveTab,
+  setSpinning
+} from "../state/actions.js";
 
 import {
   renderRecords
@@ -63,7 +69,16 @@ export function initTabs(){
     }
   );
 
-  activateTab(
+  subscribe(state => {
+
+    syncTabs(
+      state.ui?.activeTab
+    );
+
+  });
+
+  syncTabs(
+    getState().ui?.activeTab ||
     "roulette"
   );
 
@@ -93,7 +108,7 @@ function handleTabClick(e){
     );
 
   const actuallySpinning =
-    state.ui?.isSpinning === true &&
+    state.runtime?.isSpinning === true &&
     hasSpinningDOM;
 
   if(actuallySpinning){
@@ -106,8 +121,18 @@ function handleTabClick(e){
 
   }
 
-  activateTab(
-    button.dataset.tab
+  const nextTab =
+    button.dataset.tab;
+
+  if(
+    state.ui?.activeTab ===
+    nextTab
+  ){
+    return;
+  }
+
+  setActiveTab(
+    nextTab
   );
 
 }
@@ -123,41 +148,53 @@ function cleanupSpinState(){
       ".coverflow.spinning-lock"
     );
 
-  if(!spinning){
-
-    document
-      .querySelectorAll(
-        ".coverflow"
-      )
-      .forEach(flow => {
-
-        flow.classList.remove(
-          "spinning-lock",
-          "dragging"
-        );
-
-        cancelAnimationFrame(
-          flow._spinRAF
-        );
-
-        cancelAnimationFrame(
-          flow._inertiaRAF
-        );
-
-        flow._isSpinning =
-          false;
-
-      });
-
+  if(spinning){
+    return;
   }
+
+  document
+    .querySelectorAll(
+      ".coverflow"
+    )
+    .forEach(flow => {
+
+      flow.classList.remove(
+        "spinning-lock",
+        "dragging"
+      );
+
+      cancelAnimationFrame(
+        flow._spinRAF
+      );
+
+      cancelAnimationFrame(
+        flow._inertiaRAF
+      );
+
+      clearTimeout(
+        flow._programmaticTimer
+      );
+
+      flow._isSpinning =
+        false;
+
+      flow._isProgrammatic =
+        false;
+
+      flow._isInertia =
+        false;
+
+    });
+
+  setSpinning(false);
 
 }
 
 /* =========================
-   ACTIVATE
+   SYNC
 ========================= */
 
-function activateTab(type){
+function syncTabs(type){
 
   const tabs =
     document.querySelectorAll(
