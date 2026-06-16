@@ -98,24 +98,20 @@ export async function spinAll(){
   }
 
   /* =========================
-     PREPARE SLOT
+     GLOBAL LOCK
   ========================= */
 
-  prepareSpinSlot(
-    capSlot
+  document.body.classList.add(
+    "roulette-spinning"
   );
-
-  prepareSpinSlot(
-    swimSlot
-  );
-
-  /* =========================
-     CLEAR INERTIA
-  ========================= */
 
   document
     .querySelectorAll(".coverflow")
     .forEach(wrap => {
+
+      wrap.classList.add(
+        "spinning-lock"
+      );
 
       cancelAnimationFrame(
         wrap._inertiaRAF
@@ -128,11 +124,26 @@ export async function spinAll(){
       wrap._isProgrammatic =
         false;
 
+      wrap._isInertia =
+        false;
+
       wrap.classList.remove(
         "dragging"
       );
 
     });
+
+  /* =========================
+     PREPARE SLOT
+  ========================= */
+
+  prepareSpinSlot(
+    capSlot
+  );
+
+  prepareSpinSlot(
+    swimSlot
+  );
 
   setSpinning(true);
 
@@ -325,18 +336,10 @@ export async function spinAll(){
 
     burst("swim");
 
-    /* =========================
-       RESULT
-    ========================= */
-
     setRouletteResult(
       finalCap.id,
       finalSwim.id
     );
-
-    /* =========================
-       SYNC SELECTED
-    ========================= */
 
     const changedCap =
       setSelected(
@@ -355,10 +358,6 @@ export async function spinAll(){
       finalSwim.id
     );
 
-    /* =========================
-       UNLOCK
-    ========================= */
-
     unlockTimeout =
       setTimeout(()=>{
 
@@ -373,6 +372,10 @@ export async function spinAll(){
           "winner"
         );
 
+        document.body.classList.remove(
+          "roulette-spinning"
+        );
+
         document
           .querySelectorAll(
             ".coverflow"
@@ -385,6 +388,9 @@ export async function spinAll(){
             );
 
             wrap._isProgrammatic =
+              false;
+
+            wrap._isInertia =
               false;
 
             cancelAnimationFrame(
@@ -485,10 +491,6 @@ function updateSlot(
       ".roulette-placeholder"
     );
 
-  /* =========================
-     IMAGE MODE
-  ========================= */
-
   if(hasImage){
 
     if(!img){
@@ -533,13 +535,7 @@ function updateSlot(
     img.alt =
       item.name;
 
-  }
-
-  /* =========================
-     PLACEHOLDER MODE
-  ========================= */
-
-  else{
+  }else{
 
     if(!placeholder){
 
@@ -701,13 +697,12 @@ function burst(type){
       `${dy}px`
     );
 
-    const lift =
-      120 +
-      Math.random() * 180;
-
     el.style.setProperty(
       "--lift",
-      `${lift}px`
+      `${
+        120 +
+        Math.random() * 180
+      }px`
     );
 
     el.style.setProperty(
@@ -763,6 +758,10 @@ function cleanupRoulette(){
 
   unlockTimeout = null;
 
+  document.body.classList.remove(
+    "roulette-spinning"
+  );
+
   setSpinning(false);
 
   document
@@ -777,6 +776,9 @@ function cleanupRoulette(){
       );
 
       wrap._isProgrammatic =
+        false;
+
+      wrap._isInertia =
         false;
 
       cancelAnimationFrame(
