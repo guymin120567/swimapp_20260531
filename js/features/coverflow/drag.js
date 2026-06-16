@@ -8,6 +8,14 @@ import {
   setSelected
 } from "../../state/actions.js";
 
+import {
+  queueRender
+} from "../../render/renderQueue.js";
+
+import {
+  getCoverflowCards
+} from "../../shared/domCache.js";
+
 /* =========================
    BIND
 ========================= */
@@ -95,174 +103,60 @@ export function bindDrag(){
     wrap._depthTicking =
       false;
 
-// drag.js 내부 수정
+    /* =========================
+       CLEANUP
+    ========================= */
 
-/* =========================
-   CLEANUP
-========================= */
+    function cleanupDrag(){
 
-function cleanupDrag(){
+      isDown = false;
 
-  isDown = false;
+      moved = false;
 
-  moved = false;
+      hasMoved = false;
 
-  hasMoved = false;
+      velocity = 0;
 
-  velocity = 0;
+      downCard = null;
 
-  downCard = null;
+      wrap.dataset.dragMoved =
+        "false";
 
-  wrap.dataset.dragMoved =
-    "false";
+      if(
+        activePointerId !== null
+      ){
 
-  if(
-    activePointerId !== null
-  ){
+        try{
 
-    try{
+          wrap.releasePointerCapture(
+            activePointerId
+          );
 
-      wrap.releasePointerCapture(
-        activePointerId
+        }catch(err){}
+
+      }
+
+      activePointerId = null;
+
+      wrap.classList.remove(
+        "dragging"
       );
 
-    }catch(err){}
+    }
 
-  }
+    /* =========================
+       POINTER LEAVE FIX
+    ========================= */
 
-  activePointerId = null;
+    function forceEndDrag(){
 
-  wrap.classList.remove(
-    "dragging"
-  );
+      if(!isDown){
+        return;
+      }
 
-}
+      endDrag();
 
-/* =========================
-   POINTER LEAVE FIX
-========================= */
-
-function forceEndDrag(){
-
-  if(!isDown){
-    return;
-  }
-
-  endDrag();
-
-}
-
-/* =========================
-   POINTER EVENTS
-========================= */
-
-wrap.addEventListener(
-  "pointerdown",
-  onDown
-);
-
-wrap.addEventListener(
-  "pointermove",
-  onMove,
-  {
-    passive:false
-  }
-);
-
-wrap.addEventListener(
-  "pointerup",
-  endDrag
-);
-
-wrap.addEventListener(
-  "pointercancel",
-  forceEndDrag
-);
-
-/*
-  핵심 수정
-  영역 벗어나도 drag 유지
-*/
-
-wrap.addEventListener(
-  "lostpointercapture",
-  forceEndDrag
-);
-
-window.addEventListener(
-  "pointerup",
-  endDrag
-);
-
-window.addEventListener(
-  "mouseup",
-  endDrag
-);
-
-/*
-  모바일 브라우저
-  스와이프 이탈 대응
-*/
-
-window.addEventListener(
-  "touchend",
-  endDrag,
-  {
-    passive:true
-  }
-);
-
-window.addEventListener(
-  "touchcancel",
-  forceEndDrag,
-  {
-    passive:true
-  }
-);
-
-window.addEventListener(
-  "blur",
-  forceEndDrag
-);
-
-window.addEventListener(
-  "pagehide",
-  forceEndDrag
-);
-
-/* =========================
-   REMOVE EVENTS
-========================= */
-
-wrap._dragCleanup =
-  () => {
-
-    wrap.removeEventListener(
-      "pointerdown",
-      onDown
-    );
-
-    wrap.removeEventListener(
-      "pointermove",
-      onMove
-    );
-
-    wrap.removeEventListener(
-      "pointerup",
-      endDrag
-    );
-
-    wrap.removeEventListener(
-      "pointercancel",
-      forceEndDrag
-    );
-
-    wrap.removeEventListener(
-      "lostpointercapture",
-      forceEndDrag
-    );
-
-  };
+    }
 
     /* =========================
        SIMPLE MODE
@@ -271,15 +165,15 @@ wrap._dragCleanup =
     function isSimpleMode(){
 
       return (
-        wrap.querySelectorAll(
-          ".cover-card"
+        getCoverflowCards(
+          wrap
         ).length <= 2
       );
 
     }
 
     /* =========================
-       SIMPLE MODE CLICK
+       SIMPLE CLICK
     ========================= */
 
     function handleSimpleModeClick(
@@ -304,7 +198,7 @@ wrap._dragCleanup =
 
       if(changed){
 
-        requestAnimationFrame(()=>{
+        queueRender(()=>{
 
           updateDepth(
             wrap
@@ -338,7 +232,7 @@ wrap._dragCleanup =
       }
 
       if(
-        getState().ui?.isSpinning
+        getState().runtime?.isSpinning
       ){
         return;
       }
@@ -605,7 +499,7 @@ wrap._dragCleanup =
           targetCard
         );
 
-        requestAnimationFrame(()=>{
+        queueRender(()=>{
 
           updateDepth(
             wrap
@@ -620,7 +514,7 @@ wrap._dragCleanup =
       }
 
       /* =========================
-         DRAG SNAP FIX
+         DRAG SNAP
       ========================= */
 
       const centerCard =
@@ -652,7 +546,7 @@ wrap._dragCleanup =
     }
 
     /* =========================
-       POINTER EVENTS
+       EVENTS
     ========================= */
 
     wrap.addEventListener(
@@ -675,7 +569,12 @@ wrap._dragCleanup =
 
     wrap.addEventListener(
       "pointercancel",
-      cleanupDrag
+      forceEndDrag
+    );
+
+    wrap.addEventListener(
+      "lostpointercapture",
+      forceEndDrag
     );
 
     window.addEventListener(
@@ -689,13 +588,29 @@ wrap._dragCleanup =
     );
 
     window.addEventListener(
+      "touchend",
+      endDrag,
+      {
+        passive:true
+      }
+    );
+
+    window.addEventListener(
+      "touchcancel",
+      forceEndDrag,
+      {
+        passive:true
+      }
+    );
+
+    window.addEventListener(
       "blur",
-      cleanupDrag
+      forceEndDrag
     );
 
     window.addEventListener(
       "pagehide",
-      cleanupDrag
+      forceEndDrag
     );
 
     /* =========================
@@ -722,7 +637,12 @@ wrap._dragCleanup =
 
         wrap.removeEventListener(
           "pointercancel",
-          cleanupDrag
+          forceEndDrag
+        );
+
+        wrap.removeEventListener(
+          "lostpointercapture",
+          forceEndDrag
         );
 
       };
@@ -784,14 +704,14 @@ wrap._dragCleanup =
     );
 
     /* =========================
-       INITIALIZE
+       INIT
     ========================= */
 
-    requestAnimationFrame(()=>{
+    queueRender(()=>{
 
       const cards =
-        wrap.querySelectorAll(
-          ".cover-card"
+        getCoverflowCards(
+          wrap
         );
 
       if(
@@ -838,15 +758,15 @@ export function scrollToCard(
   }
 
   const cards =
-    wrap.querySelectorAll(
-      ".cover-card"
+    getCoverflowCards(
+      wrap
     );
 
   if(
     cards.length <= 2
   ){
 
-    requestAnimationFrame(()=>{
+    queueRender(()=>{
 
       updateDepth(
         wrap
@@ -922,7 +842,7 @@ export function scrollToCard(
 
       }
 
-      requestAnimationFrame(()=>{
+      queueRender(()=>{
 
         updateDepth(
           wrap
@@ -947,17 +867,16 @@ export function snapToNearestCard(
     return;
   }
 
-  const cards = [
-    ...wrap.querySelectorAll(
-      ".cover-card"
-    )
-  ];
+  const cards =
+    getCoverflowCards(
+      wrap
+    );
 
   if(
     cards.length <= 2
   ){
 
-    requestAnimationFrame(()=>{
+    queueRender(()=>{
 
       updateDepth(
         wrap
@@ -1029,11 +948,10 @@ function findCenterCard(
   wrap
 ){
 
-  const cards = [
-    ...wrap.querySelectorAll(
-      ".cover-card"
-    )
-  ];
+  const cards =
+    getCoverflowCards(
+      wrap
+    );
 
   if(!cards.length){
     return null;
@@ -1091,11 +1009,10 @@ export function updateDepth(
 
   requestAnimationFrame(()=>{
 
-    const cards = [
-      ...wrap.querySelectorAll(
-        ".cover-card"
-      )
-    ];
+    const cards =
+      getCoverflowCards(
+        wrap
+      );
 
     const centerCard =
       findCenterCard(
@@ -1177,7 +1094,7 @@ function requestDepthUpdate(
   wrap
 ){
 
-  requestAnimationFrame(()=>{
+  queueRender(()=>{
 
     updateDepth(
       wrap
