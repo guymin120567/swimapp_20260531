@@ -29,10 +29,6 @@ export function bindDrag(){
 
   wraps.forEach(wrap => {
 
-    /* =========================
-       RE-BIND SAFE RESET
-    ========================= */
-
     if(
       wrap._dragCleanup
     ){
@@ -145,7 +141,7 @@ export function bindDrag(){
     }
 
     /* =========================
-       POINTER LEAVE FIX
+       FORCE END
     ========================= */
 
     function forceEndDrag(){
@@ -253,10 +249,6 @@ export function bindDrag(){
       if(!downCard){
         return;
       }
-
-      /* =========================
-         SIMPLE MODE
-      ========================= */
 
       if(
         isSimpleMode()
@@ -389,26 +381,6 @@ export function bindDrag(){
           )
         );
 
-      const centerCard =
-        findCenterCard(
-          wrap
-        );
-
-      if(centerCard){
-
-        const type =
-          centerCard.dataset.type;
-
-        const id =
-          centerCard.dataset.id;
-
-        setSelected(
-          type,
-          id
-        );
-
-      }
-
       requestDepthUpdate(
         wrap
       );
@@ -514,32 +486,25 @@ export function bindDrag(){
       }
 
       /* =========================
-         DRAG SNAP
+         INERTIA
       ========================= */
 
-      const centerCard =
-        findCenterCard(
+      if(
+        Math.abs(velocity) > 1.2
+      ){
+
+        inertia(
+          wrap,
+          velocity
+        );
+
+      }else{
+
+        snapToNearestCard(
           wrap
         );
 
-      if(centerCard){
-
-        const type =
-          centerCard.dataset.type;
-
-        const id =
-          centerCard.dataset.id;
-
-        setSelected(
-          type,
-          id
-        );
-
       }
-
-      snapToNearestCard(
-        wrap
-      );
 
       cleanupDrag();
 
@@ -1113,15 +1078,45 @@ function inertia(
   velocity
 ){
 
+  cancelAnimationFrame(
+    wrap._inertiaRAF
+  );
+
   wrap._isInertia =
     true;
 
   function tick(){
 
+    if(
+      wrap._isProgrammatic
+    ){
+      return;
+    }
+
     velocity *= 0.94;
 
     wrap.scrollLeft -=
       velocity;
+
+    const centerCard =
+      findCenterCard(
+        wrap
+      );
+
+    if(centerCard){
+
+      const type =
+        centerCard.dataset.type;
+
+      const id =
+        centerCard.dataset.id;
+
+      setSelected(
+        type,
+        id
+      );
+
+    }
 
     requestDepthUpdate(
       wrap
@@ -1149,6 +1144,9 @@ function inertia(
 
   }
 
-  tick();
+  wrap._inertiaRAF =
+    requestAnimationFrame(
+      tick
+    );
 
 }
