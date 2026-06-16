@@ -6,7 +6,8 @@ import {
 
 import {
   removeItem,
-  setSelected
+  setSelected,
+  setSpinning
 } from "../../state/actions.js";
 
 import {
@@ -25,6 +26,15 @@ let spinRAF = [];
 export function renderCoverflow(
   changedType = null
 ){
+
+  const state =
+    getState();
+
+  if(
+    state.runtime?.isSpinning
+  ){
+    return;
+  }
 
   if(
     !changedType ||
@@ -52,6 +62,15 @@ export function renderCoverflow(
 
   window.__bindDragRAF =
     requestAnimationFrame(()=>{
+
+      const current =
+        getState();
+
+      if(
+        current.runtime?.isSpinning
+      ){
+        return;
+      }
 
       bindDrag();
 
@@ -130,10 +149,14 @@ function renderType(type){
     selectedId =
       items[0].id;
 
-    setSelected(
-      type,
-      selectedId
-    );
+    requestAnimationFrame(()=>{
+
+      setSelected(
+        type,
+        selectedId
+      );
+
+    });
 
   }
 
@@ -169,7 +192,7 @@ function renderType(type){
         items.map(i => ({
           id:i.id,
           name:i.name,
-          image:!!i.image
+          image:i.image || ""
         })),
 
       selectedId
@@ -420,53 +443,9 @@ function bindDeleteEvents(){
             return;
           }
 
-          const cards = [
-            ...wrap.querySelectorAll(
-              ".cover-card"
-            )
-          ];
-
-          const deletedCard =
-            deleteBtn.closest(
-              ".cover-card"
-            );
-
-          const deletedIndex =
-            cards.indexOf(
-              deletedCard
-            );
-
-          const remainCards =
-            cards.filter(
-              card =>
-                card !== deletedCard
-            );
-
-          const fallback =
-            remainCards[
-              Math.max(
-                0,
-                deletedIndex - 1
-              )
-            ] ||
-            remainCards[0];
-
           removeItem(
             deleteBtn.dataset.id
           );
-
-          if(fallback){
-
-            requestAnimationFrame(()=>{
-
-              setSelected(
-                wrap.dataset.type,
-                fallback.dataset.id
-              );
-
-            });
-
-          }
 
           requestAnimationFrame(()=>{
 
@@ -676,6 +655,8 @@ function startSpin(){
 
   stopSpin();
 
+  setSpinning(true);
+
   document.body.dataset.lockTab =
     "true";
 
@@ -838,6 +819,8 @@ function stopSpin(){
 
   spinRAF = [];
 
+  setSpinning(false);
+
 }
 
 /* =========================
@@ -888,6 +871,15 @@ function bindResize(){
 
       window.__coverResizeRAF =
         requestAnimationFrame(()=>{
+
+          const state =
+            getState();
+
+          if(
+            state.runtime?.isSpinning
+          ){
+            return;
+          }
 
           document
             .querySelectorAll(
