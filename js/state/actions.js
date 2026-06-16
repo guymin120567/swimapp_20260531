@@ -1,16 +1,9 @@
 // js/state/actions.js
 
 import {
-
   getState,
-
   dispatch
-
 } from "./state.js";
-
-import {
-  enqueueRender
-} from "../render/renderQueue.js";
 
 /* =========================
    HELPERS
@@ -83,10 +76,6 @@ export function addItem(item){
 
   });
 
-  enqueueRender(
-    "coverflow"
-  );
-
 }
 
 /* =========================
@@ -118,10 +107,6 @@ export function removeItem(id){
 
   };
 
-  /* =========================
-     CAP
-  ========================= */
-
   if(
 
     target.type === "cap"
@@ -146,10 +131,6 @@ export function removeItem(id){
 
   }
 
-  /* =========================
-     SWIM
-  ========================= */
-
   if(
 
     target.type === "swim"
@@ -173,10 +154,6 @@ export function removeItem(id){
         : null;
 
   }
-
-  /* =========================
-     ROULETTE RESULT CLEANUP
-  ========================= */
 
   const nextRouletteResult = {
 
@@ -222,14 +199,6 @@ export function removeItem(id){
 
   });
 
-  enqueueRender(
-    "coverflow"
-  );
-
-  enqueueRender(
-    "roulette"
-  );
-
   return true;
 
 }
@@ -263,10 +232,6 @@ export function setSelected(
     return false;
   }
 
-  /* =========================
-     CAP
-  ========================= */
-
   if(type === "cap"){
 
     if(
@@ -288,17 +253,9 @@ export function setSelected(
 
     });
 
-    enqueueRender(
-      "coverflow"
-    );
-
     return true;
 
   }
-
-  /* =========================
-     SWIM
-  ========================= */
 
   if(type === "swim"){
 
@@ -320,10 +277,6 @@ export function setSelected(
       }
 
     });
-
-    enqueueRender(
-      "coverflow"
-    );
 
     return true;
 
@@ -357,10 +310,6 @@ export function setRouletteResult(
 
   });
 
-  enqueueRender(
-    "roulette"
-  );
-
 }
 
 /* =========================
@@ -383,14 +332,6 @@ export function setSpinning(
     }
 
   });
-
-  enqueueRender(
-    "coverflow"
-  );
-
-  enqueueRender(
-    "roulette"
-  );
 
 }
 
