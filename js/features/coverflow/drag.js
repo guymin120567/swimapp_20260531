@@ -1,1152 +1,413 @@
 // js/features/coverflow/drag.js
 
-import {
-  getState
-} from "../../state/state.js";
+import { getState } from "../../state/state.js";
+import { setSelected } from "../../state/actions.js";
+import { queueRender } from "../../render/renderQueue.js";
+import { getCoverflowCards } from "../../shared/domCache.js";
 
-import {
-  setSelected
-} from "../../state/actions.js";
+/* =========================
+   GLOBAL HELPERS
+========================= */
 
-import {
-  queueRender
-} from "../../render/renderQueue.js";
+function isMobilePointer() {
+  return window.matchMedia("(pointer:coarse)").matches;
+}
 
-import {
-  getCoverflowCards
-} from "../../shared/domCache.js";
+function getCards(wrap) {
+  return getCoverflowCards(wrap);
+}
+
+function isSimpleMode(wrap) {
+  return getCards(wrap).length <= 2;
+}
 
 /* =========================
    BIND
 ========================= */
 
-export function bindDrag(){
-
-  const wraps =
-    document.querySelectorAll(
-      ".coverflow"
-    );
+export function bindDrag() {
+  const wraps = document.querySelectorAll(".coverflow");
 
   wraps.forEach(wrap => {
-
-    if(
-      wrap._dragCleanup
-    ){
-
+    if (wrap._dragCleanup) {
       wrap._dragCleanup();
-
-      cancelAnimationFrame(
-        wrap._inertiaRAF
-      );
-
-      clearTimeout(
-        wrap._programmaticTimer
-      );
-
-      wrap._isProgrammatic =
-        false;
-
-      wrap._isInertia =
-        false;
-
-      wrap._depthTicking =
-        false;
-
-      wrap.classList.remove(
-        "dragging"
-      );
-
     }
 
-    wrap.style.touchAction =
-      "pan-y";
+    /* =========================
+       STATE FLAGS
+    ========================= */
 
-    let isDown = false;
+    wrap._isDragging = false;
+    wrap._isInertia = false;
+    wrap._isProgrammatic = false;
 
-    let moved = false;
+    wrap._inertiaRAF = null;
+    wrap._selectTimer = null;
+
+    wrap.style.touchAction = "pan-y";
 
     let startX = 0;
-
     let lastX = 0;
-
     let scrollLeft = 0;
 
     let velocity = 0;
-
+    let moved = false;
     let hasMoved = false;
 
     let downCard = null;
+    let pointerId = null;
 
-    let activePointerId = null;
+    const MOVE_THRESHOLD = isMobilePointer() ? 12 : 6;
 
-    const isMobile =
-      window.matchMedia(
-        "(pointer:coarse)"
-      ).matches;
+    /* =========================
+       DEPTH UPDATE (batched)
+    ========================= */
 
-    const MOVE_THRESHOLD =
-      isMobile ? 12 : 6;
+    function requestDepth() {
+      queueRender(`depth:${wrap}`, () => {
+        updateDepth(wrap);
+      });
+    }
 
-    wrap._isProgrammatic =
-      false;
+    /* =========================
+       SELECT DEBOUNCE
+    ========================= */
 
-    wrap._isInertia =
-      false;
+    function requestSelectFromCenter() {
+      clearTimeout(wrap._selectTimer);
 
-    wrap._inertiaRAF =
-      null;
+      wrap._selectTimer = setTimeout(() => {
+        if (wrap._isDragging || wrap._isInertia || wrap._isProgrammatic) return;
 
-    wrap._depthTicking =
-      false;
+        const center = findCenterCard(wrap);
+        if (!center) return;
+
+        setSelected(center.dataset.type, center.dataset.id);
+      }, 120);
+    }
+
+    /* =========================
+       POINTER DOWN
+    ========================= */
+
+    function onDown(e) {
+      if (e.target.closest(".delete-btn")) return;
+
+      if (getState().runtime?.isSpinning) return;
+      if (wrap.classList.contains("spinning-lock")) return;
+      if (wrap._isProgrammatic) return;
+
+      const card = e.target.closest(".cover-card");
+      if (!card) return;
+
+      if (isSimpleMode(wrap)) {
+        downCard = card;
+        moved = false;
+        return;
+      }
+
+      const maxScroll = wrap.scrollWidth - wrap.clientWidth;
+      if (maxScroll <= 0) return;
+
+      cancelAnimationFrame(wrap._inertiaRAF);
+      wrap._isInertia = false;
+
+      wrap._isDragging = true;
+      wrap.classList.add("dragging");
+
+      startX = e.clientX;
+      lastX = e.clientX;
+      scrollLeft = wrap.scrollLeft;
+
+      velocity = 0;
+      moved = false;
+      hasMoved = false;
+
+      downCard = card;
+      pointerId = e.pointerId;
+
+      try {
+        wrap.setPointerCapture(pointerId);
+      } catch {}
+
+      requestDepth();
+    }
+
+    /* =========================
+       POINTER MOVE
+    ========================= */
+
+    function onMove(e) {
+      if (!wrap._isDragging) return;
+
+      const dx = e.clientX - startX;
+
+      if (Math.abs(dx) > MOVE_THRESHOLD) {
+        moved = true;
+      }
+
+      if (moved) {
+        e.preventDefault();
+      }
+
+      const walk = dx * 1.02;
+
+      velocity = hasMoved ? e.clientX - lastX : 0;
+      hasMoved = true;
+
+      lastX = e.clientX;
+
+      const next = scrollLeft - walk;
+
+      const max = wrap.scrollWidth - wrap.clientWidth;
+
+      wrap.scrollLeft = Math.max(0, Math.min(next, max));
+
+      requestDepth();
+    }
+
+    /* =========================
+       POINTER END
+    ========================= */
+
+    function endDrag() {
+      if (isSimpleMode(wrap)) {
+        if (downCard && !moved) {
+          setSelected(downCard.dataset.type, downCard.dataset.id);
+        }
+
+        cleanup();
+        return;
+      }
+
+      if (!wrap._isDragging) {
+        cleanup();
+        return;
+      }
+
+      wrap._isDragging = false;
+      wrap.classList.remove("dragging");
+
+      const target = downCard;
+
+      /* =========================
+         CLICK (no move)
+      ========================= */
+
+      if (!moved && Math.abs(velocity) < 4 && target) {
+        wrap._isProgrammatic = true;
+
+        setSelected(target.dataset.type, target.dataset.id);
+
+        scrollToCard(wrap, target);
+
+        queueRender(`depth:${wrap}`, () => {
+          updateDepth(wrap);
+        });
+
+        cleanup();
+        return;
+      }
+
+      /* =========================
+         INERTIA OR SNAP
+      ========================= */
+
+      if (Math.abs(velocity) > 1.2) {
+        inertia(wrap, velocity);
+      } else {
+        snapToNearestCard(wrap);
+      }
+
+      cleanup();
+    }
 
     /* =========================
        CLEANUP
     ========================= */
 
-    function cleanupDrag(){
-
-      isDown = false;
-
+    function cleanup() {
+      wrap._isDragging = false;
       moved = false;
-
       hasMoved = false;
-
-      velocity = 0;
-
       downCard = null;
-
-      wrap.dataset.dragMoved =
-        "false";
-
-      if(
-        activePointerId !== null
-      ){
-
-        try{
-
-          wrap.releasePointerCapture(
-            activePointerId
-          );
-
-        }catch(err){}
-
-      }
-
-      activePointerId = null;
-
-      wrap.classList.remove(
-        "dragging"
-      );
-
-    }
-
-    /* =========================
-       FORCE END
-    ========================= */
-
-    function forceEndDrag(){
-
-      if(!isDown){
-        return;
-      }
-
-      endDrag();
-
-    }
-
-    /* =========================
-       SIMPLE MODE
-    ========================= */
-
-    function isSimpleMode(){
-
-      return (
-        getCoverflowCards(
-          wrap
-        ).length <= 2
-      );
-
-    }
-
-    /* =========================
-       SIMPLE CLICK
-    ========================= */
-
-    function handleSimpleModeClick(
-      card
-    ){
-
-      if(!card){
-        return;
-      }
-
-      const type =
-        card.dataset.type;
-
-      const id =
-        card.dataset.id;
-
-      const changed =
-        setSelected(
-          type,
-          id
-        );
-
-      if(changed){
-
-        queueRender(()=>{
-
-          updateDepth(
-            wrap
-          );
-
-        });
-
-      }
-
-    }
-
-    /* =========================
-       DOWN
-    ========================= */
-
-    function onDown(e){
-
-      const deleteBtn =
-        e.target.closest(
-          ".delete-btn"
-        );
-
-      if(deleteBtn){
-        return;
-      }
-
-      if(
-        wrap._isProgrammatic
-      ){
-        return;
-      }
-
-      if(
-        getState().runtime?.isSpinning
-      ){
-        return;
-      }
-
-      if(
-        wrap.classList.contains(
-          "spinning-lock"
-        )
-      ){
-        return;
-      }
-
-      downCard =
-        e.target.closest(
-          ".cover-card"
-        );
-
-      if(!downCard){
-        return;
-      }
-
-      if(
-        isSimpleMode()
-      ){
-
-        moved = false;
-
-        velocity = 0;
-
-        return;
-
-      }
-
-      if(
-        wrap.scrollWidth <=
-        wrap.clientWidth
-      ){
-        return;
-      }
-
-      cancelAnimationFrame(
-        wrap._inertiaRAF
-      );
-
-      clearTimeout(
-        wrap._programmaticTimer
-      );
-
-      wrap._isProgrammatic =
-        false;
-
-      wrap._isInertia =
-        false;
-
-      isDown = true;
-
-      moved = false;
-
-      hasMoved = false;
-
-      wrap.dataset.dragMoved =
-        "false";
-
-      wrap.classList.add(
-        "dragging"
-      );
-
-      startX = e.pageX;
-
-      lastX = e.pageX;
-
-      scrollLeft =
-        wrap.scrollLeft;
-
-      velocity = 0;
-
-      activePointerId =
-        e.pointerId;
-
-      try{
-
-        wrap.setPointerCapture(
-          activePointerId
-        );
-
-      }catch(err){}
-
-    }
-
-    /* =========================
-       MOVE
-    ========================= */
-
-    function onMove(e){
-
-      if(!isDown){
-        return;
-      }
-
-      const delta =
-        Math.abs(
-          e.pageX - startX
-        );
-
-      if(
-        delta > MOVE_THRESHOLD
-      ){
-
-        moved = true;
-
-        wrap.dataset.dragMoved =
-          "true";
-
-        e.preventDefault();
-
-      }
-
-      const walk =
-        (e.pageX - startX) * 1.02;
-
-      if(hasMoved){
-
-        velocity =
-          e.pageX - lastX;
-
-      }else{
-
-        velocity = 0;
-
-        hasMoved = true;
-
-      }
-
-      lastX =
-        e.pageX;
-
-      const next =
-        scrollLeft - walk;
-
-      const max =
-        wrap.scrollWidth -
-        wrap.clientWidth;
-
-      wrap.scrollLeft =
-        Math.max(
-          0,
-          Math.min(
-            next,
-            max
-          )
-        );
-
-      requestDepthUpdate(
-        wrap
-      );
-
-    }
-
-    /* =========================
-       END
-    ========================= */
-
-    function endDrag(){
-
-      if(
-        isSimpleMode()
-      ){
-
-        if(
-          downCard &&
-          !moved
-        ){
-
-          handleSimpleModeClick(
-            downCard
-          );
-
+      pointerId = null;
+
+      try {
+        if (pointerId !== null) {
+          wrap.releasePointerCapture(pointerId);
         }
+      } catch {}
 
-        cleanupDrag();
-
-        return;
-
-      }
-
-      if(!isDown){
-
-        cleanupDrag();
-
-        return;
-
-      }
-
-      isDown = false;
-
-      wrap.classList.remove(
-        "dragging"
-      );
-
-      const targetCard =
-        downCard;
-
-      /* =========================
-         CLICK SELECT
-      ========================= */
-
-      if(
-        !moved &&
-        Math.abs(velocity) < 4 &&
-        targetCard
-      ){
-
-        cancelAnimationFrame(
-          wrap._inertiaRAF
-        );
-
-        clearTimeout(
-          wrap._programmaticTimer
-        );
-
-        wrap._isProgrammatic =
-          false;
-
-        wrap._isInertia =
-          false;
-
-        const type =
-          targetCard.dataset.type;
-
-        const id =
-          targetCard.dataset.id;
-
-        setSelected(
-          type,
-          id
-        );
-
-        scrollToCard(
-          wrap,
-          targetCard
-        );
-
-        queueRender(()=>{
-
-          updateDepth(
-            wrap
-          );
-
-        });
-
-        cleanupDrag();
-
-        return;
-
-      }
-
-      /* =========================
-         INERTIA
-      ========================= */
-
-      if(
-        Math.abs(velocity) > 1.2
-      ){
-
-        inertia(
-          wrap,
-          velocity
-        );
-
-      }else{
-
-        snapToNearestCard(
-          wrap
-        );
-
-      }
-
-      cleanupDrag();
-
+      wrap.classList.remove("dragging");
     }
 
     /* =========================
        EVENTS
     ========================= */
 
-    wrap.addEventListener(
-      "pointerdown",
-      onDown
-    );
+    wrap.addEventListener("pointerdown", onDown);
+    wrap.addEventListener("pointermove", onMove, { passive: false });
+    wrap.addEventListener("pointerup", endDrag);
+    wrap.addEventListener("pointercancel", endDrag);
 
-    wrap.addEventListener(
-      "pointermove",
-      onMove,
-      {
-        passive:false
-      }
-    );
-
-    wrap.addEventListener(
-      "pointerup",
-      endDrag
-    );
-
-    wrap.addEventListener(
-      "pointercancel",
-      forceEndDrag
-    );
-
-    wrap.addEventListener(
-      "lostpointercapture",
-      forceEndDrag
-    );
-
-    window.addEventListener(
-      "pointerup",
-      endDrag
-    );
-
-    window.addEventListener(
-      "mouseup",
-      endDrag
-    );
-
-    window.addEventListener(
-      "touchend",
-      endDrag,
-      {
-        passive:true
-      }
-    );
-
-    window.addEventListener(
-      "touchcancel",
-      forceEndDrag,
-      {
-        passive:true
-      }
-    );
-
-    window.addEventListener(
-      "blur",
-      forceEndDrag
-    );
-
-    window.addEventListener(
-      "pagehide",
-      forceEndDrag
-    );
+    window.addEventListener("pointerup", endDrag);
+    window.addEventListener("blur", endDrag);
+    window.addEventListener("pagehide", endDrag);
 
     /* =========================
-       REMOVE EVENTS
-    ========================= */
-
-    wrap._dragCleanup =
-      () => {
-
-        wrap.removeEventListener(
-          "pointerdown",
-          onDown
-        );
-
-        wrap.removeEventListener(
-          "pointermove",
-          onMove
-        );
-
-        wrap.removeEventListener(
-          "pointerup",
-          endDrag
-        );
-
-        wrap.removeEventListener(
-          "pointercancel",
-          forceEndDrag
-        );
-
-        wrap.removeEventListener(
-          "lostpointercapture",
-          forceEndDrag
-        );
-
-      };
-
-    /* =========================
-       SCROLL
+       SCROLL (NO SELECT)
     ========================= */
 
     wrap.addEventListener(
       "scroll",
-      ()=>{
+      () => {
+        if (wrap._isProgrammatic) return;
+        if (isSimpleMode(wrap)) return;
 
-        if(
-          wrap._isProgrammatic
-        ){
-          return;
-        }
-
-        if(
-          isSimpleMode()
-        ){
-          return;
-        }
-
-        if(
-          !wrap._initialized
-        ){
-          return;
-        }
-
-        const centerCard =
-          findCenterCard(
-            wrap
-          );
-
-        if(centerCard){
-
-          const type =
-            centerCard.dataset.type;
-
-          const id =
-            centerCard.dataset.id;
-
-          setSelected(
-            type,
-            id
-          );
-
-        }
-
-        requestDepthUpdate(
-          wrap
-        );
-
+        requestDepth();
+        requestSelectFromCenter();
       },
-      {
-        passive:true
-      }
+      { passive: true }
     );
 
     /* =========================
        INIT
     ========================= */
 
-    queueRender(()=>{
-
-      const cards =
-        getCoverflowCards(
-          wrap
-        );
-
-      if(
-        cards.length > 2
-      ){
-
-        snapToNearestCard(
-          wrap,
-          false
-        );
-
-      }else{
-
-        updateDepth(
-          wrap
-        );
-
+    queueRender(`init:${wrap}`, () => {
+      if (getCards(wrap).length > 2) {
+        snapToNearestCard(wrap, false);
+      } else {
+        updateDepth(wrap);
       }
-
-      wrap._initialized =
-        true;
-
     });
 
+    /* =========================
+       CLEANUP HOOK
+    ========================= */
+
+    wrap._dragCleanup = () => {
+      wrap.removeEventListener("pointerdown", onDown);
+      wrap.removeEventListener("pointermove", onMove);
+      wrap.removeEventListener("pointerup", endDrag);
+      wrap.removeEventListener("pointercancel", endDrag);
+    };
+  });
+}
+
+/* =========================
+   SNAP / CENTER HELPERS
+========================= */
+
+function findCenterCard(wrap) {
+  const cards = getCoverflowCards(wrap);
+  if (!cards.length) return null;
+
+  const center = wrap.scrollLeft + wrap.clientWidth / 2;
+
+  let best = null;
+  let min = Infinity;
+
+  cards.forEach(c => {
+    const mid = c.offsetLeft + c.offsetWidth / 2;
+    const d = Math.abs(center - mid);
+
+    if (d < min) {
+      min = d;
+      best = c;
+    }
   });
 
+  return best;
 }
 
 /* =========================
    SCROLL TO CARD
 ========================= */
 
-export function scrollToCard(
-  wrap,
-  card,
-  smooth = true
-){
-
-  if(
-    !wrap ||
-    !card
-  ){
-    return;
-  }
-
-  const cards =
-    getCoverflowCards(
-      wrap
-    );
-
-  if(
-    cards.length <= 2
-  ){
-
-    queueRender(()=>{
-
-      updateDepth(
-        wrap
-      );
-
-    });
-
-    return;
-
-  }
+function scrollToCard(wrap, card, smooth = true) {
+  const cards = getCoverflowCards(wrap);
+  if (cards.length <= 2) return;
 
   const left =
     card.offsetLeft -
-    (
-      wrap.clientWidth / 2
-    ) +
-    (
-      card.clientWidth / 2
-    );
+    wrap.clientWidth / 2 +
+    card.clientWidth / 2;
 
-  const safeLeft =
-    Math.max(
-      0,
-      Math.round(left)
-    );
-
-  wrap._isProgrammatic =
-    true;
+  wrap._isProgrammatic = true;
 
   wrap.scrollTo({
-
-    left:safeLeft,
-
-    behavior:
-      smooth
-        ? "smooth"
-        : "auto"
-
+    left: Math.max(0, left),
+    behavior: smooth ? "smooth" : "auto"
   });
 
-  clearTimeout(
-    wrap._programmaticTimer
-  );
-
-  wrap._programmaticTimer =
-    setTimeout(()=>{
-
-      wrap._isProgrammatic =
-        false;
-
-      wrap.scrollLeft =
-        Math.round(
-          wrap.scrollLeft
-        );
-
-      const centerCard =
-        findCenterCard(
-          wrap
-        );
-
-      if(centerCard){
-
-        const type =
-          centerCard.dataset.type;
-
-        const id =
-          centerCard.dataset.id;
-
-        setSelected(
-          type,
-          id
-        );
-
-      }
-
-      queueRender(()=>{
-
-        updateDepth(
-          wrap
-        );
-
-      });
-
-    }, smooth ? 320 : 0);
-
+  setTimeout(() => {
+    wrap._isProgrammatic = false;
+  }, smooth ? 300 : 0);
 }
 
 /* =========================
    SNAP
 ========================= */
 
-export function snapToNearestCard(
-  wrap,
-  smooth = true
-){
-
-  if(!wrap){
-    return;
-  }
-
-  const cards =
-    getCoverflowCards(
-      wrap
-    );
-
-  if(
-    cards.length <= 2
-  ){
-
-    queueRender(()=>{
-
-      updateDepth(
-        wrap
-      );
-
-    });
-
-    return;
-
-  }
-
-  const center =
-    wrap.scrollLeft +
-    (wrap.clientWidth / 2);
-
-  let closest = null;
-
-  let min = Infinity;
-
-  cards.forEach(card => {
-
-    const cardCenter =
-      card.offsetLeft +
-      (card.offsetWidth / 2);
-
-    const dist =
-      Math.abs(
-        center - cardCenter
-      );
-
-    if(dist < min){
-
-      min = dist;
-
-      closest = card;
-
-    }
-
-  });
-
-  if(!closest){
-    return;
-  }
-
-  const type =
-    closest.dataset.type;
-
-  const id =
-    closest.dataset.id;
-
-  setSelected(
-    type,
-    id
-  );
-
-  scrollToCard(
-    wrap,
-    closest,
-    smooth
-  );
-
-}
-
-/* =========================
-   FIND CENTER
-========================= */
-
-function findCenterCard(
-  wrap
-){
-
-  const cards =
-    getCoverflowCards(
-      wrap
-    );
-
-  if(!cards.length){
-    return null;
-  }
-
-  const center =
-    wrap.scrollLeft +
-    (wrap.clientWidth / 2);
-
-  let closest = null;
-
-  let min = Infinity;
-
-  cards.forEach(card => {
-
-    const cardCenter =
-      card.offsetLeft +
-      (card.offsetWidth / 2);
-
-    const dist =
-      Math.abs(
-        center - cardCenter
-      );
-
-    if(dist < min){
-
-      min = dist;
-
-      closest = card;
-
-    }
-
-  });
-
-  return closest;
-
-}
-
-/* =========================
-   DEPTH
-========================= */
-
-export function updateDepth(
-  wrap
-){
-
-  if(
-    wrap._depthTicking
-  ){
-    return;
-  }
-
-  wrap._depthTicking =
-    true;
-
-  requestAnimationFrame(()=>{
-
-    const cards =
-      getCoverflowCards(
-        wrap
-      );
-
-    const centerCard =
-      findCenterCard(
-        wrap
-      );
-
-    cards.forEach(card => {
-
-      card.classList.remove(
-        "active",
-        "depth-1",
-        "depth-2",
-        "hidden"
-      );
-
-    });
-
-    if(!centerCard){
-
-      wrap._depthTicking =
-        false;
-
-      return;
-
-    }
-
-    const centerIndex =
-      cards.indexOf(
-        centerCard
-      );
-
-    cards.forEach((card,index)=>{
-
-      const diff =
-        Math.abs(
-          index - centerIndex
-        );
-
-      if(diff === 0){
-
-        card.classList.add(
-          "active"
-        );
-
-      }else if(diff === 1){
-
-        card.classList.add(
-          "depth-1"
-        );
-
-      }else if(diff === 2){
-
-        card.classList.add(
-          "depth-2"
-        );
-
-      }else{
-
-        card.classList.add(
-          "hidden"
-        );
-
-      }
-
-    });
-
-    wrap._depthTicking =
-      false;
-
-  });
-
-}
-
-/* =========================
-   DEPTH RAF
-========================= */
-
-function requestDepthUpdate(
-  wrap
-){
-
-  queueRender(()=>{
-
-    updateDepth(
-      wrap
-    );
-
-  });
-
+function snapToNearestCard(wrap) {
+  const center = findCenterCard(wrap);
+  if (!center) return;
+
+  setSelected(center.dataset.type, center.dataset.id);
+  scrollToCard(wrap, center);
 }
 
 /* =========================
    INERTIA
 ========================= */
 
-function inertia(
-  wrap,
-  velocity
-){
+function inertia(wrap, velocity) {
+  cancelAnimationFrame(wrap._inertiaRAF);
 
-  cancelAnimationFrame(
-    wrap._inertiaRAF
-  );
+  wrap._isInertia = true;
 
-  wrap._isInertia =
-    true;
-
-  function tick(){
-
-    if(
-      wrap._isProgrammatic
-    ){
-      return;
-    }
+  function tick() {
+    if (wrap._isProgrammatic) return;
 
     velocity *= 0.94;
+    wrap.scrollLeft -= velocity;
 
-    wrap.scrollLeft -=
-      velocity;
+    requestDepth();
 
-    const centerCard =
-      findCenterCard(
-        wrap
-      );
-
-    if(centerCard){
-
-      const type =
-        centerCard.dataset.type;
-
-      const id =
-        centerCard.dataset.id;
-
-      setSelected(
-        type,
-        id
-      );
-
-    }
-
-    requestDepthUpdate(
-      wrap
-    );
-
-    if(
-      Math.abs(velocity) < 0.35
-    ){
-
-      wrap._isInertia =
-        false;
-
-      snapToNearestCard(
-        wrap
-      );
-
+    if (Math.abs(velocity) < 0.35) {
+      wrap._isInertia = false;
+      snapToNearestCard(wrap);
       return;
-
     }
 
-    wrap._inertiaRAF =
-      requestAnimationFrame(
-        tick
-      );
-
+    wrap._inertiaRAF = requestAnimationFrame(tick);
   }
 
-  wrap._inertiaRAF =
-    requestAnimationFrame(
-      tick
-    );
+  wrap._inertiaRAF = requestAnimationFrame(tick);
+}
 
+/* =========================
+   DEPTH
+========================= */
+
+function updateDepth(wrap) {
+  const cards = getCoverflowCards(wrap);
+  const center = findCenterCard(wrap);
+
+  if (!center) return;
+
+  const centerIndex = cards.indexOf(center);
+
+  cards.forEach((c, i) => {
+    c.classList.remove("active", "depth-1", "depth-2", "hidden");
+
+    const d = Math.abs(i - centerIndex);
+
+    if (d === 0) c.classList.add("active");
+    else if (d === 1) c.classList.add("depth-1");
+    else if (d === 2) c.classList.add("depth-2");
+    else c.classList.add("hidden");
+  });
 }
