@@ -29,7 +29,7 @@ export async function spinAll(){
     getState();
 
   if(
-    state.ui?.isSpinning
+    state.runtime?.isSpinning
   ){
     return;
   }
@@ -133,8 +133,6 @@ export async function spinAll(){
       );
 
     });
-
-  window.__isSpinning = true;
 
   setSpinning(true);
 
@@ -352,22 +350,6 @@ export async function spinAll(){
         finalSwim.id
       );
 
-    if(changedCap){
-
-      renderCoverflow(
-        "cap"
-      );
-
-    }
-
-    if(changedSwim){
-
-      renderCoverflow(
-        "swim"
-      );
-
-    }
-
     addRecord(
       finalCap.id,
       finalSwim.id
@@ -390,11 +372,6 @@ export async function spinAll(){
         swimSlot.classList.remove(
           "winner"
         );
-
-        setSpinning(false);
-
-        window.__isSpinning =
-          false;
 
         document
           .querySelectorAll(
@@ -420,12 +397,30 @@ export async function spinAll(){
 
           });
 
+        if(changedCap){
+
+          renderCoverflow(
+            "cap"
+          );
+
+        }
+
+        if(changedSwim){
+
+          renderCoverflow(
+            "swim"
+          );
+
+        }
+
         if(spinBtn){
 
           spinBtn.disabled =
             false;
 
         }
+
+        setSpinning(false);
 
         window.dispatchEvent(
           new CustomEvent(
@@ -770,9 +765,6 @@ function cleanupRoulette(){
 
   setSpinning(false);
 
-  window.__isSpinning =
-    false;
-
   document
     .querySelectorAll(
       ".coverflow"
@@ -808,6 +800,12 @@ function cleanupRoulette(){
       false;
 
   }
+
+  window.dispatchEvent(
+    new CustomEvent(
+      "spin-stop"
+    )
+  );
 
 }
 
