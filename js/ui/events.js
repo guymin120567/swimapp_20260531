@@ -28,13 +28,38 @@ export function bindGlobal(){
   document.body.dataset.globalBound =
     "true";
 
-  // =========================
-  // CLICK
-  // =========================
-
   document.addEventListener(
     "click",
     handleClick
+  );
+
+  /*
+    iOS Safari
+    background 복귀 시
+    stuck active 제거
+  */
+
+  window.addEventListener(
+    "pageshow",
+    resetPressedState
+  );
+
+  window.addEventListener(
+    "blur",
+    resetPressedState
+  );
+
+  document.addEventListener(
+    "visibilitychange",
+    ()=>{
+
+      if(!document.hidden){
+
+        resetPressedState();
+
+      }
+
+    }
   );
 
 }
@@ -45,11 +70,38 @@ export function bindGlobal(){
 
 async function handleClick(e){
 
+  const target =
+    e.target.closest(
+      "[data-action]"
+    );
+
+  if(!target){
+    return;
+  }
+
   const action =
-    e.target.dataset.action;
+    target.dataset.action;
 
   if(!action){
     return;
+  }
+
+  /*
+    spinning 중
+    중복 액션 방지
+  */
+
+  if(
+    document.body.dataset.spinning ===
+    "true"
+  ){
+
+    if(
+      action !== "spin"
+    ){
+      return;
+    }
+
   }
 
   // =========================
@@ -89,51 +141,82 @@ async function handleClick(e){
   ){
 
     const id =
-      e.target.dataset.id;
+      target.dataset.id;
 
     if(!id){
       return;
     }
 
-    if(confirm("삭제하시겠습니까?")) removeItem(id);
+    const ok =
+      confirm(
+        "삭제하시겠습니까?"
+      );
+
+    if(!ok){
+      return;
+    }
+
+    removeItem(id);
+
+    return;
 
   }
 
+  // =========================
+  // OPEN ADD
+  // =========================
+
   if(
-  action === "open-add"
-){
+    action === "open-add"
+  ){
 
-  const modal =
-    document.getElementById(
-      "addModal"
-    );
+    const modal =
+      document.getElementById(
+        "addModal"
+      );
 
-  const type =
-    e.target.dataset.type;
+    if(!modal){
+      return;
+    }
 
-  modal.hidden = false;
+    const type =
+      target.dataset.type;
 
-  modal.dataset.type =
-    type;
+    modal.hidden =
+      false;
 
-  return;
+    modal.dataset.type =
+      type;
 
-}
-if(
-  action === "close-add"
-){
+    requestAnimationFrame(()=>{
 
-  const modal =
-    document.getElementById(
-      "addModal"
-    );
+      const input =
+        document.getElementById(
+          "itemText"
+        );
 
-  modal.hidden = true;
+      input?.focus();
 
-  return;
+    });
 
-}
-  
+    return;
+
+  }
+
+  // =========================
+  // CLOSE ADD
+  // =========================
+
+  if(
+    action === "close-add"
+  ){
+
+    closeModal();
+
+    return;
+
+  }
+
 }
 
 // =========================
@@ -143,64 +226,148 @@ if(
 async function handleAdd(){
 
   const modal =
-  document.getElementById(
-    "addModal"
-  );
+    document.getElementById(
+      "addModal"
+    );
 
-const type =
-  modal.dataset.type;
+  if(!modal){
+    return;
+  }
 
-  const text =
+  const type =
+    modal.dataset.type;
+
+  const input =
     document.getElementById(
       "itemText"
-    )?.value
-      ?.trim();
+    );
 
   const imageInput =
     document.getElementById(
       "itemImage"
     );
 
+  const text =
+    input?.value
+      ?.trim();
+
   if(!text){
+
+    input?.focus();
+
     return;
+
+  }
+
+  /*
+    버튼 연타 방지
+  */
+
+  const submitBtn =
+    document.querySelector(
+      '[data-action="add"]'
+    );
+
+  if(submitBtn){
+
+    submitBtn.disabled =
+      true;
+
   }
 
   let image = null;
 
-  const file =
-    imageInput?.files?.[0];
+  try{
 
-  if(file){
+    const file =
+      imageInput?.files?.[0];
 
-    image =
-      await compressImage(
-        file
-      );
+    if(file){
+
+      image =
+        await compressImage(
+          file
+        );
+
+    }
+
+    addItem({
+
+      id:
+        crypto.randomUUID(),
+
+      type,
+
+      name:text,
+
+      image
+
+    });
+
+    /*
+      reset
+    */
+
+    if(input){
+
+      input.value = "";
+
+    }
+
+    if(imageInput){
+
+      imageInput.value = "";
+
+    }
+
+    closeModal();
+
+  }finally{
+
+    if(submitBtn){
+
+      submitBtn.disabled =
+        false;
+
+    }
 
   }
 
-  addItem({
+}
 
-    id:
-      crypto.randomUUID(),
+// =========================
+// CLOSE MODAL
+// =========================
 
-    type,
+function closeModal(){
 
-    name:text,
+  const modal =
+    document.getElementById(
+      "addModal"
+    );
 
-    image
-
-  });
-
-  // reset
-  document.getElementById(
-    "itemText"
-  ).value = "";
-
-  if(imageInput){
-
-    imageInput.value = "";
-
+  if(!modal){
+    return;
   }
-modal.hidden = true;
+
+  modal.hidden = true;
+
+}
+
+// =========================
+// RESET PRESSED
+// =========================
+
+function resetPressedState(){
+
+  document
+    .querySelectorAll(
+      "button"
+    )
+    .forEach(btn => {
+
+      btn.blur();
+
+    });
+
 }
