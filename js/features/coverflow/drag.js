@@ -392,7 +392,7 @@ function inertia(wrap, velocity) {
    DEPTH
 ========================= */
 
-function updateDepth(wrap) {
+export function updateDepth(wrap) {
   const cards = getCoverflowCards(wrap);
   const center = findCenterCard(wrap);
 
