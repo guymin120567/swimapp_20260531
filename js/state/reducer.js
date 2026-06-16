@@ -1,9 +1,5 @@
 // js/state/reducer.js
 
-/* =========================
-   REDUCER
-========================= */
-
 export function reducer(
   state,
   action
@@ -32,7 +28,7 @@ export function reducer(
 
         ...state,
 
-        items: [
+        items:[
           ...state.items,
           action.payload
         ]
@@ -43,222 +39,108 @@ export function reducer(
        REMOVE ITEM
     ========================= */
 
-    case "REMOVE_ITEM": {
-
-      const id =
-        action.payload;
-
-      const target =
-        state.items.find(
-          i => i.id === id
-        );
-
-      if(!target){
-        return state;
-      }
-
-      const nextItems =
-        state.items.filter(
-          i => i.id !== id
-        );
-
-      const nextSelection = {
-        ...state.selection
-      };
-
-      if(
-        target.type === "cap" &&
-        state.selection.capId === id
-      ){
-
-        const caps =
-          nextItems.filter(
-            i => i.type === "cap"
-          );
-
-        nextSelection.capId =
-          caps[0]?.id || null;
-
-      }
-
-      if(
-        target.type === "swim" &&
-        state.selection.swimId === id
-      ){
-
-        const swims =
-          nextItems.filter(
-            i => i.type === "swim"
-          );
-
-        nextSelection.swimId =
-          swims[0]?.id || null;
-
-      }
+    case "REMOVE_ITEM":
 
       return {
 
         ...state,
 
         items:
-          nextItems,
+          action.payload.items,
 
-        selection:
-          nextSelection
+        selection:{
+
+          ...state.selection,
+
+          ...action.payload.selection
+
+        },
+
+        rouletteResult:{
+
+          ...state.rouletteResult,
+
+          ...action.payload.rouletteResult
+
+        }
 
       };
 
-    }
-
     /* =========================
-       SET SELECTED
+       SET SELECTION
     ========================= */
 
-    case "SET_SELECTED": {
+    case "SET_SELECTION":
 
-      const {
-        itemType,
-        id
-      } = action.payload;
+      return {
 
-      const exists =
-        state.items.some(
-          i =>
-            i.id === id &&
-            i.type === itemType
-        );
+        ...state,
 
-      if(!exists){
-        return state;
-      }
+        selection:{
 
-      if(itemType === "cap"){
+          ...state.selection,
 
-        if(
-          state.selection.capId === id
-        ){
-          return state;
+          ...action.payload
+
         }
 
-        return {
-
-          ...state,
-
-          selection: {
-
-            ...state.selection,
-
-            capId: id
-
-          }
-
-        };
-
-      }
-
-      if(itemType === "swim"){
-
-        if(
-          state.selection.swimId === id
-        ){
-          return state;
-        }
-
-        return {
-
-          ...state,
-
-          selection: {
-
-            ...state.selection,
-
-            swimId: id
-
-          }
-
-        };
-
-      }
-
-      return state;
-
-    }
+      };
 
     /* =========================
        ROULETTE RESULT
     ========================= */
 
-    case "SET_ROULETTE_RESULT": {
-
-      const {
-        capId,
-        swimId
-      } = action.payload;
+    case "SET_ROULETTE_RESULT":
 
       return {
 
         ...state,
 
-        rouletteResult: {
+        rouletteResult:{
 
           ...state.rouletteResult,
 
-          capId,
-
-          swimId
+          ...action.payload
 
         }
 
       };
 
-    }
-
     /* =========================
-       SPINNING
+       RUNTIME
     ========================= */
 
-    case "SET_SPINNING":
+    case "SET_RUNTIME":
 
       return {
 
         ...state,
 
-        runtime: {
+        runtime:{
 
           ...state.runtime,
 
-          isSpinning:
-            action.payload
-
-        },
-
-        ui: {
-
-          ...state.ui,
-
-          isSpinning:
-            action.payload
+          ...action.payload
 
         }
 
       };
 
     /* =========================
-       ACTIVE TAB
+       UI
     ========================= */
 
-    case "SET_ACTIVE_TAB":
+    case "SET_UI":
 
       return {
 
         ...state,
 
-        ui: {
+        ui:{
 
           ...state.ui,
 
-          activeTab:
-            action.payload
+          ...action.payload
 
         }
 
@@ -274,7 +156,7 @@ export function reducer(
 
         ...state,
 
-        records: [
+        records:[
 
           action.payload,
 
@@ -307,7 +189,7 @@ function mergeState(
 
     ...partial,
 
-    selection: {
+    selection:{
 
       ...state.selection,
 
@@ -315,7 +197,7 @@ function mergeState(
 
     },
 
-    rouletteResult: {
+    rouletteResult:{
 
       ...state.rouletteResult,
 
@@ -323,7 +205,7 @@ function mergeState(
 
     },
 
-    ui: {
+    ui:{
 
       ...state.ui,
 
@@ -331,7 +213,7 @@ function mergeState(
 
     },
 
-    runtime: {
+    runtime:{
 
       ...state.runtime,
 
