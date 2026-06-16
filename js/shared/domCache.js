@@ -13,9 +13,10 @@ export function getElement(
 ){
 
   const key =
-    `${selector}__${parent === document
-      ? "document"
-      : "custom"
+    `${selector}__${
+      parent === document
+        ? "document"
+        : "custom"
     }`;
 
   const cached =
@@ -64,6 +65,80 @@ export function getElements(
 }
 
 /* =========================
+   COVERFLOW
+========================= */
+
+export function getCoverflow(
+  type
+){
+
+  return document.querySelector(
+
+    `.coverflow[data-type="${type}"]`
+
+  );
+
+}
+
+/* =========================
+   CARDS
+========================= */
+
+export function getCoverCards(
+  wrap
+){
+
+  if(!wrap){
+    return [];
+  }
+
+  return [
+    ...wrap.querySelectorAll(
+      ".cover-card"
+    )
+  ];
+
+}
+
+/* =========================
+   DRAG 호환
+========================= */
+
+export function getCoverflowCards(
+  wrap
+){
+
+  return getCoverCards(
+    wrap
+  );
+
+}
+
+/* =========================
+   ACTIVE CARD
+========================= */
+
+export function getCoverActiveCard(){
+
+  return document.querySelector(
+    ".cover-card.active"
+  );
+
+}
+
+/* =========================
+   FALLBACK CARD
+========================= */
+
+export function getCoverFallbackCard(){
+
+  return document.querySelector(
+    ".cover-card"
+  );
+
+}
+
+/* =========================
    REMOVE CACHE
 ========================= */
 
@@ -73,9 +148,10 @@ export function removeCache(
 ){
 
   const key =
-    `${selector}__${parent === document
-      ? "document"
-      : "custom"
+    `${selector}__${
+      parent === document
+        ? "document"
+        : "custom"
     }`;
 
   cache.delete(key);
