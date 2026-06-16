@@ -102,14 +102,26 @@ function handleTabClick(e){
   const state =
     getState();
 
-  const hasSpinningDOM =
-    document.querySelector(
-      ".coverflow.spinning-lock"
-    );
+  /* =========================
+     REAL SPIN CHECK
+  ========================= */
 
   const actuallySpinning =
-    state.runtime?.isSpinning === true &&
-    hasSpinningDOM;
+
+    state.runtime?.isSpinning ===
+    true
+
+    ||
+
+    document.body.classList.contains(
+      "roulette-spinning"
+    )
+
+    ||
+
+    !!document.querySelector(
+      ".roulette-card.spinning"
+    );
 
   if(actuallySpinning){
 
@@ -143,12 +155,19 @@ function handleTabClick(e){
 
 function cleanupSpinState(){
 
-  const spinning =
+  const hasSpinningUI =
+
+    document.body.classList.contains(
+      "roulette-spinning"
+    )
+
+    ||
+
     document.querySelector(
-      ".coverflow.spinning-lock"
+      ".roulette-card.spinning"
     );
 
-  if(spinning){
+  if(hasSpinningUI){
     return;
   }
 
@@ -185,6 +204,10 @@ function cleanupSpinState(){
         false;
 
     });
+
+  document.body.classList.remove(
+    "roulette-spinning"
+  );
 
   setSpinning(false);
 
